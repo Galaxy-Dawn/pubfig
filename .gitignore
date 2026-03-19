@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# OS / editor
+.DS_Store
+.idea/
+
+# Generated figures and temp assets
+output_figures/
+output_figures_mpl/
+temp/
+temp_*/
+
+# Local tooling
+.claude/
