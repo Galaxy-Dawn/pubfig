@@ -107,7 +107,10 @@ def test_save_figure_tiff_requires_pillow(tmp_path, monkeypatch):
 
     def _fake_require(name: str, extra: str) -> None:
         if name == "PIL":
-            raise ImportError("PIL is required for this feature. Install it with: pip install pubfig[raster]")
+            raise ImportError(
+                "PIL is required for this feature. "
+                "Reinstall pubfig or install the missing dependency directly: pip install pillow"
+            )
         real_require(name, extra)
 
     monkeypatch.setattr(export_io, "_require", _fake_require, raising=True)
@@ -123,7 +126,7 @@ def test_save_figure_tiff_requires_pillow(tmp_path, monkeypatch):
             vector_formats=(),
             raster_formats=("tiff",),
         )
-    assert "pubfig[raster]" in str(exc.value)
+    assert "pip install pillow" in str(exc.value)
     plt.close(fig)
 
 

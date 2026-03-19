@@ -4,7 +4,7 @@
 
 Publication-quality plotting with Matplotlib for academic papers.
 
-`pubfig` is an academic-first plotting library built on top of Matplotlib. It brings together journal-style themes, paper-oriented plot defaults, palette utilities, and export helpers so you can move from raw arrays to submission-ready figures with less manual cleanup.
+`pubfig` is a plotting library built on top of Matplotlib for scientific papers. It brings together journal-style themes, paper-oriented plot defaults, palette utilities, and export helpers so you can move from raw arrays to submission-ready figures with less manual cleanup.
 
 ## Quick Navigation
 
@@ -12,7 +12,7 @@ Publication-quality plotting with Matplotlib for academic papers.
 |-------|-------------|
 | 🚀 [Quick Start](#quick-start) | Install `pubfig`, create a figure, and export it for a paper |
 | ✨ [Why pubfig](#why-pubfig) | What the library is optimized for |
-| 📦 [Installation](#installation) | Base install and optional extras |
+| 📦 [Installation](#installation) | Install `pubfig` and start plotting |
 | 📊 [Plot Families](#plot-families) | Supported plots grouped by scientific task |
 | 🎨 [Themes, Specs, and Palettes](#themes-specs-and-palettes) | Journal themes, export specs, and palette helpers |
 | 🖼️ [Gallery and Examples](#gallery-and-examples) | Example scripts and exported gallery assets |
@@ -22,7 +22,7 @@ Publication-quality plotting with Matplotlib for academic papers.
 
 `pubfig` is built for the last mile between analysis code and publication figures.
 
-- **Academic-first defaults**: compact titles, cleaner legends, explicit font handling, and lighter paper-style line weights
+- **Paper-oriented defaults**: compact titles, cleaner legends, explicit font handling, and lighter publication-style line weights
 - **One library for common scientific figures**: statistical plots, distribution plots, embedding plots, evaluation curves, heatmaps, and flow plots
 - **Journal-aware export**: `save_figure(...)` supports `single`/`double` column widths, raster DPI, vector formats, and trimming
 - **Matplotlib-native workflow**: plot functions return Matplotlib `Figure` objects, so existing analysis pipelines remain easy to integrate
@@ -36,19 +36,10 @@ Publication-quality plotting with Matplotlib for academic papers.
 pip install pubfig
 ```
 
-### Optional extras
-
-```bash
-pip install pubfig[stats]         # OLS-style regression support in scatter workflows
-pip install pubfig[dimreduction]  # scikit-learn-backed dimensionality reduction helpers
-pip install pubfig[raster]        # TIFF export via Pillow
-pip install pubfig[all]           # Everything above
-```
-
 ### Requirements
 
 - Python `>=3.10`
-- Core dependencies: `matplotlib`, `numpy`, `scipy`
+- Core dependencies: `matplotlib`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pillow`
 
 ## Quick Start
 

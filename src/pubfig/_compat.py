@@ -9,7 +9,12 @@ def _is_available(name: str) -> bool:
 
 def _require(name: str, extra: str) -> None:
     if not _is_available(name):
+        package_name = {
+            "stats": "statsmodels",
+            "dimreduction": "scikit-learn",
+            "raster": "pillow",
+        }.get(extra, name)
         raise ImportError(
             f"{name} is required for this feature. "
-            f"Install it with: pip install pubfig[{extra}]"
+            f"Reinstall pubfig or install the missing dependency directly: pip install {package_name}"
         )

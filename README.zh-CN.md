@@ -4,7 +4,7 @@
 
 面向学术论文的 Matplotlib 高质量绘图库。
 
-`pubfig` 是一个构建在 Matplotlib 之上的 academic-first 绘图库。它把期刊风格主题、论文导向的绘图默认值、调色板工具和导出辅助封装成一个统一工作流，让你可以更少地做手工排版清理，更快地从原始数组走到投稿级图件。
+`pubfig` 是一个构建在 Matplotlib 之上的科研绘图库。它把期刊风格主题、论文导向的绘图默认值、调色板工具和导出辅助封装成一个统一工作流，让你可以更少地做手工排版清理，更快地从原始数组走到投稿级图件。
 
 ## 快速导航
 
@@ -12,7 +12,7 @@
 |------|------|
 | 🚀 [快速开始](#快速开始) | 安装 `pubfig`、生成图像并导出为论文图 |
 | ✨ [为什么是 pubfig](#为什么是-pubfig) | 这个库重点优化了什么 |
-| 📦 [安装](#安装) | 基础安装与可选 extras |
+| 📦 [安装](#安装) | 安装 `pubfig` 并直接开始画图 |
 | 📊 [图类型分组](#图类型分组) | 按科研任务组织支持的图表 |
 | 🎨 [主题、规格与配色](#主题规格与配色) | 期刊主题、导出规格和调色板工具 |
 | 🖼️ [Gallery 与示例](#gallery-与示例) | 示例脚本与导出的 gallery 产物 |
@@ -22,7 +22,7 @@
 
 `pubfig` 面向的是分析代码到论文图件之间的最后一公里。
 
-- **Academic-first 默认值**：更紧凑的标题、更干净的图例、显式字体处理、以及更接近论文风格的线宽
+- **论文导向默认值**：更紧凑的标题、更干净的图例、显式字体处理、以及更接近论文风格的线宽
 - **覆盖常见科研图形**：统计图、分布图、降维图、评估曲线、热图和 flow 图都在一个库里
 - **面向投稿的导出接口**：`save_figure(...)` 支持 `single`/`double` 栏宽、raster DPI、vector 格式和 trim
 - **Matplotlib 原生工作流**：所有绘图函数都返回 Matplotlib `Figure` 对象，便于接入现有分析脚本
@@ -36,19 +36,10 @@
 pip install pubfig
 ```
 
-### 可选 extras
-
-```bash
-pip install pubfig[stats]         # scatter 等工作流中的 OLS 风格回归支持
-pip install pubfig[dimreduction]  # 基于 scikit-learn 的降维辅助功能
-pip install pubfig[raster]        # 通过 Pillow 支持 TIFF 导出
-pip install pubfig[all]           # 安装以上全部能力
-```
-
 ### 运行要求
 
 - Python `>=3.10`
-- 核心依赖：`matplotlib`、`numpy`、`scipy`
+- 核心依赖：`matplotlib`、`numpy`、`scipy`、`statsmodels`、`scikit-learn`、`pillow`
 
 ## 快速开始
 
