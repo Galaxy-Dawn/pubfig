@@ -2,7 +2,7 @@
 
 <div align="center">
 
-  <img src="examples/gallery-hero.png" alt="pubfig gallery" width="100%"/>
+  <img src="LOGO.png" alt="pubfig logo" width="100%"/>
 
   <p>
     <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"/>
