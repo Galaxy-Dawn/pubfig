@@ -199,7 +199,12 @@ You can also fetch palettes by name:
 
 ```python
 palette = pf.get_palette("science")
+palette = pf.get_palette("carto_blugrn")
 ```
+
+For a visual preview of all currently available palettes, see [`docs/palette-gallery.md`](docs/palette-gallery.md).
+
+[![Featured palettes](examples/palettes/featured-palettes.png)](docs/palette-gallery.md)
 
 ## Gallery and Examples
 
@@ -208,6 +213,8 @@ Example entry points:
 - `examples/gallery.py` — quick visual walkthrough of supported plots
 - `examples/export_gallery.py` — exports the gallery to `output_figures/`
 - `examples/export_gallery_mpl.py` — focused Matplotlib export examples
+- `examples/generate_palette_gallery.py` — regenerates the palette preview sheets and gallery docs
+- [`docs/palette-gallery.md`](docs/palette-gallery.md) — visual palette gallery for built-in and Plotly-derived palettes
 
 ## Development
 

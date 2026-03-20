@@ -199,7 +199,12 @@ show_palette(NATURE).show()
 
 ```python
 palette = pf.get_palette("science")
+palette = pf.get_palette("carto_blugrn")
 ```
+
+如果你想直接查看所有 palette 的实际颜色，可以看 [`docs/palette-gallery.zh-CN.md`](docs/palette-gallery.zh-CN.md)。
+
+[![精选 palette 预览](examples/palettes/featured-palettes.png)](docs/palette-gallery.zh-CN.md)
 
 ## Gallery 与示例
 
@@ -208,6 +213,8 @@ palette = pf.get_palette("science")
 - `examples/gallery.py` —— 快速浏览支持的图类型
 - `examples/export_gallery.py` —— 把 gallery 导出到 `output_figures/`
 - `examples/export_gallery_mpl.py` —— 更聚焦的 Matplotlib 导出示例
+- `examples/generate_palette_gallery.py` —— 重新生成 palette 预览图与 gallery 文档
+- [`docs/palette-gallery.zh-CN.md`](docs/palette-gallery.zh-CN.md) —— 内置与 Plotly 派生 palette 的可视化总览
 
 ## 开发
 

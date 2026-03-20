@@ -2,6 +2,8 @@
 
 from typing import Sequence
 
+from .plotly_palettes import PLOTLY_PALETTES
+
 # Nature-style palette
 NATURE: list[str] = [
     "#E64B35", "#4DBBD5", "#00A087", "#3C5488",
@@ -47,6 +49,7 @@ _PALETTE_REGISTRY: dict[str, list[str]] = {
     "jama": JAMA,
     "orange_red": ORANGE_RED_4,
     "default": DEFAULT,
+    **PLOTLY_PALETTES,
 }
 
 
