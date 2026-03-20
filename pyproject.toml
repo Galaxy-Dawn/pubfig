@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pubfig"
 dynamic = ["version"]
-description = "Publication-quality plotting with Matplotlib for scientific papers, journal-style themes, and paper-ready export workflows"
+description = "Publication-ready scientific plotting with Matplotlib"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

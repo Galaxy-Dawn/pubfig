@@ -15,7 +15,7 @@
 
 </div>
 
-> Generate publication-quality scientific figures with Matplotlib, journal-style themes, and paper-ready export workflows.
+> Publication-ready scientific plotting with Matplotlib.
 
 ## Highlights
 
