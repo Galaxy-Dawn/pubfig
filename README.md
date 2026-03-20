@@ -25,12 +25,12 @@
 - **Matplotlib-Native Workflow** — Plot functions return Matplotlib `Figure` objects, so existing analysis scripts remain easy to integrate.
 - **Explicit Layout Controls** — Fine-grained control over tick direction, box/grid visibility, palettes, legends, and plot-specific layout options.
 
-## News
+## recent news
 
-- **Default full install** — `pip install pubfig` now installs the full plotting stack by default, so users no longer need to choose extras for regression, dimensionality reduction, or TIFF export.
-- **New `raincloud(...)` plot** — Added raincloud plots and integrated them into the gallery and README examples.
-- **Expanded `pca_biplot(...)`** — Added loading panel modes and group ellipses, then refreshed the gallery to match the updated behavior.
-- **Refreshed visual defaults** — Updated radar defaults, font handling, README metadata, and gallery exports for better consistency.
+2026-03-20: README alignment with pubtab style and homepage refresh — reorganized the README into a pubtab-style homepage with centered badges, language switch, highlights, dated recent news, showcase examples, and an embedded gallery hero.
+2026-03-20: Default full install and metadata simplification — changed `pip install pubfig` to install the full plotting stack by default, removed user-facing extras from the main install path, and aligned package metadata, GitHub About, and README wording.
+2026-03-19: Raincloud plot support and gallery refresh — added `raincloud(...)`, tuned its default styling, integrated it into the gallery, and regenerated the exported figure set.
+2026-03-19: PCA biplot and radar default updates — expanded `pca_biplot(...)` with loading panel modes and group ellipses, refreshed radar defaults, unified font handling, and re-exported the gallery.
 
 ## Examples
 

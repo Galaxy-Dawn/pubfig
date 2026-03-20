@@ -25,12 +25,12 @@
 - **Matplotlib 原生工作流** — 所有绘图函数都返回 Matplotlib `Figure` 对象，便于接入现有分析脚本。
 - **显式布局控制** — 可精细控制刻度朝向、box/grid 显示、palette、legend 与各图专属布局参数。
 
-## News
+## recent news
 
-- **默认完整安装** — `pip install pubfig` 现在默认安装完整绘图栈，不再要求用户为回归、降维或 TIFF 导出单独选择 extras。
-- **新增 `raincloud(...)`** — 新增云雨图，并已同步加入 gallery 与 README 示例。
-- **扩展 `pca_biplot(...)`** — 新增 loading panel 模式与 group ellipses，并同步刷新 gallery 展示。
-- **刷新视觉默认值** — 更新了 radar 默认示例、字体处理、README 元信息与 gallery 导出的一致性。
+2026-03-20: 与 pubtab 风格对齐并刷新首页结构 — 按照 pubtab 的首页组织方式重排 README，补上居中 badges、语言切换、highlights、带日期的 recent news、精选示例和 gallery hero 图。
+2026-03-20: 默认完整安装与元信息简化 — 将 `pip install pubfig` 调整为默认安装完整绘图栈，移除主安装路径上的用户可见 extras，并同步统一包元信息、GitHub About 和 README 文案。
+2026-03-19: 新增 raincloud 并刷新 gallery — 增加 `raincloud(...)`，优化其默认样式，接入 gallery，并重新导出整套图像产物。
+2026-03-19: 更新 PCA biplot 与 radar 默认示例 — 扩展 `pca_biplot(...)` 的 loading panel 模式和 group ellipses，刷新 radar 默认示例，统一字体处理，并重新导出 gallery。
 
 ## 示例
 
