@@ -1,59 +1,65 @@
 # pubfig
 
-**Language**: [English](README.md) | [中文](README.zh-CN.md)
+<div align="center">
 
-[![Python](https://img.shields.io/badge/python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](https://github.com/Galaxy-Dawn/pubfig)
-[![Matplotlib](https://img.shields.io/badge/matplotlib-3.8%2B-11557C.svg)](https://github.com/Galaxy-Dawn/pubfig)
-[![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=social)](https://github.com/Galaxy-Dawn/pubfig)
+  <img src="assets/readme/gallery-hero.png" alt="pubfig gallery" width="100%"/>
 
-Publication-quality plotting with Matplotlib for scientific papers.
+  <p>
+    <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"/>
+    <img src="https://img.shields.io/badge/Matplotlib-3.8%2B-11557C?style=flat-square" alt="Matplotlib 3.8+"/>
+    <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License"/>
+    <a href="https://github.com/Galaxy-Dawn/pubfig"><img src="https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=flat-square" alt="GitHub Stars"/></a>
+  </p>
 
-`pubfig` is a plotting library for scientific papers built on top of Matplotlib. It combines journal-style themes, cleaner plot defaults, palette utilities, and paper-ready export helpers so you can move from raw arrays to submission-ready figures with less manual cleanup.
+  <strong>Language</strong>: <a href="https://github.com/Galaxy-Dawn/pubfig/blob/main/README.md">English</a> | <a href="https://github.com/Galaxy-Dawn/pubfig/blob/main/README.zh-CN.md">中文</a>
 
-## Quick Navigation
+</div>
 
-| Topic | Description |
-|-------|-------------|
-| 🚀 [Quick Start](#quick-start) | Install `pubfig`, create a figure, and export it for a paper |
-| ✨ [Why pubfig](#why-pubfig) | What the library is optimized for |
-| 📰 [Recent News](#recent-news) | Recent API, gallery, and documentation updates |
-| 📦 [Installation](#installation) | Install `pubfig` and start plotting |
-| 📊 [Plot Families](#plot-families) | Supported plots grouped by scientific task |
-| 🎨 [Themes, Specs, and Palettes](#themes-specs-and-palettes) | Journal themes, export specs, and palette helpers |
-| 🖼️ [Gallery and Examples](#gallery-and-examples) | Example scripts and exported gallery assets |
-| 🔧 [Development](#development) | Editable install, tests, lint, and gallery regeneration |
+> Generate publication-quality scientific figures with Matplotlib, journal-style themes, and paper-ready export workflows.
 
-## Why pubfig
+## Highlights
 
-`pubfig` is built for the last mile between analysis code and publication figures.
+- **Paper-Oriented Defaults** — Compact titles, cleaner legends, explicit font handling, and lighter publication-style line weights.
+- **One Library for Common Figure Types** — Statistical plots, distribution plots, dimensionality-reduction plots, evaluation curves, heatmaps, and flow plots in one API surface.
+- **Journal-Aware Export** — `save_figure(...)` supports `single`/`double` column widths, vector formats, raster DPI, and trimming for submission workflows.
+- **Matplotlib-Native Workflow** — Plot functions return Matplotlib `Figure` objects, so existing analysis scripts remain easy to integrate.
+- **Explicit Layout Controls** — Fine-grained control over tick direction, box/grid visibility, palettes, legends, and plot-specific layout options.
 
-- **Paper-oriented defaults**: compact titles, cleaner legends, explicit font handling, and lighter publication-style line weights
-- **One library for common scientific figures**: statistical plots, distribution plots, embedding plots, evaluation curves, heatmaps, and flow plots
-- **Journal-aware export**: `save_figure(...)` supports `single`/`double` column widths, raster DPI, vector formats, and trimming
-- **Matplotlib-native workflow**: plot functions return Matplotlib `Figure` objects, so existing analysis pipelines remain easy to integrate
-- **Explicit control when needed**: axis tick direction, box/grid visibility, palette overrides, and plot-specific layout parameters
+## News
 
-## Recent News
+- **Default full install** — `pip install pubfig` now installs the full plotting stack by default, so users no longer need to choose extras for regression, dimensionality reduction, or TIFF export.
+- **New `raincloud(...)` plot** — Added raincloud plots and integrated them into the gallery and README examples.
+- **Expanded `pca_biplot(...)`** — Added loading panel modes and group ellipses, then refreshed the gallery to match the updated behavior.
+- **Refreshed visual defaults** — Updated radar defaults, font handling, README metadata, and gallery exports for better consistency.
 
-- **2026-03-20** — Simplified installation and packaging: `pip install pubfig` now installs the full plotting stack by default, and the README / package metadata / GitHub homepage were aligned.
-- **2026-03-19** — Added `raincloud(...)` with gallery coverage, and refreshed the distribution gallery with a new cloud-rain example.
-- **2026-03-19** — Expanded `pca_biplot(...)` with loading panel modes and group ellipses, and refreshed the radar defaults, font handling, and full gallery export.
+## Examples
 
-## Installation
+### Showcase
 
-### Base installation
+<p align="center">
+  <a href="assets/readme/bar_scatter.png"><img src="assets/readme/bar_scatter.png" width="48%" alt="Bar scatter example"></a>
+  <a href="assets/readme/raincloud.png"><img src="assets/readme/raincloud.png" width="48%" alt="Raincloud example"></a>
+</p>
+<p align="center">
+  <a href="assets/readme/radar.png"><img src="assets/readme/radar.png" width="72%" alt="Radar example"></a>
+</p>
+
+<details>
+<summary><strong>Full Gallery</strong></summary>
+
+<p align="center">
+  <img src="assets/readme/gallery-hero.png" width="100%" alt="Full gallery contact sheet">
+</p>
+
+</details>
+
+## Quick Start
 
 ```bash
 pip install pubfig
 ```
 
-### Requirements
-
-- Python `>=3.10`
-- Core dependencies: `matplotlib`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `pillow`
-
-## Quick Start
+### Python Quick Start
 
 ```python
 import numpy as np
@@ -89,20 +95,6 @@ If you want explicit suffix-based export instead of the journal-oriented wrapper
 ```python
 pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 ```
-
-## Common Workflows
-
-### 1. Statistical comparison figures
-
-Use `bar`, `bar_scatter`, `box`, `violin`, `strip`, and `raincloud` when you need summary statistics together with raw observations for biology, neuroscience, psychology, or experimental ML.
-
-### 2. Trend and relationship figures
-
-Use `line`, `area`, `scatter`, `paired`, `bubble`, and `contour2d` for trajectories, pairwise comparisons, grouped relationships, and compact distribution-overlap views.
-
-### 3. Structure, embedding, and evaluation figures
-
-Use `heatmap`, `corr_matrix`, `clustermap`, `dimreduce`, `pca_biplot`, `roc`, `pr_curve`, `sankey`, and `parallel_coordinates` for model interpretation, embedding visualization, clustering, and evaluation reporting.
 
 ## Plot Families
 
@@ -217,19 +209,12 @@ Example entry points:
 - `examples/export_gallery.py` — exports the gallery to `output_figures/`
 - `examples/export_gallery_mpl.py` — focused Matplotlib export examples
 
-Current exported gallery assets live in:
-
-- `output_figures/`
-- `output_figures/all_plots_contact_sheet.png`
-
-This is the easiest way to review theme, font, layout, and color changes across the full library after an update.
-
 ## Development
 
 ### Editable install
 
 ```bash
-pip install -e .[all,dev]
+pip install -e .[dev]
 ```
 
 ### Run tests

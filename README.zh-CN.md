@@ -1,59 +1,65 @@
 # pubfig
 
-**语言**: [English](README.md) | [中文](README.zh-CN.md)
+<div align="center">
 
-[![Python](https://img.shields.io/badge/python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](https://github.com/Galaxy-Dawn/pubfig)
-[![Matplotlib](https://img.shields.io/badge/matplotlib-3.8%2B-11557C.svg)](https://github.com/Galaxy-Dawn/pubfig)
-[![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f.svg)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=social)](https://github.com/Galaxy-Dawn/pubfig)
+  <img src="assets/readme/gallery-hero.png" alt="pubfig gallery" width="100%"/>
 
-面向科研论文的 Matplotlib 高质量绘图库。
+  <p>
+    <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"/>
+    <img src="https://img.shields.io/badge/Matplotlib-3.8%2B-11557C?style=flat-square" alt="Matplotlib 3.8+"/>
+    <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License"/>
+    <a href="https://github.com/Galaxy-Dawn/pubfig"><img src="https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=flat-square" alt="GitHub Stars"/></a>
+  </p>
 
-`pubfig` 是一个构建在 Matplotlib 之上的科研绘图库。它把期刊风格主题、更干净的绘图默认值、调色板工具和投稿导向的导出辅助封装成一个统一工作流，让你可以更少地做手工排版清理，更快地从原始数组走到投稿级图件。
+  <strong>Language</strong>: <a href="https://github.com/Galaxy-Dawn/pubfig/blob/main/README.md">English</a> | <a href="https://github.com/Galaxy-Dawn/pubfig/blob/main/README.zh-CN.md">中文</a>
 
-## 快速导航
+</div>
 
-| 主题 | 说明 |
-|------|------|
-| 🚀 [快速开始](#快速开始) | 安装 `pubfig`、生成图像并导出为论文图 |
-| ✨ [为什么是 pubfig](#为什么是-pubfig) | 这个库重点优化了什么 |
-| 📰 [最近更新](#最近更新) | 最近的 API、gallery 与文档更新 |
-| 📦 [安装](#安装) | 安装 `pubfig` 并直接开始画图 |
-| 📊 [图类型分组](#图类型分组) | 按科研任务组织支持的图表 |
-| 🎨 [主题、规格与配色](#主题规格与配色) | 期刊主题、导出规格和调色板工具 |
-| 🖼️ [Gallery 与示例](#gallery-与示例) | 示例脚本与导出的 gallery 产物 |
-| 🔧 [开发](#开发) | 可编辑安装、测试、lint 与 gallery 重导 |
+> 用 Matplotlib 生成出版级科研图件，并提供期刊风格主题与投稿导向导出工作流。
 
-## 为什么是 pubfig
+## 亮点
 
-`pubfig` 面向的是分析代码到论文图件之间的最后一公里。
+- **论文导向默认值** — 更紧凑的标题、更干净的图例、显式字体处理，以及更接近论文风格的线宽。
+- **常见图形集中在一个库里** — 统计图、分布图、降维图、评估曲线、热图与 flow 图都在同一个 API 表面之下。
+- **面向投稿的导出接口** — `save_figure(...)` 支持 `single`/`double` 栏宽、vector 格式、raster DPI 和 trim。
+- **Matplotlib 原生工作流** — 所有绘图函数都返回 Matplotlib `Figure` 对象，便于接入现有分析脚本。
+- **显式布局控制** — 可精细控制刻度朝向、box/grid 显示、palette、legend 与各图专属布局参数。
 
-- **论文导向默认值**：更紧凑的标题、更干净的图例、显式字体处理、以及更接近论文风格的线宽
-- **覆盖常见科研图形**：统计图、分布图、降维图、评估曲线、热图和 flow 图都在一个库里
-- **面向投稿的导出接口**：`save_figure(...)` 支持 `single`/`double` 栏宽、raster DPI、vector 格式和 trim
-- **Matplotlib 原生工作流**：所有绘图函数都返回 Matplotlib `Figure` 对象，便于接入现有分析脚本
-- **需要时可精细控制**：刻度朝向、box/grid 显示、palette 覆盖、以及各图专属布局参数
+## News
 
-## 最近更新
+- **默认完整安装** — `pip install pubfig` 现在默认安装完整绘图栈，不再要求用户为回归、降维或 TIFF 导出单独选择 extras。
+- **新增 `raincloud(...)`** — 新增云雨图，并已同步加入 gallery 与 README 示例。
+- **扩展 `pca_biplot(...)`** — 新增 loading panel 模式与 group ellipses，并同步刷新 gallery 展示。
+- **刷新视觉默认值** — 更新了 radar 默认示例、字体处理、README 元信息与 gallery 导出的一致性。
 
-- **2026-03-20** — 简化了安装和打包策略：`pip install pubfig` 现在默认安装完整绘图栈，同时同步更新了 README、包元信息和 GitHub 首页口径。
-- **2026-03-19** — 新增 `raincloud(...)`，并把它补进了 gallery，同时更新了 distribution 这一组示例。
-- **2026-03-19** — 扩展了 `pca_biplot(...)` 的 loading panel 模式与 group ellipses，并同步刷新了 radar 默认示例、字体处理和全量 gallery 导出。
+## 示例
 
-## 安装
+### 精选展示
 
-### 基础安装
+<p align="center">
+  <a href="assets/readme/bar_scatter.png"><img src="assets/readme/bar_scatter.png" width="48%" alt="Bar scatter 示例"></a>
+  <a href="assets/readme/raincloud.png"><img src="assets/readme/raincloud.png" width="48%" alt="Raincloud 示例"></a>
+</p>
+<p align="center">
+  <a href="assets/readme/radar.png"><img src="assets/readme/radar.png" width="72%" alt="Radar 示例"></a>
+</p>
+
+<details>
+<summary><strong>完整图库</strong></summary>
+
+<p align="center">
+  <img src="assets/readme/gallery-hero.png" width="100%" alt="完整 gallery 总览">
+</p>
+
+</details>
+
+## 快速开始
 
 ```bash
 pip install pubfig
 ```
 
-### 运行要求
-
-- Python `>=3.10`
-- 核心依赖：`matplotlib`、`numpy`、`scipy`、`statsmodels`、`scikit-learn`、`pillow`
-
-## 快速开始
+### Python 快速上手
 
 ```python
 import numpy as np
@@ -89,20 +95,6 @@ pf.save_figure(
 ```python
 pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 ```
-
-## 常见工作流
-
-### 1. 统计比较图
-
-当你需要在 biology、neuroscience、psychology 或 experimental ML 中同时展示 summary statistics 和 raw observations 时，可以使用 `bar`、`bar_scatter`、`box`、`violin`、`strip` 和 `raincloud`。
-
-### 2. 趋势与关系图
-
-当你要展示轨迹、配对比较、组间关系或分布重叠时，可以使用 `line`、`area`、`scatter`、`paired`、`bubble` 和 `contour2d`。
-
-### 3. 结构、嵌入与评估图
-
-当你要做模型解释、embedding 可视化、聚类展示或评估汇报时，可以使用 `heatmap`、`corr_matrix`、`clustermap`、`dimreduce`、`pca_biplot`、`roc`、`pr_curve`、`sankey` 和 `parallel_coordinates`。
 
 ## 图类型分组
 
@@ -217,19 +209,12 @@ palette = pf.get_palette("science")
 - `examples/export_gallery.py` —— 把 gallery 导出到 `output_figures/`
 - `examples/export_gallery_mpl.py` —— 更聚焦的 Matplotlib 导出示例
 
-当前导出的 gallery 产物位于：
-
-- `output_figures/`
-- `output_figures/all_plots_contact_sheet.png`
-
-当你修改主题、字体、布局或颜色后，这是回看全库视觉一致性的最快方式。
-
 ## 开发
 
 ### 可编辑安装
 
 ```bash
-pip install -e .[all,dev]
+pip install -e .[dev]
 ```
 
 ### 运行测试
