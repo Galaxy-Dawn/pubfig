@@ -98,7 +98,7 @@ pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 
 ## Plot Families
 
-### Categorical and statistical plots
+### Categorical and Statistical Plots
 
 | Function | Description |
 |----------|-------------|
@@ -107,7 +107,7 @@ pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 | `stacked_bar` | Horizontal stacked bar chart |
 | `paired` | Paired dot plot |
 
-### Distribution plots
+### Distribution Plots
 
 | Function | Description |
 |----------|-------------|
@@ -119,7 +119,7 @@ pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 | `histogram` | Histogram with optional KDE |
 | `ridgeline` | Ridgeline plot |
 
-### Trend and relationship plots
+### Trend and Relationship Plots
 
 | Function | Description |
 |----------|-------------|
@@ -130,7 +130,7 @@ pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 | `contour2d` | 2D contour plot with marginals |
 | `radar` | Radar chart |
 
-### Matrix, embedding, and multivariate plots
+### Matrix, Embedding, and Multivariate Plots
 
 | Function | Description |
 |----------|-------------|
@@ -141,7 +141,7 @@ pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 | `pca_biplot` | PCA biplot with optional loadings and group ellipses |
 | `parallel_coordinates` | Parallel coordinates plot |
 
-### Evaluation and flow plots
+### Evaluation and Flow Plots
 
 | Function | Description |
 |----------|-------------|
@@ -151,7 +151,7 @@ pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 
 ## Themes, Specs, and Palettes
 
-### Built-in themes
+### Built-in Themes
 
 `pubfig` currently ships with these themes:
 
@@ -164,7 +164,7 @@ pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 pf.set_default_theme("science")
 ```
 
-### Figure specs
+### Figure Specs
 
 For export, `save_figure(...)` uses named figure specs:
 
@@ -179,7 +179,7 @@ Width can be specified as:
 - numeric millimeters such as `120`
 - string millimeters such as `"120mm"`
 
-### Built-in palettes
+### Built-in Palettes
 
 Built-in palettes include:
 
@@ -211,13 +211,13 @@ Example entry points:
 
 ## Development
 
-### Editable install
+### Editable Install
 
 ```bash
 pip install -e .[dev]
 ```
 
-### Run tests
+### Run Tests
 
 ```bash
 pytest
@@ -229,7 +229,7 @@ pytest
 ruff check src tests examples
 ```
 
-### Regenerate gallery
+### Regenerate Gallery
 
 ```bash
 python examples/export_gallery.py

@@ -141,7 +141,7 @@ pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 | `pca_biplot` | 支持 loadings 与 group ellipses 的 PCA biplot |
 | `parallel_coordinates` | 平行坐标图 |
 
-### 评估与 flow 图
+### 评估与 Flow 图
 
 | 函数 | 说明 |
 |------|------|
@@ -164,7 +164,7 @@ pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 pf.set_default_theme("science")
 ```
 
-### Figure spec
+### Figure Specs
 
 在导出时，`save_figure(...)` 支持这些命名规格：
 
@@ -229,12 +229,12 @@ pytest
 ruff check src tests examples
 ```
 
-### 重导 gallery
+### 重导 Gallery
 
 ```bash
 python examples/export_gallery.py
 ```
 
-## License
+## 许可证
 
 MIT
