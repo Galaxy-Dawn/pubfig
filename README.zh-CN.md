@@ -2,9 +2,14 @@
 
 **语言**: [English](README.md) | [中文](README.zh-CN.md)
 
-面向学术论文的 Matplotlib 高质量绘图库。
+[![Python](https://img.shields.io/badge/python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](https://github.com/Galaxy-Dawn/pubfig)
+[![Matplotlib](https://img.shields.io/badge/matplotlib-3.8%2B-11557C.svg)](https://github.com/Galaxy-Dawn/pubfig)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=social)](https://github.com/Galaxy-Dawn/pubfig)
 
-`pubfig` 是一个构建在 Matplotlib 之上的科研绘图库。它把期刊风格主题、论文导向的绘图默认值、调色板工具和导出辅助封装成一个统一工作流，让你可以更少地做手工排版清理，更快地从原始数组走到投稿级图件。
+面向科研论文的 Matplotlib 高质量绘图库。
+
+`pubfig` 是一个构建在 Matplotlib 之上的科研绘图库。它把期刊风格主题、更干净的绘图默认值、调色板工具和投稿导向的导出辅助封装成一个统一工作流，让你可以更少地做手工排版清理，更快地从原始数组走到投稿级图件。
 
 ## 快速导航
 

@@ -2,9 +2,14 @@
 
 **Language**: [English](README.md) | [中文](README.zh-CN.md)
 
-Publication-quality plotting with Matplotlib for academic papers.
+[![Python](https://img.shields.io/badge/python-3.10%2B-3776AB.svg?logo=python&logoColor=white)](https://github.com/Galaxy-Dawn/pubfig)
+[![Matplotlib](https://img.shields.io/badge/matplotlib-3.8%2B-11557C.svg)](https://github.com/Galaxy-Dawn/pubfig)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2ea44f.svg)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=social)](https://github.com/Galaxy-Dawn/pubfig)
 
-`pubfig` is a plotting library built on top of Matplotlib for scientific papers. It brings together journal-style themes, paper-oriented plot defaults, palette utilities, and export helpers so you can move from raw arrays to submission-ready figures with less manual cleanup.
+Publication-quality plotting with Matplotlib for scientific papers.
+
+`pubfig` is a plotting library for scientific papers built on top of Matplotlib. It combines journal-style themes, cleaner plot defaults, palette utilities, and paper-ready export helpers so you can move from raw arrays to submission-ready figures with less manual cleanup.
 
 ## Quick Navigation
 
