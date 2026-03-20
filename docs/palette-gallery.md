@@ -2,6 +2,8 @@
 
 This page previews the palettes currently available in `pubfig`.
 
+> Source note: the `NATURE`, `SCIENCE`, `LANCET`, and `JAMA` palettes in `pubfig` are **journal-inspired** palettes derived from the ggsci community palette set. They are not official publisher-mandated color standards. References: [pal_npg](https://nanx.me/ggsci/reference/pal_npg.html), [pal_aaas](https://nanx.me/ggsci/reference/pal_aaas.html), [pal_lancet](https://nanx.me/ggsci/reference/pal_lancet.html), [pal_jama](https://nanx.me/ggsci/reference/pal_jama.html).
+
 ## Built-in Palettes
 
 Names: `default`, `nature`, `science`, `lancet`, `jama`, `orange_red`

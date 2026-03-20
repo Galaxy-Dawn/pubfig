@@ -2,6 +2,8 @@
 
 这个页面汇总展示 `pubfig` 当前可用的调色板预览。
 
+> 来源说明：`pubfig` 中的 `NATURE`、`SCIENCE`、`LANCET`、`JAMA` 都属于 **journal-inspired** 的 ggsci-derived community palettes，不是期刊官方强制标准色。参考： [pal_npg](https://nanx.me/ggsci/reference/pal_npg.html)、[pal_aaas](https://nanx.me/ggsci/reference/pal_aaas.html)、[pal_lancet](https://nanx.me/ggsci/reference/pal_lancet.html)、[pal_jama](https://nanx.me/ggsci/reference/pal_jama.html)。
+
 ## 内置调色板
 
 名称：`default`、`nature`、`science`、`lancet`、`jama`、`orange_red`
