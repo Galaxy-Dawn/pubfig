@@ -17,6 +17,7 @@ Publication-quality plotting with Matplotlib for scientific papers.
 |-------|-------------|
 | 🚀 [Quick Start](#quick-start) | Install `pubfig`, create a figure, and export it for a paper |
 | ✨ [Why pubfig](#why-pubfig) | What the library is optimized for |
+| 📰 [Recent News](#recent-news) | Recent API, gallery, and documentation updates |
 | 📦 [Installation](#installation) | Install `pubfig` and start plotting |
 | 📊 [Plot Families](#plot-families) | Supported plots grouped by scientific task |
 | 🎨 [Themes, Specs, and Palettes](#themes-specs-and-palettes) | Journal themes, export specs, and palette helpers |
@@ -32,6 +33,12 @@ Publication-quality plotting with Matplotlib for scientific papers.
 - **Journal-aware export**: `save_figure(...)` supports `single`/`double` column widths, raster DPI, vector formats, and trimming
 - **Matplotlib-native workflow**: plot functions return Matplotlib `Figure` objects, so existing analysis pipelines remain easy to integrate
 - **Explicit control when needed**: axis tick direction, box/grid visibility, palette overrides, and plot-specific layout parameters
+
+## Recent News
+
+- **2026-03-20** — Simplified installation and packaging: `pip install pubfig` now installs the full plotting stack by default, and the README / package metadata / GitHub homepage were aligned.
+- **2026-03-19** — Added `raincloud(...)` with gallery coverage, and refreshed the distribution gallery with a new cloud-rain example.
+- **2026-03-19** — Expanded `pca_biplot(...)` with loading panel modes and group ellipses, and refreshed the radar defaults, font handling, and full gallery export.
 
 ## Installation
 
