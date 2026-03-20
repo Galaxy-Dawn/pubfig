@@ -210,10 +210,6 @@ palette = pf.get_palette("carto_blugrn")
 
 [![精选 palette 预览](examples/palettes/featured-palettes.png)](docs/palette-gallery.zh-CN.md)
 
-如果你想看同一张图切换不同 palette 后的效果，可以看 [`examples/palette_comparison_demo.py`](examples/palette_comparison_demo.py) 以及下面这张对比图。
-
-[![同图切换不同 palette 对比](examples/palettes/palette-comparison-demo.png)](examples/palettes/palette-comparison-demo.png)
-
 ## Gallery 与示例
 
 示例入口包括：
@@ -222,7 +218,6 @@ palette = pf.get_palette("carto_blugrn")
 - `examples/export_gallery.py` —— 把 gallery 导出到 `output_figures/`
 - `examples/export_gallery_mpl.py` —— 更聚焦的 Matplotlib 导出示例
 - `examples/generate_palette_gallery.py` —— 重新生成 palette 预览图与 gallery 文档
-- `examples/palette_comparison_demo.py` —— 用同一张图并排比较多组 palette 的实际效果
 - [`docs/palette-gallery.zh-CN.md`](docs/palette-gallery.zh-CN.md) —— 内置与 Plotly 派生 palette 的可视化总览
 
 ## 开发

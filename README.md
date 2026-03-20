@@ -210,10 +210,6 @@ For a visual preview of all currently available palettes, see [`docs/palette-gal
 
 [![Featured palettes](examples/palettes/featured-palettes.png)](docs/palette-gallery.md)
 
-To compare how the same chart changes under different palettes, see [`examples/palette_comparison_demo.py`](examples/palette_comparison_demo.py) and the exported comparison sheet below.
-
-[![Same chart, different palettes](examples/palettes/palette-comparison-demo.png)](examples/palettes/palette-comparison-demo.png)
-
 ## Gallery and Examples
 
 Example entry points:
@@ -222,7 +218,6 @@ Example entry points:
 - `examples/export_gallery.py` — exports the gallery to `output_figures/`
 - `examples/export_gallery_mpl.py` — focused Matplotlib export examples
 - `examples/generate_palette_gallery.py` — regenerates the palette preview sheets and gallery docs
-- `examples/palette_comparison_demo.py` — compares multiple palettes on the same chart and exports a side-by-side figure
 - [`docs/palette-gallery.md`](docs/palette-gallery.md) — visual palette gallery for built-in and Plotly-derived palettes
 
 ## Development
