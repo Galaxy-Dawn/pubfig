@@ -2,7 +2,7 @@
 
 <div align="center">
 
-  <img src="assets/readme/gallery-hero.png" alt="pubfig gallery" width="100%"/>
+  <img src="examples/gallery-hero.png" alt="pubfig gallery" width="100%"/>
 
   <p>
     <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"/>
@@ -25,7 +25,7 @@
 - **Matplotlib 原生工作流** — 所有绘图函数都返回 Matplotlib `Figure` 对象，便于接入现有分析脚本。
 - **显式布局控制** — 可精细控制刻度朝向、box/grid 显示、palette、legend 与各图专属布局参数。
 
-## recent news
+## Recent News
 
 2026-03-20: 与 pubtab 风格对齐并刷新首页结构 — 按照 pubtab 的首页组织方式重排 README，补上居中 badges、语言切换、highlights、带日期的 recent news、精选示例和 gallery hero 图。
 2026-03-20: 默认完整安装与元信息简化 — 将 `pip install pubfig` 调整为默认安装完整绘图栈，移除主安装路径上的用户可见 extras，并同步统一包元信息、GitHub About 和 README 文案。
@@ -37,18 +37,18 @@
 ### 精选展示
 
 <p align="center">
-  <a href="assets/readme/bar_scatter.png"><img src="assets/readme/bar_scatter.png" width="48%" alt="Bar scatter 示例"></a>
-  <a href="assets/readme/raincloud.png"><img src="assets/readme/raincloud.png" width="48%" alt="Raincloud 示例"></a>
+  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="48%" alt="Bar scatter 示例"></a>
+  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="48%" alt="Raincloud 示例"></a>
 </p>
 <p align="center">
-  <a href="assets/readme/radar.png"><img src="assets/readme/radar.png" width="72%" alt="Radar 示例"></a>
+  <a href="examples/radar.png"><img src="examples/radar.png" width="72%" alt="Radar 示例"></a>
 </p>
 
 <details>
 <summary><strong>完整图库</strong></summary>
 
 <p align="center">
-  <img src="assets/readme/gallery-hero.png" width="100%" alt="完整 gallery 总览">
+  <img src="examples/gallery-hero.png" width="100%" alt="完整 gallery 总览">
 </p>
 
 </details>

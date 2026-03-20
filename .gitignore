@@ -27,3 +27,6 @@ temp_*/
 
 # Local tooling
 .claude/
+# Local planning and tests
+plan/
+tests/

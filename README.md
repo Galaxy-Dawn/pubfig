@@ -2,7 +2,7 @@
 
 <div align="center">
 
-  <img src="assets/readme/gallery-hero.png" alt="pubfig gallery" width="100%"/>
+  <img src="examples/gallery-hero.png" alt="pubfig gallery" width="100%"/>
 
   <p>
     <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"/>
@@ -25,7 +25,7 @@
 - **Matplotlib-Native Workflow** — Plot functions return Matplotlib `Figure` objects, so existing analysis scripts remain easy to integrate.
 - **Explicit Layout Controls** — Fine-grained control over tick direction, box/grid visibility, palettes, legends, and plot-specific layout options.
 
-## recent news
+## Recent News
 
 2026-03-20: README alignment with pubtab style and homepage refresh — reorganized the README into a pubtab-style homepage with centered badges, language switch, highlights, dated recent news, showcase examples, and an embedded gallery hero.
 2026-03-20: Default full install and metadata simplification — changed `pip install pubfig` to install the full plotting stack by default, removed user-facing extras from the main install path, and aligned package metadata, GitHub About, and README wording.
@@ -37,18 +37,18 @@
 ### Showcase
 
 <p align="center">
-  <a href="assets/readme/bar_scatter.png"><img src="assets/readme/bar_scatter.png" width="48%" alt="Bar scatter example"></a>
-  <a href="assets/readme/raincloud.png"><img src="assets/readme/raincloud.png" width="48%" alt="Raincloud example"></a>
+  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="48%" alt="Bar scatter example"></a>
+  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="48%" alt="Raincloud example"></a>
 </p>
 <p align="center">
-  <a href="assets/readme/radar.png"><img src="assets/readme/radar.png" width="72%" alt="Radar example"></a>
+  <a href="examples/radar.png"><img src="examples/radar.png" width="72%" alt="Radar example"></a>
 </p>
 
 <details>
 <summary><strong>Full Gallery</strong></summary>
 
 <p align="center">
-  <img src="assets/readme/gallery-hero.png" width="100%" alt="Full gallery contact sheet">
+  <img src="examples/gallery-hero.png" width="100%" alt="Full gallery contact sheet">
 </p>
 
 </details>
