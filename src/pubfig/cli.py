@@ -6,8 +6,11 @@ import argparse
 from datetime import datetime, timezone
 import json
 from pathlib import Path
+import subprocess
+import sys
 import time
 from typing import Sequence
+from urllib.parse import urlparse
 
 from ._version import __version__
 from .figma import (
@@ -27,6 +30,8 @@ from .figma import (
 
 _DEFAULT_BRIDGE_URL = "http://localhost:47329"
 _DEFAULT_WATCH_INTERVAL_SECONDS = 1.0
+_DEFAULT_PUSH_BRIDGE_START_TIMEOUT_SECONDS = 5.0
+_LOCAL_BRIDGE_HOSTS = {"127.0.0.1", "localhost", "::1"}
 
 
 def _parse_row_panel_counts(value: str) -> tuple[int, ...]:
@@ -172,6 +177,104 @@ def _sync_once(args: argparse.Namespace) -> dict:
         "result": final_job.get("result"),
         "error": final_job.get("error"),
     }
+
+
+def _can_autostart_bridge(bridge_url: str) -> bool:
+    parsed = urlparse(str(bridge_url).strip())
+    host = (parsed.hostname or "").lower()
+    return host in _LOCAL_BRIDGE_HOSTS
+
+
+def _bridge_host_port(bridge_url: str) -> tuple[str, int]:
+    parsed = urlparse(str(bridge_url).strip())
+    host = parsed.hostname or "127.0.0.1"
+    port = int(parsed.port) if parsed.port is not None else 47329
+    return host, port
+
+
+def _ensure_bridge_running(
+    bridge_url: str,
+    *,
+    startup_timeout_seconds: float = _DEFAULT_PUSH_BRIDGE_START_TIMEOUT_SECONDS,
+    poll_interval_seconds: float = 0.2,
+) -> dict[str, object]:
+    """Ensure the local bridge is reachable, auto-starting it for localhost URLs."""
+
+    try:
+        return {
+            "bridge_url": bridge_url,
+            "bridge_started": False,
+            "bridge": healthcheck_bridge(bridge_url),
+        }
+    except BridgeClientError as error:
+        if not _can_autostart_bridge(bridge_url):
+            raise BridgeClientError(
+                f"Bridge is not reachable at {bridge_url}. Auto-start is only supported for localhost bridge URLs."
+            ) from error
+
+        host, port = _bridge_host_port(bridge_url)
+        try:
+            subprocess.Popen(  # noqa: S603 - trusted local command assembled from fixed args
+                [
+                    sys.executable,
+                    "-m",
+                    "pubfig.cli",
+                    "figma",
+                    "bridge",
+                    "start",
+                    "--host",
+                    host,
+                    "--port",
+                    str(port),
+                ],
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                start_new_session=True,
+            )
+        except OSError as start_error:
+            raise BridgeClientError(
+                f"Failed to auto-start local bridge at {bridge_url}: {start_error}"
+            ) from start_error
+
+        deadline = time.monotonic() + max(float(startup_timeout_seconds), 0.5)
+        last_error = str(error)
+        while time.monotonic() < deadline:
+            time.sleep(max(float(poll_interval_seconds), 0.05))
+            try:
+                return {
+                    "bridge_url": bridge_url,
+                    "bridge_started": True,
+                    "bridge": healthcheck_bridge(bridge_url),
+                }
+            except BridgeClientError as retry_error:
+                last_error = str(retry_error)
+
+        raise BridgeClientError(
+            f"Auto-started local bridge at {bridge_url}, but it did not become ready within "
+            f"{float(startup_timeout_seconds):.1f}s. Last error: {last_error}"
+        )
+
+
+def _handle_push(args: argparse.Namespace) -> dict:
+    """Agent-first wrapper around sync with auto bridge/session defaults."""
+
+    bridge_state = _ensure_bridge_running(
+        args.bridge_url,
+        startup_timeout_seconds=float(args.bridge_start_timeout),
+    )
+    args.write_bundle = True
+    if not getattr(args, "session", None):
+        args.session = "latest"
+    result = _sync_once(args)
+    result["bridge_started"] = bool(bridge_state["bridge_started"])
+    result["push_defaults"] = {
+        "session": args.session,
+        "write_bundle": bool(args.write_bundle),
+        "mode": args.mode,
+        "relayout": bool(args.relayout),
+    }
+    return result
 
 
 def _watch_event_timestamp() -> str:
@@ -452,6 +555,77 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     _add_panel_label_args(sync_parser)
 
+    push_parser = figma_subparsers.add_parser(
+        "push",
+        help="Agent-first sync wrapper: ensure local bridge, default to latest session, write bundle, then sync.",
+    )
+    push_parser.add_argument(
+        "source",
+        help="Panel directory (with panel-index.json) or packaged .pubfig-figma.json bundle file.",
+    )
+    push_parser.add_argument("--bridge-url", default=_DEFAULT_BRIDGE_URL, help="Bridge base URL.")
+    push_parser.add_argument(
+        "--session",
+        default=None,
+        help="Optional bridge session override. Defaults to latest.",
+    )
+    push_parser.add_argument(
+        "--mode",
+        choices=("auto", "import", "refresh"),
+        default="auto",
+        help="Import mode for the Figma plugin job.",
+    )
+    push_parser.add_argument("--relayout", action="store_true", help="Request relayout during the sync job.")
+    push_parser.add_argument("--timeout", type=float, default=120.0, help="Seconds to wait for job completion.")
+    push_parser.add_argument(
+        "--bridge-start-timeout",
+        type=float,
+        default=_DEFAULT_PUSH_BRIDGE_START_TIMEOUT_SECONDS,
+        help="Seconds to wait for an auto-started local bridge to become ready.",
+    )
+    push_parser.add_argument(
+        "--bundle-output",
+        help="Optional bundle JSON output path used for the auto-enabled --write-bundle behavior.",
+    )
+    push_parser.add_argument("--figure-id", help="Stable figure identifier for Figma plugin refresh.")
+    push_parser.add_argument("--title", help="Optional figure title stored in the bundle metadata.")
+    push_parser.add_argument(
+        "--preset",
+        choices=("auto", "grid", "row", "column", "two_by_two", "hero_left", "hero_top"),
+        default=None,
+        help="Override the plugin default relayout preset for this push job.",
+    )
+    push_parser.add_argument("--columns", type=int, default=None, help="Override the plugin default grid column count.")
+    push_parser.add_argument(
+        "--row-panel-counts",
+        type=_parse_row_panel_counts,
+        default=None,
+        help="Explicit per-row panel counts, e.g. 2,2 or 3,1. Cannot be combined with --columns.",
+    )
+    push_parser.add_argument("--panel-gap", type=float, default=None, help="Override the plugin default panel gap.")
+    push_parser.add_argument("--shared-title", action="store_true", help="Add a shared title placeholder.")
+    push_parser.add_argument("--shared-legend", action="store_true", help="Add a shared legend placeholder.")
+    push_parser.add_argument(
+        "--legend-position",
+        choices=("right", "bottom"),
+        default="right",
+        help="Placement hint for the shared legend placeholder.",
+    )
+    push_parser.add_argument(
+        "--preserve-positions-on-refresh",
+        dest="preserve_positions_on_refresh",
+        action="store_true",
+        default=None,
+        help="Override the plugin default and preserve manual panel positions during refresh.",
+    )
+    push_parser.add_argument(
+        "--no-preserve-positions-on-refresh",
+        dest="preserve_positions_on_refresh",
+        action="store_false",
+        help="Override the plugin default and allow refresh to reapply layout instead of preserving user-adjusted positions.",
+    )
+    _add_panel_label_args(push_parser)
+
     watch_parser = figma_subparsers.add_parser(
         "watch",
         help="Watch a panel directory or packaged bundle file and auto-sync changes to a connected bridge session.",
@@ -574,6 +748,10 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.figma_command == "sync":
         _print_json(_sync_once(args))
+        return 0
+
+    if args.figma_command == "push":
+        _print_json(_handle_push(args))
         return 0
 
     if args.figma_command == "watch":

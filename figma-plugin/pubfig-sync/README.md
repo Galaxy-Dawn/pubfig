@@ -12,6 +12,15 @@ A Figma plugin for **panel-bundle import / refresh** in the `pubfig` panel-first
 
 ## CLI pairing
 
+Agent-first default:
+
+```bash
+pubfig figma push examples/figma_panels_demo_output --figure-id figure-01
+```
+
+`push` ensures the local bridge is running, defaults to the latest connected
+session, auto-enables `--write-bundle`, and then performs the sync / refresh.
+
 Create a bundle from an exported panel directory:
 
 ```bash
@@ -46,15 +55,9 @@ available.
 
 ## Bridge automation mode
 
-1. Start the bridge:
-
-```bash
-pubfig figma bridge start
-```
-
-2. Open the plugin in Figma, set the bridge URL to `http://localhost:47329`, and click **Connect Bridge**
-3. Optionally enable **Auto-connect bridge when plugin opens**
-4. Trigger future refreshes from the terminal with `pubfig figma sync ...`
+1. Open the plugin in Figma, set the bridge URL to `http://localhost:47329`, and click **Connect Bridge**
+2. Optionally enable **Auto-connect bridge when plugin opens**
+3. Trigger future refreshes from the terminal with `pubfig figma push ...`
 
 ## Supported relayout presets
 

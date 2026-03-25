@@ -163,17 +163,21 @@ pubfig figma package panels --figure-id figure-01
 
 1. 先从 Python 导出 panels
 2. 在 Figma 里把 plugin 和本地 bridge 连上一次
-3. 之后从终端运行带 `--write-bundle` 的 sync
+3. 之后从终端直接运行 `pubfig figma push`
 4. 让 Figma 原地 refresh 当前 figure
 5. 如果 bridge refresh 临时卡住，就把刚刚写出的 bundle 直接载入 plugin 做 manual fallback
 
 ```bash
-pubfig figma bridge start
-pubfig figma sync panels --session latest --figure-id figure-01 --write-bundle
+pubfig figma push panels --figure-id figure-01
 ```
 
-`--write-bundle` 很关键：它会先把这次 bridge 实际发送的 payload 落成一个 bundle，
-这样 bridge refresh 和 manual fallback 用的是**同一份交接物**，而不是两条不同导出链路。
+`pubfig figma push` 是对旧 bridge 工作流做的 agent-first 封装：它会自动确保本地
+bridge 可用、默认选择 latest session、自动开启 `--write-bundle`，然后再执行
+sync / refresh。
+
+`--write-bundle` 很关键：它会先把这次 bridge 实际发送的 payload 落成一个
+bundle，这样 bridge refresh 和 manual fallback 用的是**同一份交接物**，而不是
+两条不同导出链路。
 
 ### plugin 负责什么
 
@@ -199,6 +203,7 @@ pubfig figma watch figure-01.pubfig-figma.json --session latest
 
 - `export_panel(...)`
 - `export_panels(...)`
+- `pubfig figma push`
 - `pubfig figma package`
 - `pubfig figma validate`
 - `pubfig figma inspect`
@@ -219,23 +224,17 @@ pubfig figma watch figure-01.pubfig-figma.json --session latest
 
 如果你想要更稳定的 **一次连接、终端触发** 工作流：
 
-1. 先启动本地 bridge：
+1. 在 Figma 中打开 `pubfig-sync`，将 bridge URL 填为 `http://localhost:47329` 并点击 **Connect Bridge**
+2. 之后从终端触发刷新：
 
 ```bash
-pubfig figma bridge start
-```
-
-2. 在 Figma 中打开 `pubfig-sync`，将 bridge URL 填为 `http://localhost:47329` 并点击 **Connect Bridge**
-3. 之后从终端触发刷新：
-
-```bash
-pubfig figma sync panels --session latest --figure-id figure-01 --write-bundle
+pubfig figma push panels --figure-id figure-01
 pubfig figma sync panels/figure-01.pubfig-figma.json --session latest
 pubfig figma bridge status
 ```
 
-`--write-bundle` 会先把这次 bridge 实际发送的 bundle 落盘。如果 bridge 或
-plugin refresh 临时失效，你可以立刻把同一个 `.pubfig-figma.json` 手动导入
+对 localhost bridge URL，`push` 会在需要时自动拉起本地 bridge。如果 bridge 或
+plugin refresh 临时失效，你仍然可以立刻把写出的 `.pubfig-figma.json` 手动导入
 到 Figma，形成完整 fallback 闭环。
 
 `pubfig figma watch` 现在也会在每次刷新时输出更完整的事件信息，包括触发变更

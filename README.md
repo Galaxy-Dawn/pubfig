@@ -164,18 +164,21 @@ The main operational path is:
 
 1. export panels from Python
 2. keep the plugin connected to the local bridge once
-3. run terminal sync with `--write-bundle`
+3. run `pubfig figma push`
 4. let Figma refresh the figure in place
 5. if bridge refresh fails, load the same written bundle in the plugin and use manual fallback
 
 ```bash
-pubfig figma bridge start
-pubfig figma sync panels --session latest --figure-id figure-01 --write-bundle
+pubfig figma push panels --figure-id figure-01
 ```
 
-`--write-bundle` is important: it writes the exact payload used by bridge sync,
-so bridge refresh and manual fallback use the **same bundle** instead of two
-different export paths.
+`pubfig figma push` is the agent-first wrapper around the older bridge workflow:
+it ensures the local bridge is running, defaults to the latest connected
+session, auto-enables `--write-bundle`, and then performs the sync / refresh.
+
+`--write-bundle` is important because it writes the exact payload used by bridge
+sync, so bridge refresh and manual fallback use the **same bundle** instead of
+two different export paths.
 
 ### What the plugin does
 
@@ -201,6 +204,7 @@ Other useful commands:
 
 - `export_panel(...)`
 - `export_panels(...)`
+- `pubfig figma push`
 - `pubfig figma package`
 - `pubfig figma validate`
 - `pubfig figma inspect`
@@ -221,24 +225,18 @@ If you use Codex locally, the companion skill `pubfig-figma-workflow` can still 
 
 For a more reliable **once-connected, terminal-driven** workflow:
 
-1. start the local bridge:
+1. in Figma, open `pubfig-sync`, set the bridge URL to `http://localhost:47329`, and click **Connect Bridge**
+2. trigger future refreshes from the terminal:
 
 ```bash
-pubfig figma bridge start
-```
-
-2. in Figma, open `pubfig-sync`, set the bridge URL to `http://localhost:47329`, and click **Connect Bridge**
-3. trigger future refreshes from the terminal:
-
-```bash
-pubfig figma sync panels --session latest --figure-id figure-01 --write-bundle
+pubfig figma push panels --figure-id figure-01
 pubfig figma sync panels/figure-01.pubfig-figma.json --session latest
 pubfig figma bridge status
 ```
 
-`--write-bundle` writes the exact bridge payload to disk first. If the bridge or
-plugin refresh path breaks, you can immediately import that same
-`.pubfig-figma.json` file manually in Figma as a fallback.
+`push` will auto-start the local bridge for localhost bridge URLs when needed.
+If the bridge or plugin refresh path breaks, the written `.pubfig-figma.json`
+can still be imported manually in Figma as a fallback.
 
 `pubfig figma watch` now also reports richer per-refresh events, including the
 changed source files, resolved source kind, and the manual fallback

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from threading import Thread
 import time
 from urllib.request import Request, urlopen
@@ -507,3 +508,145 @@ def test_cli_figma_sync_bundle_file_write_bundle_reports_existing_path(tmp_path,
     server.server_close()
     thread.join(timeout=2)
     plt.close(fig_a)
+
+
+def test_cli_figma_push_end_to_end_defaults_latest_and_write_bundle(tmp_path, capsys):
+    server = BridgeHttpServer(("127.0.0.1", 0), public_url="http://127.0.0.1:0")
+    port = int(server.server_address[1])
+    thread = Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base_url = f"http://127.0.0.1:{port}"
+
+    session_payload = _post_json(
+        f"{base_url}/sessions/register",
+        {
+            "client_name": "pubfig-sync",
+            "file_name": "Acceptance File",
+            "page_name": "Page 1",
+            "plugin_version": "0.4.8",
+            "bridge_url": base_url,
+        },
+    )
+    session_id = session_payload["session"]["session_id"]
+
+    fig_a = _make_simple_fig("A")
+    panel_dir = tmp_path / "panels"
+    export_panels({"a": fig_a}, panel_dir, overwrite=True)
+
+    def plugin_worker() -> None:
+        deadline = time.time() + 5
+        while time.time() < deadline:
+            next_job = _get_json(f"{base_url}/sessions/{session_id}/next-job")["job"]
+            if next_job is None:
+                time.sleep(0.05)
+                continue
+            _post_json(
+                f"{base_url}/jobs/{next_job['job_id']}/result",
+                {
+                    "result": {
+                        "figure_id": next_job["figure_id"],
+                        "root_name": "figure/push-sync",
+                        "page_name": "Page 1",
+                        "mode": "refresh",
+                        "relayout": False,
+                    },
+                    "error": None,
+                },
+            )
+            return
+        raise BridgeClientError("Timed out waiting for test bridge job")
+
+    worker = Thread(target=plugin_worker, daemon=True)
+    worker.start()
+
+    exit_code = cli_main(
+        [
+            "figma",
+            "push",
+            str(panel_dir),
+            "--bridge-url",
+            base_url,
+            "--figure-id",
+            "push-sync-figure",
+        ]
+    )
+    assert exit_code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is True
+    assert payload["session_id"] == session_id
+    assert payload["bundle_written"] is True
+    assert payload["push_defaults"]["session"] == "latest"
+    assert payload["push_defaults"]["write_bundle"] is True
+    assert payload["result"]["root_name"] == "figure/push-sync"
+    assert payload["bridge_started"] is False
+
+    worker.join(timeout=2)
+    server.shutdown()
+    server.server_close()
+    thread.join(timeout=2)
+    plt.close(fig_a)
+
+
+def test_cli_figma_push_autostarts_local_bridge(monkeypatch, tmp_path, capsys):
+    import pubfig.cli as cli_module
+
+    health_calls: list[str] = []
+    popen_calls: list[list[str]] = []
+
+    def fake_healthcheck(url: str) -> dict:
+        health_calls.append(url)
+        if len(health_calls) == 1:
+            raise BridgeClientError("bridge down")
+        return {"ok": True, "service": "pubfig-figma-bridge"}
+
+    def fake_popen(cmd: list[str], **kwargs):
+        popen_calls.append(list(cmd))
+
+        class _DummyProcess:
+            pass
+
+        return _DummyProcess()
+
+    def fake_sync_once(args):
+        assert args.write_bundle is True
+        assert args.session == "latest"
+        return {
+            "ok": True,
+            "bridge_url": args.bridge_url,
+            "session_id": "latest-session",
+            "job_id": "job-push",
+            "status": "completed",
+            "figure_id": args.figure_id,
+            "source_kind": "panel_dir",
+            "source_path": str(args.source),
+            "bundle_written": True,
+            "bundle_path": str(tmp_path / "push.pubfig-figma.json"),
+            "bundle_provenance": {"bundle_origin": "written_bundle"},
+            "waited_seconds": 0.01,
+            "result": {"root_name": "figure/push"},
+            "error": None,
+        }
+
+    monkeypatch.setattr(cli_module, "healthcheck_bridge", fake_healthcheck)
+    monkeypatch.setattr(cli_module.subprocess, "Popen", fake_popen)
+    monkeypatch.setattr(cli_module, "_sync_once", fake_sync_once)
+
+    exit_code = cli_main(
+        [
+            "figma",
+            "push",
+            str(tmp_path / "panels"),
+            "--figure-id",
+            "push-figure",
+        ]
+    )
+    assert exit_code == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["ok"] is True
+    assert payload["bridge_started"] is True
+    assert payload["push_defaults"]["session"] == "latest"
+    assert payload["push_defaults"]["write_bundle"] is True
+    assert len(popen_calls) == 1
+    assert popen_calls[0][:4] == [sys.executable, "-m", "pubfig.cli", "figma"]
+    assert "bridge" in popen_calls[0]
+    assert "start" in popen_calls[0]
