@@ -115,17 +115,29 @@ fig = pf.bar_scatter(
 
 ### pubfig → Figma
 
-`pubfig` 和 Figma 现在走的是一条 **panel-first 的整图装配工作流**：
+#### 这条链路能给你什么
 
-- **Python / pubfig** 负责生成干净、稳定的 panel 图形资产
-- **Figma** 负责整张 publication figure 的最终拼版与精修
-- 两者之间的交接物是一个 panel 目录，再加一个 `.pubfig-figma.json` bundle
+`pubfig` 负责导出干净的 panel 图形资产，Figma 继续负责整张 publication figure 的
+拼版、收尾和最终 polish。
 
-换句话说，`pubfig` 不是要替代 Figma 做整图排版；它负责把 panel 资产稳定导出，
-而 Figma 继续负责整图级标题、shared legend、箭头、注释和最终视觉收尾。
+日常使用时，主命令固定就是 `pubfig figma push`。
 
-现在 panel 导出默认会产出**不带 subplot title 的干净图形资产**，这样标题可以在
-Figma 的整图编排阶段统一处理。如果你确实想保留 panel 内嵌 title，可以显式传
+#### Quick Start
+
+1. 在 Figma 里安装或打开 `pubfig-sync` plugin。
+2. 在 plugin 里点一次 **Connect Bridge**。
+3. 从 Python 导出 panels。
+4. 在终端运行 `pubfig figma push <panel_dir> --figure-id <id>`。
+5. 如果 bridge 路径失败，就把刚写出的 bundle 载入 plugin，走 manual fallback。
+
+```bash
+pubfig figma push panels --figure-id figure-01
+```
+
+#### Minimal example
+
+现在 panel 导出默认就是**不带 title 的干净图形资产**，这样 subplot title 可以留在
+Figma 的整图装配层处理。如果你确实要保留 panel 内嵌标题，再显式传
 `include_title=True`。
 
 ```python
@@ -139,110 +151,58 @@ panels = {
     "b": pf.scatter(rng.normal(size=40), rng.normal(size=40)),
 }
 
-pf.export_panels(panels, "panels", overwrite=True)
+pf.export_panels(panels, "panels", overwrite=True)  # 默认导出 title-free art
 ```
 
-这一步会生成：
+```bash
+pubfig figma push panels --figure-id figure-01
+```
 
-- `a.svg`、`b.svg` ...
-- `panel-index.json`
+这会先写出 `a.svg`、`b.svg`、`panel-index.json` 之类的 panel 资产，然后通过
+panel-first 工作流把它们推到 Figma。
 
-如果你想得到一个单文件的 Figma 交接包，再对这个目录执行：
+#### How refresh works
+
+- `figure_id` 保持稳定时，会原地 refresh 现有 figure。
+- 换一个新的 `figure_id` 时，会导入成一张新的 figure。
+
+#### FAQ / Troubleshooting
+
+**Connect Bridge 是做什么的？**  
+它会把当前打开的 Figma plugin 和你的本地终端工作流连起来，后续 `push` 才知道该
+刷新哪个 live session。
+
+**`pubfig figma push` 会自动做什么？**  
+它是默认的 agent-first 主命令，会自动确保本地 bridge 可用、选择最新连接的
+session、写出 bundle，然后执行 sync / refresh。
+
+**`.pubfig-figma.json` 是什么？**  
+它就是一张 figure 的 Figma 交接 bundle。保留这份文件，就能做 manual import、
+refresh、debug 或 recovery。
+
+**bridge 失败时怎么 manual fallback？**  
+如果 bridge refresh 卡住，就把最新写出的 `.pubfig-figma.json` bundle 载入
+`pubfig-sync`，再用 **Import as New**、**Manual Refresh** 或 **Refresh + Relayout**。
+
+**什么时候用 `pubfig figma package`？**  
+当你只想先写出一个独立 bundle、暂时不立刻 push 到 Figma 时，用这个 secondary
+命令。
 
 ```bash
 pubfig figma package panels --figure-id figure-01
 ```
 
-它会写出：
-
-- `figure-01.pubfig-figma.json`
-
-### 推荐的日常主路径
-
-当前更推荐的实际工作流是：
-
-1. 先从 Python 导出 panels
-2. 在 Figma 里把 plugin 和本地 bridge 连上一次
-3. 之后从终端直接运行 `pubfig figma push`
-4. 让 Figma 原地 refresh 当前 figure
-5. 如果 bridge refresh 临时卡住，就把刚刚写出的 bundle 直接载入 plugin 做 manual fallback
-
-```bash
-pubfig figma push panels --figure-id figure-01
-```
-
-`pubfig figma push` 是对旧 bridge 工作流做的 agent-first 封装：它会自动确保本地
-bridge 可用、默认选择 latest session、自动开启 `--write-bundle`，然后再执行
-sync / refresh。
-
-`--write-bundle` 很关键：它会先把这次 bridge 实际发送的 payload 落成一个
-bundle，这样 bridge refresh 和 manual fallback 用的是**同一份交接物**，而不是
-两条不同导出链路。
-
-### plugin 负责什么
-
-`figma-plugin/pubfig-sync` 负责：
-
-- 从 panel bundle 导入一张新 figure
-- 在 `figure_id` 不变时原地 refresh 现有 figure
-- 显示 bridge 状态和 session 状态
-- 显示 bundle provenance，包括实际写出的 `bundle_path`
-- 当 bridge sync 卡住时，直接从同一个 bundle 做 manual import / refresh
-
-### CLI 入口
-
-现在 `sync` / `watch` 同时接受 **panel 目录** 和已经打好的
-`.pubfig-figma.json` bundle：
+**高级命令放在哪里？**  
+只有在你需要更细的控制或排障时，再用这些 advanced 命令：
 
 ```bash
 pubfig figma sync figure-01.pubfig-figma.json --session latest
 pubfig figma watch figure-01.pubfig-figma.json --session latest
-```
-
-其他相关入口包括：
-
-- `export_panel(...)`
-- `export_panels(...)`
-- `pubfig figma push`
-- `pubfig figma package`
-- `pubfig figma validate`
-- `pubfig figma inspect`
-- `pubfig figma sync`
-- `pubfig figma watch`
-- `pubfig figma bridge start|status`
-
-插件脚手架位于：
-
-- `figma-plugin/pubfig-sync/manifest.json`
-- `figma-plugin/pubfig-sync/code.js`
-- `figma-plugin/pubfig-sync/ui.html`
-- `figma-plugin/pubfig-sync/README.md`
-
-如果你在本地用 Codex，也可以继续让配套 skill `pubfig-figma-workflow` 协调 panel 导出 → Figma 导入 → MCP 检查流程。
-
-### Figma Bridge Automation
-
-如果你想要更稳定的 **一次连接、终端触发** 工作流：
-
-1. 在 Figma 中打开 `pubfig-sync`，将 bridge URL 填为 `http://localhost:47329` 并点击 **Connect Bridge**
-2. 之后从终端触发刷新：
-
-```bash
-pubfig figma push panels --figure-id figure-01
-pubfig figma sync panels/figure-01.pubfig-figma.json --session latest
 pubfig figma bridge status
 ```
 
-对 localhost bridge URL，`push` 会在需要时自动拉起本地 bridge。如果 bridge 或
-plugin refresh 临时失效，你仍然可以立刻把写出的 `.pubfig-figma.json` 手动导入
-到 Figma，形成完整 fallback 闭环。
-
-`pubfig figma watch` 现在也会在每次刷新时输出更完整的事件信息，包括触发变更
-的源文件、解析后的 source kind，以及 manual fallback 对应的 `bundle_path`。
-
-bridge job 现在还会携带 `bundle_provenance`，因此 plugin 在收到 bridge 推送时，
-也能直接显示这次刷新来自哪个 bundle 文件或 source 路径。换句话说，现在
-bridge sync 和 manual fallback 已经围绕同一个落盘 bundle 形成闭环。
+如果你在本地使用 Codex，也可以继续让配套 skill `pubfig-figma-workflow` 协调
+panel 导出 → Figma 导入 → MCP review 这一整条链路。
 
 ## 图类型分组
 
