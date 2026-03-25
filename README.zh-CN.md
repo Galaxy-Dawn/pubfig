@@ -27,6 +27,7 @@
 
 ## Recent News
 
+- **2026-03-25**: Panel-first Figma 链路继续打磨 — panel 导出现在默认产出无 title 的干净资产，便于在 Figma 里做整图级标题编排；`pubfig-sync` 默认关闭 shared title / legend placeholders；bridge/watch 也会直接暴露 bundle provenance 和 manual fallback 对应的 bundle 路径。
 - **2026-03-20**: Figma 本地 bridge 自动化同步 — 增加 bridge 驱动的 `pubfig figma bridge|sync|watch` 工作流，升级 `pubfig-sync` 的 bridge connection mode，并支持在一次 plugin 连接后由 CLI 触发矢量导入/刷新。
 - **2026-03-20**: Figma plugin v2 工作流打磨 — 增加 `auto` / `hero_top` relayout presets，补齐 shared title / legend placeholders，并改进 refresh 行为，使用户在 Figma 中手调过的位置默认能更稳定地保留下来。
 - **2026-03-20**: CLI + Figma plugin 工作流 — 新增 `pubfig figma package|validate|inspect`，引入单文件的 Figma bundle JSON 格式，并提供 `figma-plugin/pubfig-sync` 插件脚手架，用于节点级导入与刷新。
@@ -112,14 +113,20 @@ fig = pf.bar_scatter(
 )
 ```
 
-### Figma Workflow
+### pubfig → Figma
 
-对于多 panel 的论文大图，`pubfig` 现在保持一个更简单的职责边界：
+`pubfig` 和 Figma 现在走的是一条 **panel-first 的整图装配工作流**：
 
-1. 在 Python 里用 `export_panel(...)` 或 `export_panels(...)` 导出各个 panel
-2. 用 `pubfig figma package` 打包导出的 panel 目录
-3. 在 Figma 中通过 `pubfig-sync` 导入或刷新这些 panel 资产
-4. 最终的大图排版、对齐、注释、箭头与精修放在 Figma 完成
+- **Python / pubfig** 负责生成干净、稳定的 panel 图形资产
+- **Figma** 负责整张 publication figure 的最终拼版与精修
+- 两者之间的交接物是一个 panel 目录，再加一个 `.pubfig-figma.json` bundle
+
+换句话说，`pubfig` 不是要替代 Figma 做整图排版；它负责把 panel 资产稳定导出，
+而 Figma 继续负责整图级标题、shared legend、箭头、注释和最终视觉收尾。
+
+现在 panel 导出默认会产出**不带 subplot title 的干净图形资产**，这样标题可以在
+Figma 的整图编排阶段统一处理。如果你确实想保留 panel 内嵌 title，可以显式传
+`include_title=True`。
 
 ```python
 import numpy as np
@@ -128,35 +135,73 @@ import pubfig as pf
 rng = np.random.default_rng(0)
 
 panels = {
-    "a": pf.bar(rng.uniform(0.4, 0.9, size=3), category_names=["A", "B", "C"], title="Panel A"),
-    "b": pf.scatter(rng.normal(size=40), rng.normal(size=40), title="Panel B"),
+    "a": pf.bar(rng.uniform(0.4, 0.9, size=3), category_names=["A", "B", "C"]),
+    "b": pf.scatter(rng.normal(size=40), rng.normal(size=40)),
 }
 
 pf.export_panels(panels, "panels", overwrite=True)
 ```
 
-然后可以通过 CLI 打包 / 校验 / 查看：
+这一步会生成：
+
+- `a.svg`、`b.svg` ...
+- `panel-index.json`
+
+如果你想得到一个单文件的 Figma 交接包，再对这个目录执行：
 
 ```bash
 pubfig figma package panels --figure-id figure-01
-pubfig figma validate panels
-pubfig figma inspect figure-01.pubfig-figma.json
 ```
 
+它会写出：
+
+- `figure-01.pubfig-figma.json`
+
+### 推荐的日常主路径
+
+当前更推荐的实际工作流是：
+
+1. 先从 Python 导出 panels
+2. 在 Figma 里把 plugin 和本地 bridge 连上一次
+3. 之后从终端运行带 `--write-bundle` 的 sync
+4. 让 Figma 原地 refresh 当前 figure
+5. 如果 bridge refresh 临时卡住，就把刚刚写出的 bundle 直接载入 plugin 做 manual fallback
+
+```bash
+pubfig figma bridge start
+pubfig figma sync panels --session latest --figure-id figure-01 --write-bundle
+```
+
+`--write-bundle` 很关键：它会先把这次 bridge 实际发送的 payload 落成一个 bundle，
+这样 bridge refresh 和 manual fallback 用的是**同一份交接物**，而不是两条不同导出链路。
+
+### plugin 负责什么
+
+`figma-plugin/pubfig-sync` 负责：
+
+- 从 panel bundle 导入一张新 figure
+- 在 `figure_id` 不变时原地 refresh 现有 figure
+- 显示 bridge 状态和 session 状态
+- 显示 bundle provenance，包括实际写出的 `bundle_path`
+- 当 bridge sync 卡住时，直接从同一个 bundle 做 manual import / refresh
+
+### CLI 入口
+
 现在 `sync` / `watch` 同时接受 **panel 目录** 和已经打好的
-`.pubfig-figma.json` bundle。也就是说，package 生成的 bundle 可以直接作为
-bridge 刷新的单一输入：
+`.pubfig-figma.json` bundle：
 
 ```bash
 pubfig figma sync figure-01.pubfig-figma.json --session latest
 pubfig figma watch figure-01.pubfig-figma.json --session latest
 ```
 
-当前保留的 Figma 相关入口是：
+其他相关入口包括：
 
 - `export_panel(...)`
 - `export_panels(...)`
 - `pubfig figma package`
+- `pubfig figma validate`
+- `pubfig figma inspect`
 - `pubfig figma sync`
 - `pubfig figma watch`
 - `pubfig figma bridge start|status`
@@ -181,7 +226,7 @@ pubfig figma bridge start
 ```
 
 2. 在 Figma 中打开 `pubfig-sync`，将 bridge URL 填为 `http://localhost:47329` 并点击 **Connect Bridge**
-3. 之后从终端触发 panel 刷新：
+3. 之后从终端触发刷新：
 
 ```bash
 pubfig figma sync panels --session latest --figure-id figure-01 --write-bundle
@@ -197,7 +242,8 @@ plugin refresh 临时失效，你可以立刻把同一个 `.pubfig-figma.json` �
 的源文件、解析后的 source kind，以及 manual fallback 对应的 `bundle_path`。
 
 bridge job 现在还会携带 `bundle_provenance`，因此 plugin 在收到 bridge 推送时，
-也能直接显示这次刷新来自哪个 bundle 文件或 source 路径。
+也能直接显示这次刷新来自哪个 bundle 文件或 source 路径。换句话说，现在
+bridge sync 和 manual fallback 已经围绕同一个落盘 bundle 形成闭环。
 
 ## 图类型分组
 

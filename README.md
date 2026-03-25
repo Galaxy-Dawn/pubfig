@@ -27,6 +27,7 @@
 
 ## Recent News
 
+- **2026-03-25**: Panel-first Figma loop polish — panel export now defaults to title-free assets for cleaner Figma assembly, `pubfig-sync` now keeps shared title / legend placeholders off by default, and bridge/watch flows now surface bundle provenance plus the exact manual-fallback bundle path.
 - **2026-03-20**: Local bridge automation for Figma sync — added a bridge-backed `pubfig figma bridge|sync|watch` workflow, upgraded `pubfig-sync` with bridge connection mode, and enabled CLI-triggered vector import/refresh after one-time plugin connection.
 - **2026-03-20**: Figma plugin v2 workflow polish — added `auto` / `hero_top` relayout presets, upgraded shared title / legend placeholders, and improved refresh behavior so manual Figma positioning is preserved more reliably unless relayout is requested.
 - **2026-03-20**: CLI + Figma plugin workflow — added `pubfig figma package|validate|inspect`, introduced a single-file Figma bundle JSON format for exported panels, and scaffolded the `figma-plugin/pubfig-sync` plugin for node-level import and refresh.
@@ -112,14 +113,21 @@ fig = pf.bar_scatter(
 )
 ```
 
-### Figma Workflow
+### pubfig → Figma
 
-For multi-panel figures, `pubfig` now keeps the responsibility boundary simple:
+`pubfig` and Figma now work as a **panel-first figure assembly workflow**:
 
-1. export each panel from Python with `export_panel(...)` or `export_panels(...)`
-2. package the exported panel directory with `pubfig figma package`
-3. import or refresh those panel assets in Figma with `pubfig-sync`
-4. finish alignment, annotations, arrows, and final figure assembly in Figma
+- **Python / pubfig** is responsible for generating clean panel artwork
+- **Figma** is responsible for assembling the final publication figure
+- the handoff artifact is a panel directory plus one `.pubfig-figma.json` bundle
+
+In other words, `pubfig` is not trying to replace Figma layout work. It gives
+you stable panel assets; Figma remains the place for whole-figure composition,
+shared titles / legends, arrows, callouts, and final polish.
+
+Panel export now defaults to **clean, title-free art** so subplot titles can be
+handled at the Figma assembly layer. If you explicitly want embedded panel
+titles, pass `include_title=True`.
 
 ```python
 import numpy as np
@@ -128,35 +136,74 @@ import pubfig as pf
 rng = np.random.default_rng(0)
 
 panels = {
-    "a": pf.bar(rng.uniform(0.4, 0.9, size=3), category_names=["A", "B", "C"], title="Panel A"),
-    "b": pf.scatter(rng.normal(size=40), rng.normal(size=40), title="Panel B"),
+    "a": pf.bar(rng.uniform(0.4, 0.9, size=3), category_names=["A", "B", "C"]),
+    "b": pf.scatter(rng.normal(size=40), rng.normal(size=40)),
 }
 
 pf.export_panels(panels, "panels", overwrite=True)
 ```
 
-Then package / validate / inspect from the CLI:
+This creates:
+
+- `a.svg`, `b.svg`, ...
+- `panel-index.json`
+
+If you want a single Figma handoff file, package that directory:
 
 ```bash
 pubfig figma package panels --figure-id figure-01
-pubfig figma validate panels
-pubfig figma inspect figure-01.pubfig-figma.json
 ```
 
-`sync` / `watch` now accept **either** the panel directory **or** the packaged
-`.pubfig-figma.json` bundle. That means the packaged artifact can be reused as the
-single source of truth for bridge-driven refreshes:
+That writes:
+
+- `figure-01.pubfig-figma.json`
+
+### Recommended day-to-day path
+
+The main operational path is:
+
+1. export panels from Python
+2. keep the plugin connected to the local bridge once
+3. run terminal sync with `--write-bundle`
+4. let Figma refresh the figure in place
+5. if bridge refresh fails, load the same written bundle in the plugin and use manual fallback
+
+```bash
+pubfig figma bridge start
+pubfig figma sync panels --session latest --figure-id figure-01 --write-bundle
+```
+
+`--write-bundle` is important: it writes the exact payload used by bridge sync,
+so bridge refresh and manual fallback use the **same bundle** instead of two
+different export paths.
+
+### What the plugin does
+
+`figma-plugin/pubfig-sync` can:
+
+- import a new figure from a panel bundle
+- refresh an existing figure in place when `figure_id` stays stable
+- show bridge status and session state
+- show bundle provenance, including the written `bundle_path`
+- let you manually import / refresh from the same bundle when bridge sync stalls
+
+### CLI entry points
+
+`sync` / `watch` accept **either** the panel directory **or** the packaged
+`.pubfig-figma.json` bundle:
 
 ```bash
 pubfig figma sync figure-01.pubfig-figma.json --session latest
 pubfig figma watch figure-01.pubfig-figma.json --session latest
 ```
 
-The supported Figma-facing entry points are now:
+Other useful commands:
 
 - `export_panel(...)`
 - `export_panels(...)`
 - `pubfig figma package`
+- `pubfig figma validate`
+- `pubfig figma inspect`
 - `pubfig figma sync`
 - `pubfig figma watch`
 - `pubfig figma bridge start|status`
@@ -174,14 +221,14 @@ If you use Codex locally, the companion skill `pubfig-figma-workflow` can still 
 
 For a more reliable **once-connected, terminal-driven** workflow:
 
-1. Start the local bridge:
+1. start the local bridge:
 
 ```bash
 pubfig figma bridge start
 ```
 
-2. In Figma, open `pubfig-sync`, set the bridge URL to `http://localhost:47329`, and click **Connect Bridge**
-3. Trigger future panel refreshes from the terminal:
+2. in Figma, open `pubfig-sync`, set the bridge URL to `http://localhost:47329`, and click **Connect Bridge**
+3. trigger future refreshes from the terminal:
 
 ```bash
 pubfig figma sync panels --session latest --figure-id figure-01 --write-bundle
@@ -198,7 +245,8 @@ changed source files, resolved source kind, and the manual fallback
 `bundle_path`.
 
 Bridge jobs now also carry `bundle_provenance`, so the plugin can show which
-bundle file or source path a pushed refresh came from.
+bundle file or source path a pushed refresh came from. In practice, bridge sync
+and manual fallback now share the same written bundle artifact.
 
 ## Plot Families
 

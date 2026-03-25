@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 import json
 from pathlib import Path
 import re
-from typing import Mapping, Sequence
+from typing import Iterator, Mapping, Sequence
 
 from matplotlib.figure import Figure
 
@@ -81,6 +82,53 @@ def _extract_panel_title(fig: Figure) -> str | None:
     return None
 
 
+@contextmanager
+def _temporarily_strip_titles(fig: Figure, *, include_title: bool) -> Iterator[None]:
+    """Temporarily hide suptitle / axes titles during panel export.
+
+    Panel-first Figma assembly usually wants clean art without embedded subplot titles,
+    because titles are typically handled at the whole-figure assembly layer instead.
+    """
+
+    if include_title:
+        yield
+        return
+
+    suptitle = getattr(fig, "_suptitle", None)
+    saved_suptitle_text: str | None = None
+    if suptitle is not None:
+        saved_suptitle_text = str(getattr(suptitle, "get_text", lambda: "")())
+        suptitle.set_text("")
+
+    saved_axes_titles: list[tuple[object, str, str, str]] = []
+    for ax in fig.axes:
+        if getattr(ax, "name", "") == "legend":
+            continue
+        center = str(ax.get_title(loc="center"))
+        left = str(ax.get_title(loc="left"))
+        right = str(ax.get_title(loc="right"))
+        saved_axes_titles.append((ax, center, left, right))
+        if center:
+            ax.set_title("", loc="center")
+        if left:
+            ax.set_title("", loc="left")
+        if right:
+            ax.set_title("", loc="right")
+
+    try:
+        yield
+    finally:
+        if suptitle is not None and saved_suptitle_text is not None:
+            suptitle.set_text(saved_suptitle_text)
+        for ax, center, left, right in saved_axes_titles:
+            if center:
+                ax.set_title(center, loc="center")
+            if left:
+                ax.set_title(left, loc="left")
+            if right:
+                ax.set_title(right, loc="right")
+
+
 def _ensure_writable_target(path: Path, *, overwrite: bool) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     if path.exists() and not overwrite:
@@ -143,6 +191,7 @@ def export_panel(
     width: str | float | int | None = None,
     height_mm: float | int | None = None,
     svg_fonttype: str = "none",
+    include_title: bool = False,
     overwrite: bool = False,
 ) -> PanelExportRecord:
     """Export a single panel asset plus minimal Figma sync metadata.
@@ -158,29 +207,31 @@ def export_panel(
     _ensure_writable_target(target_path, overwrite=overwrite)
 
     mpl_fig = _coerce_mpl_figure(fig)
-    if _use_publication_export(spec=spec, width=width, height_mm=height_mm):
-        export_spec = spec if spec is not None else "nature"
-        export_width = width if width is not None else "single"
-        save_figure(
-            mpl_fig,
-            target_path.with_suffix(""),
-            spec=export_spec,
-            width=export_width,
-            height_mm=height_mm,
-            vector_formats=(format_name,) if format_name in {"svg", "pdf", "eps", "ps"} else (),
-            raster_formats=(format_name,) if format_name not in {"svg", "pdf", "eps", "ps"} else (),
-            transparent=transparent,
-            trim=trim,
-            svg_fonttype=svg_fonttype,
-        )
-    else:
-        _save_basic_figure(
-            mpl_fig,
-            target_path,
-            transparent=transparent,
-            trim=trim,
-            svg_fonttype=svg_fonttype,
-        )
+    panel_title = _extract_panel_title(mpl_fig)
+    with _temporarily_strip_titles(mpl_fig, include_title=include_title):
+        if _use_publication_export(spec=spec, width=width, height_mm=height_mm):
+            export_spec = spec if spec is not None else "nature"
+            export_width = width if width is not None else "single"
+            save_figure(
+                mpl_fig,
+                target_path.with_suffix(""),
+                spec=export_spec,
+                width=export_width,
+                height_mm=height_mm,
+                vector_formats=(format_name,) if format_name in {"svg", "pdf", "eps", "ps"} else (),
+                raster_formats=(format_name,) if format_name not in {"svg", "pdf", "eps", "ps"} else (),
+                transparent=transparent,
+                trim=trim,
+                svg_fonttype=svg_fonttype,
+            )
+        else:
+            _save_basic_figure(
+                mpl_fig,
+                target_path,
+                transparent=transparent,
+                trim=trim,
+                svg_fonttype=svg_fonttype,
+            )
 
     return PanelExportRecord(
         panel_id=panel_name,
@@ -189,7 +240,7 @@ def export_panel(
         exported_at=_utc_now_iso(),
         figma_node_name=_default_figma_node_name(panel_name),
         pubfig_version=__version__,
-        title=_extract_panel_title(mpl_fig),
+        title=panel_title,
     )
 
 
@@ -205,6 +256,7 @@ def export_panels(
     width: str | float | int | None = None,
     height_mm: float | int | None = None,
     svg_fonttype: str = "none",
+    include_title: bool = False,
     overwrite: bool = False,
 ) -> list[PanelExportRecord]:
     """Export multiple panel assets and optionally write a minimal sync index."""
@@ -222,6 +274,7 @@ def export_panels(
             width=width,
             height_mm=height_mm,
             svg_fonttype=svg_fonttype,
+            include_title=include_title,
             overwrite=overwrite,
         )
         for panel_id, fig in normalized

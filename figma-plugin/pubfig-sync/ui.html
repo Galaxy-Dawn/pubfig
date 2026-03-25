@@ -603,7 +603,7 @@
     </div>
 
     <script>
-      const UI_VERSION = "0.4.7";
+      const UI_VERSION = "0.4.8";
       const BRIDGE_URL_STORAGE_KEY = "pubfigBridgeUrl";
       const BRIDGE_AUTO_CONNECT_STORAGE_KEY = "pubfigBridgeAutoConnect";
       const BRIDGE_POLL_INTERVAL_MS = 1800;
@@ -729,6 +729,11 @@
         setBadge(actionPanelBadge, bundleReady ? "info" : "warn", bundleReady ? "Manual actions ready" : "Bundle required");
       }
 
+      function resetPlaceholderControls() {
+        sharedTitleCheckbox.checked = false;
+        sharedLegendCheckbox.checked = false;
+      }
+
       function renderSummaryItems(items) {
         bundleSummaryGrid.innerHTML = "";
         items.forEach(function (item) {
@@ -809,6 +814,7 @@
       function resetBundleSummary(message) {
         summaryState.bundlePath = null;
         summaryState.sourcePath = null;
+        resetPlaceholderControls();
         bundleSummaryTitle.textContent = "Choose a bundle file";
         bundleReadyBadge.textContent = "Not loaded";
         bundleReadyBadge.className = "badge idle";

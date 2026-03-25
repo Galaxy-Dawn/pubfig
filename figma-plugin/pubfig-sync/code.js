@@ -7,7 +7,7 @@ const SOURCE_KEY = "pubfigSourcePath";
 const VERSION_KEY = "pubfigVersion";
 const LAYOUT_PRESET_KEY = "pubfigLayoutPreset";
 const PANEL_GAP_KEY = "pubfigPanelGap";
-const PLUGIN_VERSION = "0.4.7";
+const PLUGIN_VERSION = "0.4.8";
 const PANEL_BUNDLE_TYPE = "pubfig_figma_bundle";
 
 const PANEL_PADDING = 2;
