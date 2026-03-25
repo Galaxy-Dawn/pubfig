@@ -42,6 +42,9 @@ Homepage = "https://github.com/Galaxy-Dawn/pubfig"
 Repository = "https://github.com/Galaxy-Dawn/pubfig"
 Issues = "https://github.com/Galaxy-Dawn/pubfig/issues"
 
+[project.scripts]
+pubfig = "pubfig.cli:main"
+
 [project.optional-dependencies]
 dev = ["pytest", "ruff", "mypy"]
 

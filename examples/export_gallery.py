@@ -7,11 +7,15 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import pubfig as pf  # noqa: E402 - allow local import after sys.path tweak for examples
+from gallery_contact_sheet import build_gallery_contact_sheet  # noqa: E402
 
 pf.set_default_theme("nature")
 OUT = ROOT / "output_figures"
+GALLERY_HERO = ROOT / "examples" / "gallery-hero.png"
+CONTACT_SHEET = OUT / "all_plots_contact_sheet.png"
 OUT.mkdir(parents=True, exist_ok=True)
 rng = np.random.default_rng(7)
 
@@ -380,5 +384,12 @@ save(
 save(pf.parallel_coordinates(make_parallel_demo(),
                              variable_names=["W", "X", "Y", "Z"], color_col=0,
                              title="Parallel Coordinates"), "27_parallel_coords")
+build_gallery_contact_sheet(
+    output_dir=OUT,
+    contact_sheet_path=CONTACT_SHEET,
+    hero_path=GALLERY_HERO,
+)
+print(f"  ✓ {CONTACT_SHEET.relative_to(ROOT)}")  # noqa: T201 - example script
+print(f"  ✓ {GALLERY_HERO.relative_to(ROOT)}")  # noqa: T201 - example script
 
 print("\n=== All done! ===")

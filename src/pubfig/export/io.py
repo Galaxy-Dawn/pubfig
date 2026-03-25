@@ -24,6 +24,20 @@ _VECTOR_TEXT_RCPARAMS: dict[str, object] = {
 }
 
 
+def _vector_text_rcparams(*, svg_fonttype: str = "none") -> dict[str, object]:
+    """Return vector-text rcParams for the current export.
+
+    The default keeps SVG text editable/selectable. For Figma-targeted panel assets,
+    callers can request ``svg_fonttype="path"`` so panel-internal labels survive import
+    as vector outlines.
+    """
+
+    return {
+        **_VECTOR_TEXT_RCPARAMS,
+        "svg.fonttype": str(svg_fonttype),
+    }
+
+
 def _layout_pubfig_legend_pairs(mpl_fig: Figure) -> None:
     """Center any (left,right) legend pairs marked by plot functions.
 
@@ -131,6 +145,7 @@ def _save_basic_figure(
     dpi: int = 300,
     transparent: bool = False,
     trim: bool = False,
+    svg_fonttype: str = "none",
 ) -> None:
     """Save a Matplotlib figure to a single explicit file path."""
     out = Path(path)
@@ -140,7 +155,7 @@ def _save_basic_figure(
     kwargs: dict[str, object] = {"dpi": int(dpi), "transparent": bool(transparent)}
     if trim:
         kwargs.update({"bbox_inches": "tight", "pad_inches": 0.01})
-    with mpl.rc_context(_VECTOR_TEXT_RCPARAMS):
+    with mpl.rc_context(_vector_text_rcparams(svg_fonttype=svg_fonttype)):
         _layout_pubfig_legend_pairs(mpl_fig)
         _run_pubfig_post_layout_hooks(mpl_fig)
         mpl_fig.savefig(out, **kwargs)
@@ -178,6 +193,7 @@ def save_figure(
     raster_formats: Sequence[str] = ("png",),
     transparent: bool | None = None,
     trim: bool = True,
+    svg_fonttype: str = "none",
 ) -> list[Path]:
     """Export a figure using publication defaults (vector + high-DPI raster)."""
     mpl_fig = _coerce_mpl_figure(fig)
@@ -240,7 +256,7 @@ def save_figure(
 
         for fmt in vfmts:
             out = base.with_suffix(f'.{fmt}')
-            with mpl.rc_context(_VECTOR_TEXT_RCPARAMS):
+            with mpl.rc_context(_vector_text_rcparams(svg_fonttype=svg_fonttype)):
                 mpl_fig.savefig(out, format=fmt, dpi=int(s.design_dpi), **common_kwargs)
             saved.append(out)
 

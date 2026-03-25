@@ -53,6 +53,63 @@ def _scatter_visual_radius_points(*, scatter_size_points: float, edge_line_width
     return face_radius + edge_radius
 
 
+def _align_title_above_legend(
+    ax: "Axes",
+    *,
+    legend,
+    gap_axes: float,
+) -> None:
+    """Place the title so its bottom sits a controlled gap above the legend."""
+    try:
+        fig = ax.figure
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+        legend_bbox_axes = legend.get_window_extent(renderer=renderer).transformed(ax.transAxes.inverted())
+        title_bbox_axes = ax.title.get_window_extent(renderer=renderer).transformed(ax.transAxes.inverted())
+    except Exception:
+        return
+
+    desired_title_bottom = float(legend_bbox_axes.y1) + float(gap_axes)
+    current_title_bottom = float(title_bbox_axes.y0)
+    delta = float(desired_title_bottom) - float(current_title_bottom)
+    if abs(float(delta)) <= 1e-6:
+        return
+
+    try:
+        title_y = float(getattr(ax.title, "get_position")()[1])
+        ax.title.set_y(float(title_y) + float(delta))
+    except Exception:
+        return
+
+
+def _annotation_top_axes(
+    ax: "Axes",
+    *,
+    renderer,
+    text_min_zorder: float = 11.0,
+    line_min_zorder: float = 10.0,
+) -> float | None:
+    """Return the top-most annotation extent in axes coordinates."""
+    top_axes: float | None = None
+    for txt in ax.texts:
+        try:
+            if float(txt.get_zorder()) < float(text_min_zorder) or not str(txt.get_text()).strip():
+                continue
+            bbox_axes = txt.get_window_extent(renderer=renderer).transformed(ax.transAxes.inverted())
+            top_axes = float(bbox_axes.y1) if top_axes is None else max(float(top_axes), float(bbox_axes.y1))
+        except Exception:
+            continue
+    for line in ax.lines:
+        try:
+            if float(line.get_zorder()) < float(line_min_zorder):
+                continue
+            bbox_axes = line.get_window_extent(renderer=renderer).transformed(ax.transAxes.inverted())
+            top_axes = float(bbox_axes.y1) if top_axes is None else max(float(top_axes), float(bbox_axes.y1))
+        except Exception:
+            continue
+    return top_axes
+
+
 def bar_scatter(
     data: np.ndarray,
     *,
@@ -86,11 +143,11 @@ def bar_scatter(
     error_draw_bottom_cap: bool = True,
     scatter_std: float = 0.28,
     scatter_jitter_max: float = 0.8,
-    scatter_size: int = 3,
+    scatter_size: float = 2.5,
     scatter_size_scale_with_bar_width: bool = True,
     scatter_size_bw_reference: float = 0.4,
-    scatter_size_bw_power: float = 1.0,
-    scatter_size_min: float = 1.0,
+    scatter_size_bw_power: float = 0.8,
+    scatter_size_min: float = 1.2,
     # Nature-like default: light gray points with slightly darker outline
     # so raw samples are visible but don't compete with bar colors.
     scatter_face_color: Optional[str] = "0.78",
@@ -113,7 +170,7 @@ def bar_scatter(
     significance_label_style: Literal["stars", "p_threshold"] = "stars",
     significance_bar_pairs: list[tuple[int, int]] | None = None,
     significance_category_indices: Sequence[int] | None = None,
-    significance_pairs_height_step_multiplier: float = 2.8,
+    significance_pairs_height_step_multiplier: float = 2.1,
     significance_pairs_height_step_multiplier_horizontal: float | None = 1.0,
     significance_stack_disjoint_pairs: bool = True,
     significance_show_ns: bool = True,
@@ -133,23 +190,30 @@ def bar_scatter(
     significance_label_horizontal_alignment: Literal["center", "left", "right"] | None = None,
     significance_label_side_horizontal: Literal["left", "right"] = "right",
     ref_position: int = 0,
-    height_step: float = 0.04,
+    height_step: float = 0.03,
     vertical_line_length_ratio: float | None = None,
     bracket_linewidth_min: float = 0.4,
     bracket_linewidth_axis_ratio: float = 0.8,
-    bracket_y_padding_min: float = 0.02,
+    bracket_y_padding_min: float = 0.012,
     bracket_y_padding_min_horizontal: float | None = 0.01,
-    bracket_y_padding_height_step_multiplier: float = 1.4,
+    bracket_y_padding_height_step_multiplier: float = 0.9,
     bracket_y_padding_height_step_multiplier_horizontal: float | None = 0.6,
-    significance_label_y_offset_ratio: float = 0.18,
-    significance_label_y_offset_ratio_horizontal: float = 0.26,
-    significance_label_y_offset_ratio_ns: float = 0.3,
-    significance_label_y_offset_ratio_ns_horizontal: float = 0.16,
-    significance_label_y_offset_ratio_stars: float = 0.18,
-    significance_label_y_offset_ratio_stars_horizontal: float = 0.26,
+    significance_label_offset_ratio_vertical: float | None = None,
+    significance_label_offset_ratio_horizontal: float | None = None,
+    significance_ns_label_offset_ratio_vertical: float | None = None,
+    significance_ns_label_offset_ratio_horizontal: float | None = None,
+    significance_stars_label_offset_ratio_vertical: float | None = None,
+    significance_stars_label_offset_ratio_horizontal: float | None = None,
+    significance_label_y_offset_ratio: float | None = None,
+    significance_label_y_offset_ratio_horizontal: float | None = None,
+    significance_label_y_offset_ratio_ns: float | None = None,
+    significance_label_y_offset_ratio_ns_horizontal: float | None = None,
+    significance_label_y_offset_ratio_stars: float | None = None,
+    significance_label_y_offset_ratio_stars_horizontal: float | None = None,
     significance_label_offset_points_horizontal: float = 18.0,
     significance_label_lane_gap_points_horizontal: float = 10.0,
-    significance_label_min_clearance_points: float = 1.0,
+    significance_label_min_clearance_points: float = 0.4,
+    significance_label_min_clearance_points_stars: float | None = 0.0,
     significance_label_min_clearance_points_horizontal: float | None = 12.0,
     significance_scatter_clearance_points: float = 1.0,
     significance_font_size: int | None = None,
@@ -159,12 +223,12 @@ def bar_scatter(
     significance_text_alpha: float = 0.85,
     auto_y_max_multiplier: float = 1.15,
     auto_y_max_include_statistics: bool = True,
-    auto_y_max_stats_margin_height_step_multiplier: float = 0.8,
+    auto_y_max_stats_margin_height_step_multiplier: float = 0.45,
     legend_show: bool = True,
     legend_gap: float = 0.07,
     legend_y_anchor_min: float = 1.02,
     legend_y_anchor_no_title: float = 1.18,
-    legend_above_stats_margin_axes: float = 0.04,
+    legend_above_stats_margin_axes: float = 0.02,
     legend_columnspacing: float = 1.6,
     legend_handlelength: float = 1.4,
     legend_handletextpad: float = 0.4,
@@ -318,17 +382,25 @@ def bar_scatter(
         bracket_y_padding_height_step_multiplier_horizontal: Optional override for
             `bracket_y_padding_height_step_multiplier` when `orientation="horizontal"`. Pass None to
             disable the override.
-        significance_label_y_offset_ratio: Text vertical offset ratio for significant labels when
-            brackets have vertical end-caps (multiplied by `height_step`).
-        significance_label_y_offset_ratio_horizontal: Text vertical offset ratio when brackets are
-            horizontal-only (no vertical end-caps).
-        significance_label_y_offset_ratio_ns: Text vertical offset ratio for non-significant labels
-            (applied when `significance_show_ns=True`).
-        significance_label_y_offset_ratio_ns_horizontal: Text vertical offset ratio for non-significant
-            labels when brackets are horizontal-only (no vertical end-caps).
-        significance_label_y_offset_ratio_stars: Text vertical offset ratio for star labels (applied when
-            `significance_label_style=\"stars\"` and `significance_stars_render_mode=\"text\"`).
-        significance_label_y_offset_ratio_stars_horizontal: Star label offset ratio for horizontal-only brackets.
+        significance_label_offset_ratio_vertical: Default label offset ratio for regular significance
+            text in vertical plots.
+        significance_label_offset_ratio_horizontal: Default label offset ratio for regular significance
+            text in horizontal plots.
+        significance_ns_label_offset_ratio_vertical: Label offset ratio for `n.s.` text in vertical plots.
+        significance_ns_label_offset_ratio_horizontal: Label offset ratio for `n.s.` text in horizontal plots.
+        significance_stars_label_offset_ratio_vertical: Label offset ratio for star labels in vertical plots.
+        significance_stars_label_offset_ratio_horizontal: Label offset ratio for star labels in horizontal plots.
+        significance_label_y_offset_ratio: Deprecated alias of `significance_label_offset_ratio_vertical`.
+        significance_label_y_offset_ratio_horizontal: Deprecated alias of
+            `significance_label_offset_ratio_horizontal`.
+        significance_label_y_offset_ratio_ns: Deprecated alias of
+            `significance_ns_label_offset_ratio_vertical`.
+        significance_label_y_offset_ratio_ns_horizontal: Deprecated alias of
+            `significance_ns_label_offset_ratio_horizontal`.
+        significance_label_y_offset_ratio_stars: Deprecated alias of
+            `significance_stars_label_offset_ratio_vertical`.
+        significance_label_y_offset_ratio_stars_horizontal: Deprecated alias of
+            `significance_stars_label_offset_ratio_horizontal`.
         significance_label_offset_points_horizontal: Explicit screen-space gap, in points, between the
             horizontal significance line and its label. This is the most reliable control for the
             visible line-to-label distance in horizontal plots.
@@ -344,7 +416,7 @@ def bar_scatter(
             points still visually touch significance lines.
         significance_font_size: Font size (pt) for significance labels (stars / p-threshold text). If None,
             uses the theme base font size.
-        significance_font_size_ns: Font size (pt) for non-significant label text (default auto: base - 1).
+        significance_font_size_ns: Font size (pt) for non-significant label text (default auto: base - 2).
         significance_color: Color for significance lines and labels.
         significance_line_alpha: Alpha for significance lines (horizontal brackets).
         significance_text_alpha: Alpha for significance label text.
@@ -359,7 +431,8 @@ def bar_scatter(
         legend_y_anchor_min: Minimum legend y anchor when a title exists.
         legend_y_anchor_no_title: Legend y anchor used when no title exists.
         legend_above_stats_margin_axes: Extra vertical margin (axes coordinates) to keep legend
-            above the highest significance annotation.
+            above the highest significance annotation. A slightly larger default helps the top
+            region read more like a polished publication figure instead of a tightly packed demo.
         legend_columnspacing: Legend column spacing (points).
         legend_handlelength: Legend handle length (relative units).
         legend_handletextpad: Legend handle/text padding (points).
@@ -377,6 +450,18 @@ def bar_scatter(
     Notes:
         Error cap width is drawn in *data units* (not points), so it scales naturally with
         bar width changes. Control this with `error_cap_width_ratio`.
+
+    Example:
+        Use the orientation-based significance spacing names instead of the legacy
+        `significance_label_y_offset_ratio*` aliases:
+
+        >>> fig = bar_scatter(
+        ...     data,
+        ...     show_statistics=True,
+        ...     significance_ns_label_offset_ratio_vertical=0.08,
+        ...     significance_stars_label_offset_ratio_vertical=-0.12,
+        ...     significance_label_offset_ratio_vertical=0.07,
+        ... )
     """
     data = np.asarray(data, dtype=float)
     if data.ndim not in (2, 3):
@@ -384,6 +469,54 @@ def bar_scatter(
 
     vmin = resolve_scalar_alias(value_min, y_min, primary_name="value_min", legacy_name="y_min")
     vmax = resolve_scalar_alias(value_max, y_max, primary_name="value_max", legacy_name="y_max")
+    sig_label_offset_vertical = resolve_scalar_alias(
+        significance_label_offset_ratio_vertical,
+        significance_label_y_offset_ratio,
+        primary_name="significance_label_offset_ratio_vertical",
+        legacy_name="significance_label_y_offset_ratio",
+    )
+    if sig_label_offset_vertical is None:
+        sig_label_offset_vertical = 0.07
+    sig_label_offset_horizontal = resolve_scalar_alias(
+        significance_label_offset_ratio_horizontal,
+        significance_label_y_offset_ratio_horizontal,
+        primary_name="significance_label_offset_ratio_horizontal",
+        legacy_name="significance_label_y_offset_ratio_horizontal",
+    )
+    if sig_label_offset_horizontal is None:
+        sig_label_offset_horizontal = 0.26
+    sig_ns_label_offset_vertical = resolve_scalar_alias(
+        significance_ns_label_offset_ratio_vertical,
+        significance_label_y_offset_ratio_ns,
+        primary_name="significance_ns_label_offset_ratio_vertical",
+        legacy_name="significance_label_y_offset_ratio_ns",
+    )
+    if sig_ns_label_offset_vertical is None:
+        sig_ns_label_offset_vertical = 0.14
+    sig_ns_label_offset_horizontal = resolve_scalar_alias(
+        significance_ns_label_offset_ratio_horizontal,
+        significance_label_y_offset_ratio_ns_horizontal,
+        primary_name="significance_ns_label_offset_ratio_horizontal",
+        legacy_name="significance_label_y_offset_ratio_ns_horizontal",
+    )
+    if sig_ns_label_offset_horizontal is None:
+        sig_ns_label_offset_horizontal = 0.16
+    sig_stars_label_offset_vertical = resolve_scalar_alias(
+        significance_stars_label_offset_ratio_vertical,
+        significance_label_y_offset_ratio_stars,
+        primary_name="significance_stars_label_offset_ratio_vertical",
+        legacy_name="significance_label_y_offset_ratio_stars",
+    )
+    if sig_stars_label_offset_vertical is None:
+        sig_stars_label_offset_vertical = -0.08
+    sig_stars_label_offset_horizontal = resolve_scalar_alias(
+        significance_stars_label_offset_ratio_horizontal,
+        significance_label_y_offset_ratio_stars_horizontal,
+        primary_name="significance_stars_label_offset_ratio_horizontal",
+        legacy_name="significance_label_y_offset_ratio_stars_horizontal",
+    )
+    if sig_stars_label_offset_horizontal is None:
+        sig_stars_label_offset_horizontal = 0.26
 
     if (value_dtick is not None) and (y_dtick is not None) and (float(value_dtick) != float(y_dtick)):
         raise ValueError("value_dtick and y_dtick are both provided but different; please pass only one.")
@@ -578,7 +711,7 @@ def bar_scatter(
             base_sig_ns_fs = (
                 int(significance_font_size_ns)
                 if significance_font_size_ns is not None
-                else max(5, base_sig_fs - 1)
+                else max(5, base_sig_fs - 2)
             )
             pairs_multiplier = float(significance_pairs_height_step_multiplier)
             if orientation == "horizontal" and significance_pairs_height_step_multiplier_horizontal is not None:
@@ -602,9 +735,9 @@ def bar_scatter(
                 if len(resolved_pairs) > 1:
                     effective_step = effective_step * float(pairs_multiplier)
                 label_offset_ratio_max = max(
-                    float(significance_label_y_offset_ratio_horizontal),
-                    float(significance_label_y_offset_ratio_ns_horizontal),
-                    float(significance_label_y_offset_ratio_stars_horizontal),
+                    float(sig_label_offset_horizontal),
+                    float(sig_ns_label_offset_horizontal),
+                    float(sig_stars_label_offset_horizontal),
                 )
                 label_offset_data = float(effective_step) * float(label_offset_ratio_max)
                 label_extent_points = 0.5 * max(
@@ -660,12 +793,12 @@ def bar_scatter(
                 pairs_height_step_multiplier=float(pairs_multiplier),
                 stack_disjoint_pairs=bool(significance_stack_disjoint_pairs),
                 vertical_line_length_ratio=(None if vertical_line_length_ratio is None else float(vertical_line_length_ratio)),
-                label_y_offset_ratio=float(significance_label_y_offset_ratio),
-                label_y_offset_ratio_horizontal=float(significance_label_y_offset_ratio_horizontal),
-                label_y_offset_ratio_ns=float(significance_label_y_offset_ratio_ns),
-                label_y_offset_ratio_ns_horizontal=float(significance_label_y_offset_ratio_ns_horizontal),
-                label_y_offset_ratio_stars=float(significance_label_y_offset_ratio_stars),
-                label_y_offset_ratio_stars_horizontal=float(significance_label_y_offset_ratio_stars_horizontal),
+                label_offset_ratio_vertical=float(sig_label_offset_vertical),
+                label_offset_ratio_horizontal=float(sig_label_offset_horizontal),
+                ns_label_offset_ratio_vertical=float(sig_ns_label_offset_vertical),
+                ns_label_offset_ratio_horizontal=float(sig_ns_label_offset_horizontal),
+                stars_label_offset_ratio_vertical=float(sig_stars_label_offset_vertical),
+                stars_label_offset_ratio_horizontal=float(sig_stars_label_offset_horizontal),
                 label_offset_points_horizontal=float(significance_label_offset_points_horizontal),
                 label_lane_gap_points_horizontal=float(significance_label_lane_gap_points_horizontal),
                 label_min_clearance_points=float(
@@ -673,6 +806,15 @@ def bar_scatter(
                         significance_label_min_clearance_points_horizontal
                         if (orientation == "horizontal" and significance_label_min_clearance_points_horizontal is not None)
                         else significance_label_min_clearance_points
+                    )
+                ),
+                label_min_clearance_points_stars=(
+                    None
+                    if orientation == "horizontal"
+                    else (
+                        None
+                        if significance_label_min_clearance_points_stars is None
+                        else float(significance_label_min_clearance_points_stars)
                     )
                 ),
                 y_padding=max(float(pad_min), float(height_step) * float(pad_mult)),
@@ -741,22 +883,12 @@ def bar_scatter(
             title_above(ax, title)
 
         if legend_show:
-            # Legend row centered below the title.
+            # Legend row is anchored relative to the significance stack, then the title is
+            # aligned to a stable gap above the final legend position. This logic is also
+            # re-run after export-time tight_layout/resize through a post-layout callback.
             gap = float(legend_gap)
             title_text = ax.get_title()
-            if title_text:
-                title_y = float(getattr(ax.title, "get_position")()[1])
-                y_anchor = max(float(legend_y_anchor_min), title_y - gap)
-            else:
-                y_anchor = float(legend_y_anchor_no_title)
-            if max_significance_value_data is not None and orientation == "vertical":
-                # Convert the highest significance y (data coords) to axes coords and ensure
-                # legend sits above it with a safety margin.
-                x_ref = float(category_positions[0]) if len(category_positions) > 0 else 0.0
-                _, sig_y_axes = ax.transAxes.inverted().transform(
-                    ax.transData.transform((x_ref, float(max_significance_value_data)))
-                )
-                y_anchor = max(float(y_anchor), float(sig_y_axes) + float(legend_above_stats_margin_axes))
+            y_anchor = float(legend_y_anchor_min if title_text else legend_y_anchor_no_title)
 
             handles, labels = ax.get_legend_handles_labels()
             if legend_include_significance and statistics_enabled and (data.ndim == 3) and num_groups > 1:
@@ -794,10 +926,64 @@ def bar_scatter(
                 leg.set_zorder(10)
             except Exception:
                 pass
+            layout_state = {"legend_y_anchor": float(y_anchor)}
+
+            def _relayout_top_band() -> None:
+                try:
+                    fig.canvas.draw()
+                    renderer = fig.canvas.get_renderer()
+                except Exception:
+                    return
+
+                try:
+                    legend_bbox_axes = leg.get_window_extent(renderer=renderer).transformed(ax.transAxes.inverted())
+                except Exception:
+                    return
+
+                target_bottom = 1.005
+                if orientation == "vertical" and max_significance_value_data is not None:
+                    try:
+                        x_ref = float(category_positions[0]) if len(category_positions) > 0 else 0.0
+                        _, sig_y_axes = ax.transAxes.inverted().transform(
+                            ax.transData.transform((x_ref, float(max_significance_value_data)))
+                        )
+                        target_bottom = max(float(target_bottom), float(sig_y_axes))
+                    except Exception:
+                        pass
+
+                anno_top_axes = _annotation_top_axes(ax, renderer=renderer)
+                if anno_top_axes is not None:
+                    target_bottom = max(float(target_bottom), float(anno_top_axes))
+
+                target_bottom = float(target_bottom) + float(legend_above_stats_margin_axes)
+                current_bottom = float(legend_bbox_axes.y0)
+                delta = float(target_bottom) - float(current_bottom)
+                if abs(float(delta)) > 1e-6:
+                    layout_state["legend_y_anchor"] = float(layout_state["legend_y_anchor"]) + float(delta)
+                    try:
+                        leg.set_bbox_to_anchor((0.5, float(layout_state["legend_y_anchor"])), transform=ax.transAxes)
+                        fig.canvas.draw()
+                        renderer = fig.canvas.get_renderer()
+                    except Exception:
+                        return
+
+                if title_text:
+                    _align_title_above_legend(
+                        ax,
+                        legend=leg,
+                        gap_axes=float(gap),
+                    )
+                    try:
+                        fig.canvas.draw()
+                    except Exception:
+                        return
+
+            setattr(ax, "_pubfig_post_layout", _relayout_top_band)
         else:
             leg = ax.get_legend()
             if leg is not None:
                 leg.remove()
+            setattr(ax, "_pubfig_post_layout", None)
 
         t.apply_axes(ax)
         apply_cartesian_axis_controls(
@@ -808,4 +994,7 @@ def bar_scatter(
             show_y_grid=show_y_grid,
         )
         fig.tight_layout()
+        callback = getattr(ax, "_pubfig_post_layout", None)
+        if callable(callback):
+            callback()
         return fig

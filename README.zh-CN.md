@@ -27,6 +27,10 @@
 
 ## Recent News
 
+- **2026-03-20**: Figma 本地 bridge 自动化同步 — 增加 bridge 驱动的 `pubfig figma bridge|sync|watch` 工作流，升级 `pubfig-sync` 的 bridge connection mode，并支持在一次 plugin 连接后由 CLI 触发矢量导入/刷新。
+- **2026-03-20**: Figma plugin v2 工作流打磨 — 增加 `auto` / `hero_top` relayout presets，补齐 shared title / legend placeholders，并改进 refresh 行为，使用户在 Figma 中手调过的位置默认能更稳定地保留下来。
+- **2026-03-20**: CLI + Figma plugin 工作流 — 新增 `pubfig figma package|validate|inspect`，引入单文件的 Figma bundle JSON 格式，并提供 `figma-plugin/pubfig-sync` 插件脚手架，用于节点级导入与刷新。
+- **2026-03-20**: Figma-first panel 导出工作流 — 新增 `export_panel(...)` 和 `export_panels(...)`，用于稳定导出 subplot 资产；同时增加最小化的 `panel-index.json` 同步索引，并补充 Codex + Figma MCP 的多 panel 精修路径说明。
 - **2026-03-20**: 与 pubtab 风格对齐并刷新首页结构 — 按照 pubtab 的首页组织方式重排 README，补上居中 badges、语言切换、highlights、带日期的 recent news、精选示例和 gallery hero 图。
 - **2026-03-20**: 默认完整安装与元信息简化 — 将 `pip install pubfig` 调整为默认安装完整绘图栈，移除主安装路径上的用户可见 extras，并同步统一包元信息、GitHub About 和 README 文案。
 - **2026-03-19**: 新增 raincloud 并刷新 gallery — 增加 `raincloud(...)`，优化其默认样式，接入 gallery，并重新导出整套图像产物。
@@ -95,6 +99,105 @@ pf.save_figure(
 ```python
 pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
 ```
+
+对于 `bar_scatter(...)`，显著性标注相关的 spacing 参数现在统一使用更明确的按 orientation 命名：
+
+```python
+fig = pf.bar_scatter(
+    data,
+    show_statistics=True,
+    significance_ns_label_offset_ratio_vertical=0.08,
+    significance_stars_label_offset_ratio_vertical=-0.12,
+    significance_label_offset_ratio_vertical=0.07,
+)
+```
+
+### Figma Workflow
+
+对于多 panel 的论文大图，`pubfig` 现在保持一个更简单的职责边界：
+
+1. 在 Python 里用 `export_panel(...)` 或 `export_panels(...)` 导出各个 panel
+2. 用 `pubfig figma package` 打包导出的 panel 目录
+3. 在 Figma 中通过 `pubfig-sync` 导入或刷新这些 panel 资产
+4. 最终的大图排版、对齐、注释、箭头与精修放在 Figma 完成
+
+```python
+import numpy as np
+import pubfig as pf
+
+rng = np.random.default_rng(0)
+
+panels = {
+    "a": pf.bar(rng.uniform(0.4, 0.9, size=3), category_names=["A", "B", "C"], title="Panel A"),
+    "b": pf.scatter(rng.normal(size=40), rng.normal(size=40), title="Panel B"),
+}
+
+pf.export_panels(panels, "panels", overwrite=True)
+```
+
+然后可以通过 CLI 打包 / 校验 / 查看：
+
+```bash
+pubfig figma package panels --figure-id figure-01
+pubfig figma validate panels
+pubfig figma inspect figure-01.pubfig-figma.json
+```
+
+现在 `sync` / `watch` 同时接受 **panel 目录** 和已经打好的
+`.pubfig-figma.json` bundle。也就是说，package 生成的 bundle 可以直接作为
+bridge 刷新的单一输入：
+
+```bash
+pubfig figma sync figure-01.pubfig-figma.json --session latest
+pubfig figma watch figure-01.pubfig-figma.json --session latest
+```
+
+当前保留的 Figma 相关入口是：
+
+- `export_panel(...)`
+- `export_panels(...)`
+- `pubfig figma package`
+- `pubfig figma sync`
+- `pubfig figma watch`
+- `pubfig figma bridge start|status`
+
+插件脚手架位于：
+
+- `figma-plugin/pubfig-sync/manifest.json`
+- `figma-plugin/pubfig-sync/code.js`
+- `figma-plugin/pubfig-sync/ui.html`
+- `figma-plugin/pubfig-sync/README.md`
+
+如果你在本地用 Codex，也可以继续让配套 skill `pubfig-figma-workflow` 协调 panel 导出 → Figma 导入 → MCP 检查流程。
+
+### Figma Bridge Automation
+
+如果你想要更稳定的 **一次连接、终端触发** 工作流：
+
+1. 先启动本地 bridge：
+
+```bash
+pubfig figma bridge start
+```
+
+2. 在 Figma 中打开 `pubfig-sync`，将 bridge URL 填为 `http://localhost:47329` 并点击 **Connect Bridge**
+3. 之后从终端触发 panel 刷新：
+
+```bash
+pubfig figma sync panels --session latest --figure-id figure-01 --write-bundle
+pubfig figma sync panels/figure-01.pubfig-figma.json --session latest
+pubfig figma bridge status
+```
+
+`--write-bundle` 会先把这次 bridge 实际发送的 bundle 落盘。如果 bridge 或
+plugin refresh 临时失效，你可以立刻把同一个 `.pubfig-figma.json` 手动导入
+到 Figma，形成完整 fallback 闭环。
+
+`pubfig figma watch` 现在也会在每次刷新时输出更完整的事件信息，包括触发变更
+的源文件、解析后的 source kind，以及 manual fallback 对应的 `bundle_path`。
+
+bridge job 现在还会携带 `bundle_provenance`，因此 plugin 在收到 bridge 推送时，
+也能直接显示这次刷新来自哪个 bundle 文件或 source 路径。
 
 ## 图类型分组
 
@@ -217,6 +320,9 @@ palette = pf.get_palette("carto_blugrn")
 - `examples/gallery.py` —— 快速浏览支持的图类型
 - `examples/export_gallery.py` —— 把 gallery 导出到 `output_figures/`
 - `examples/export_gallery_mpl.py` —— 更聚焦的 Matplotlib 导出示例
+- `examples/figma_panels_demo.py` —— 导出多个 pubfig panel，并生成 `panel-index.json` 同步文件
+- `examples/figma_workflow_demo.md` —— panel-first 的 pubfig → Figma 工作流说明
+- `figma-plugin/pubfig-sync/` —— Figma plugin 脚手架，用于 panel 导入与刷新
 - `examples/generate_palette_gallery.py` —— 重新生成 palette 预览图与 gallery 文档
 - [`docs/palette-gallery.zh-CN.md`](docs/palette-gallery.zh-CN.md) —— 内置与 Plotly 派生 palette 的可视化总览
 

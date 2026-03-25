@@ -71,15 +71,16 @@ def add_significance_brackets(
     pairs_height_step_multiplier: float = 1.8,
     stack_disjoint_pairs: bool = True,
     vertical_line_length_ratio: float | None = None,
-    label_y_offset_ratio: float = 0.55,
-    label_y_offset_ratio_horizontal: float = 0.5,
-    label_y_offset_ratio_ns: float = 0.7,
-    label_y_offset_ratio_ns_horizontal: float = 0.12,
-    label_y_offset_ratio_stars: float = 0.5,
-    label_y_offset_ratio_stars_horizontal: float = 0.5,
+    label_offset_ratio_vertical: float = 0.55,
+    label_offset_ratio_horizontal: float = 0.5,
+    ns_label_offset_ratio_vertical: float = 0.7,
+    ns_label_offset_ratio_horizontal: float = 0.12,
+    stars_label_offset_ratio_vertical: float = 0.5,
+    stars_label_offset_ratio_horizontal: float = 0.5,
     label_offset_points_horizontal: float = 0.0,
     label_lane_gap_points_horizontal: float = 0.0,
     label_min_clearance_points: float = 1.0,
+    label_min_clearance_points_stars: float | None = None,
     y_padding: float = 0.03,
     show_ns: bool = False,
     ns_label: str = "n.s.",
@@ -116,7 +117,7 @@ def add_significance_brackets(
           to allow comparisons that do not overlap in x-range to share the same y-height.
         - Stars are rendered by repeating `stars_symbol` (default: \"*\"). If you see font-specific
           placement issues (e.g. \"*\" looks like superscript in some fonts), adjust
-          `stars_render_mode` and/or `label_y_offset_ratio*`.
+          `stars_render_mode` and/or the `*_label_offset_ratio_*` parameters.
         - When `stars_render_mode=\"markers\"`, stars are drawn as marker paths (not text), which
           avoids font glyph baseline issues.
         - `label_rotation` controls the rotation (degrees) applied to text labels (including `n.s.`).
@@ -154,6 +155,13 @@ def add_significance_brackets(
         step = step * float(pairs_height_step_multiplier)
     max_annotation_y: float | None = None
 
+    def _lane_step_multiplier(label: str) -> float:
+        if str(label) == str(ns_label):
+            return 1.45
+        if label_style == "stars":
+            return 0.76
+        return 1.0
+
     def _draw_bracket(*, x0: float, x1: float, y: float, label: str, lane_idx: int = 0) -> None:
         nonlocal max_annotation_y
         is_ns = label == ns_label
@@ -186,10 +194,10 @@ def add_significance_brackets(
                 )
                 y_line_top = float(y)
                 if is_ns:
-                    y_text = y + float(step) * float(label_y_offset_ratio_ns_horizontal)
+                    y_text = y + float(step) * float(ns_label_offset_ratio_vertical)
                 else:
                     y_text = y + float(step) * float(
-                        label_y_offset_ratio_stars_horizontal if is_stars_text else label_y_offset_ratio_horizontal
+                        stars_label_offset_ratio_vertical if is_stars_text else label_offset_ratio_vertical
                     )
             else:
                 ax.plot(
@@ -203,14 +211,19 @@ def add_significance_brackets(
                 )
                 y_line_top = float(y) + float(cap_len)
                 y_text = (y + cap_len) + float(step) * (
-                    float(label_y_offset_ratio_ns)
+                    float(ns_label_offset_ratio_vertical)
                     if is_ns
-                    else float(label_y_offset_ratio_stars if is_stars_text else label_y_offset_ratio)
+                    else float(stars_label_offset_ratio_vertical if is_stars_text else label_offset_ratio_vertical)
                 )
 
-            if float(label_min_clearance_points) > 0:
+            effective_clearance_points = (
+                float(label_min_clearance_points_stars)
+                if is_stars_text and label_min_clearance_points_stars is not None
+                else float(label_min_clearance_points)
+            )
+            if float(effective_clearance_points) > 0:
                 fig = ax.figure
-                dy_px = float(label_min_clearance_points) * float(fig.dpi) / 72.0
+                dy_px = float(effective_clearance_points) * float(fig.dpi) / 72.0
                 x_disp, y_disp = ax.transData.transform((category_center, float(y_line_top)))
                 _, y_clear = ax.transData.inverted().transform((x_disp, y_disp + dy_px))
                 y_text = max(float(y_text), float(y_clear))
@@ -243,16 +256,16 @@ def add_significance_brackets(
                 x_line_end = float(y) + float(cap_len)
 
             if is_ns:
-                offset_data = float(step) * float(label_y_offset_ratio_ns_horizontal)
+                offset_data = float(step) * float(ns_label_offset_ratio_horizontal)
             else:
                 offset_data = float(step) * float(
-                    label_y_offset_ratio_stars_horizontal if is_stars_text else label_y_offset_ratio_horizontal
+                    stars_label_offset_ratio_horizontal if is_stars_text else label_offset_ratio_horizontal
                 )
             if float(cap_len) > 0:
                 offset_data = float(step) * (
-                    float(label_y_offset_ratio_ns)
+                    float(ns_label_offset_ratio_horizontal)
                     if is_ns
-                    else float(label_y_offset_ratio_stars if is_stars_text else label_y_offset_ratio)
+                    else float(stars_label_offset_ratio_horizontal if is_stars_text else label_offset_ratio_horizontal)
                 )
 
             offset_data_points = 0.0
@@ -286,9 +299,14 @@ def add_significance_brackets(
             else:
                 x_text = float(x_line_end) + float(offset_data)
 
-            if float(label_min_clearance_points) > 0:
+            effective_clearance_points = (
+                float(label_min_clearance_points_stars)
+                if is_stars_text and label_min_clearance_points_stars is not None
+                else float(label_min_clearance_points)
+            )
+            if float(effective_clearance_points) > 0:
                 fig = ax.figure
-                dx_px = float(label_min_clearance_points) * float(fig.dpi) / 72.0
+                dx_px = float(effective_clearance_points) * float(fig.dpi) / 72.0
                 x_disp, y_disp = ax.transData.transform((float(x_line_end), category_center))
                 if horizontal_label_side == "left":
                     x_clear, _ = ax.transData.inverted().transform((x_disp - dx_px, y_disp))
@@ -391,6 +409,7 @@ def add_significance_brackets(
             # Track which x-intervals are already used at each stacked height level so that
             # disjoint comparisons (e.g. (0,1) and (2,3)) can share the same y-height.
             levels: list[list[tuple[float, float]]] = []
+            level_gap_multipliers: list[float] = []
             for (i0, i1) in pairs:
                 g0 = int(i0) if i0 >= 0 else int(i0) + int(num_groups)
                 g1 = int(i1) if i1 >= 0 else int(i1) + int(num_groups)
@@ -439,13 +458,21 @@ def add_significance_brackets(
 
                     while len(levels) <= level_idx:
                         levels.append([])
+                        level_gap_multipliers.append(1.0)
                     levels[level_idx].append((x_left, x_right))
+                    level_gap_multipliers[level_idx] = max(
+                        float(level_gap_multipliers[level_idx]),
+                        float(_lane_step_multiplier(signif_text)),
+                    )
                 else:
                     # Old behavior: always stack in the given order.
                     level_idx = len(levels)
                     levels.append([(x_left, x_right)])
+                    level_gap_multipliers.append(float(_lane_step_multiplier(signif_text)))
 
-                y1 = base_y + y_padding + float(level_idx) * step
+                y1 = base_y + y_padding + sum(
+                    float(step) * float(level_gap_multipliers[k]) for k in range(int(level_idx))
+                )
                 _draw_bracket(
                     x0=x_left,
                     x1=x_right,
@@ -461,6 +488,7 @@ def add_significance_brackets(
                 continue
             ref_data = data[j, 0, :]
             base_y = float(np.max(mean_data[j, :] + errors[j, :]))
+            bracket_gap_multipliers: list[float] = []
             bracket_idx = 0
             for i in range(1, num_groups):
                 comp_data = data[j, i, :]
@@ -483,7 +511,10 @@ def add_significance_brackets(
                     if not show_ns:
                         continue
 
-                y1 = base_y + y_padding + bracket_idx * step
+                y1 = base_y + y_padding + sum(
+                    float(step) * float(mult) for mult in bracket_gap_multipliers
+                )
+                bracket_gap_multipliers.append(float(_lane_step_multiplier(signif_text)))
                 bracket_idx += 1
 
                 x_ref = _bar_center(j, 0)

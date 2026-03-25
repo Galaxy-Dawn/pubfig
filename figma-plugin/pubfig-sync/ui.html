@@ -1,0 +1,1324 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>pubfig-sync</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f7fb;
+        --card: rgba(255, 255, 255, 0.9);
+        --card-strong: #ffffff;
+        --ink: #122033;
+        --muted: #617287;
+        --line: #d7e2ee;
+        --line-strong: #b8c9de;
+        --primary: #1f63eb;
+        --primary-ink: #ffffff;
+        --success-bg: #ecfdf3;
+        --success-ink: #166534;
+        --info-bg: #eef4ff;
+        --info-ink: #1d4ed8;
+        --warn-bg: #fff7ed;
+        --warn-ink: #9a3412;
+        --danger-bg: #fef1f1;
+        --danger-ink: #a61b1b;
+        --shadow: 0 12px 30px rgba(24, 39, 75, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 14px;
+        font: 13px/1.5 Inter, "Helvetica Neue", Arial, sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid rgba(215, 226, 238, 0.88);
+        border-radius: 18px;
+        padding: 16px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+      h1 {
+        margin: 0;
+        font-size: 19px;
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: 0 0 12px;
+        color: var(--muted);
+      }
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .shell {
+        position: relative;
+        overflow: hidden;
+      }
+      .shell::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 126px;
+        background:
+          radial-gradient(circle at top right, rgba(31, 99, 235, 0.16), transparent 42%),
+          radial-gradient(circle at top left, rgba(29, 78, 216, 0.12), transparent 38%),
+          linear-gradient(180deg, rgba(238, 244, 255, 0.95), rgba(255,255,255,0));
+        pointer-events: none;
+      }
+      .content {
+        position: relative;
+        z-index: 1;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+      .row > * {
+        flex: 1;
+      }
+      .control-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      input[type="file"], input[type="text"], input[type="number"], select {
+        width: 100%;
+        min-height: 40px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fbfcfe;
+        font: inherit;
+        color: var(--ink);
+        outline: none;
+        transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+      }
+      input[type="file"] {
+        border-style: dashed;
+        padding: 9px 12px;
+      }
+      input:focus, select:focus {
+        border-color: rgba(31, 99, 235, 0.55);
+        box-shadow: 0 0 0 4px rgba(31, 99, 235, 0.10);
+        background: #ffffff;
+      }
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .checkbox {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--ink);
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        background: #fbfcfe;
+      }
+      .checkbox input { margin: 0; }
+      .checkbox.compact {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        border-radius: 0;
+        color: var(--muted);
+        font-weight: 500;
+      }
+      button {
+        appearance: none;
+        border: 0;
+        border-radius: 12px;
+        min-height: 42px;
+        padding: 11px 14px;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease, background 120ms ease;
+      }
+      button:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px rgba(21, 38, 66, 0.10);
+      }
+      button.primary {
+        background: var(--primary);
+        color: var(--primary-ink);
+      }
+      button.secondary {
+        background: #eef2f8;
+        color: var(--ink);
+      }
+      button.ghost {
+        background: transparent;
+        color: var(--info-ink);
+        border: 1px solid rgba(29, 78, 216, 0.18);
+      }
+      button:disabled {
+        opacity: 0.52;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+      .status {
+        min-height: 68px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: #f3f6fb;
+        color: var(--muted);
+        white-space: pre-wrap;
+        border: 1px solid rgba(215, 226, 238, 0.9);
+      }
+      .status.error {
+        background: var(--danger-bg);
+        color: var(--danger-ink);
+        border-color: rgba(166, 27, 27, 0.12);
+      }
+      .section-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--ink);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      code {
+        font-family: "SF Mono", "Menlo", monospace;
+        font-size: 12px;
+      }
+      .hint {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 18px;
+        background:
+          linear-gradient(135deg, rgba(238, 244, 255, 0.96), rgba(255, 255, 255, 0.92)),
+          #ffffff;
+      }
+      .hero-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .hero-copy p {
+        margin-top: 6px;
+        max-width: 320px;
+      }
+      .hero-meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .panel {
+        border: 1px solid rgba(215, 226, 238, 0.88);
+        border-radius: 16px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 8px 24px rgba(24, 39, 75, 0.04);
+      }
+      .panel-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .panel-header p {
+        margin: 4px 0 0;
+        font-size: 12px;
+      }
+      .bridge-box {
+        border: 1px solid rgba(29, 78, 216, 0.12);
+        border-radius: 14px;
+        padding: 12px;
+        background: linear-gradient(180deg, rgba(250, 252, 255, 0.94), rgba(255, 255, 255, 0.94));
+      }
+      .bridge-status {
+        font-size: 12px;
+        color: var(--muted);
+        white-space: pre-wrap;
+      }
+      .bridge-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .metric {
+        padding: 10px;
+        border-radius: 12px;
+        background: #f5f8fd;
+        border: 1px solid rgba(215, 226, 238, 0.9);
+      }
+      .metric strong {
+        display: block;
+        margin-bottom: 4px;
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .metric span {
+        display: block;
+        font-size: 12px;
+        color: var(--ink);
+        word-break: break-word;
+      }
+      .file-block {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .summary-card {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 12px;
+        background: #fbfcfe;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .summary-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .summary-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--ink);
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+      .summary-item {
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: #f3f6fb;
+      }
+      .summary-item strong {
+        display: block;
+        margin-bottom: 2px;
+        font-size: 11px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+      .summary-item span {
+        display: block;
+        font-size: 12px;
+        color: var(--ink);
+        word-break: break-word;
+      }
+      .summary-tools {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .summary-tools {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 24px;
+        padding: 0 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .badge.ready {
+        background: var(--success-bg);
+        color: var(--success-ink);
+      }
+      .badge.idle {
+        background: #eef2f8;
+        color: var(--muted);
+      }
+      .badge.info {
+        background: var(--info-bg);
+        color: var(--info-ink);
+      }
+      .badge.warn {
+        background: var(--warn-bg);
+        color: var(--warn-ink);
+      }
+      .action-note {
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: var(--warn-bg);
+        color: var(--warn-ink);
+        font-size: 12px;
+        border: 1px solid rgba(154, 52, 18, 0.10);
+      }
+      .toggle-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .action-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .section-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .microcopy {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(184, 201, 222, 0.9), transparent);
+      }
+      @media (max-width: 520px) {
+        .control-grid,
+        .summary-grid,
+        .toggle-grid,
+        .action-grid,
+        .bridge-meta-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card shell">
+      <div class="content stack">
+        <div class="hero">
+        <div class="hero-top">
+          <div class="hero-copy">
+            <div class="section-title">Panel-first Figma bridge</div>
+            <h1>pubfig-sync <span id="pluginVersionText" style="font-size:12px;color:var(--muted);font-weight:700;">v0.4.7</span></h1>
+            <p>
+              Push panel bundles from terminal to Figma, then keep the exact
+              <code>.pubfig-figma.json</code> around for manual fallback.
+            </p>
+            </div>
+            <div class="hero-meta">
+              <span id="heroBridgeBadge" class="badge idle">Bridge offline</span>
+              <span id="heroBundleBadge" class="badge idle">Load bundle</span>
+            </div>
+          </div>
+          <div class="bridge-meta-grid">
+            <div class="metric">
+              <strong>Runtime</strong>
+              <span id="runtimeStateValue">Waiting</span>
+            </div>
+            <div class="metric">
+              <strong>Session</strong>
+              <span id="sessionStateValue">Not connected</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel stack">
+          <div class="panel-header">
+            <div>
+              <div class="section-title">Bridge session</div>
+              <p>Keep the plugin connected so terminal sync can refresh the active figure in place.</p>
+            </div>
+            <span id="bridgePanelBadge" class="badge idle">Idle</span>
+          </div>
+          <div class="bridge-box stack">
+            <label>
+              Bridge URL
+              <input id="bridgeUrlInput" type="text" value="http://localhost:47329" />
+            </label>
+            <div class="row">
+              <button id="connectBridgeButton" class="primary">Connect Bridge</button>
+              <button id="disconnectBridgeButton" class="secondary">Disconnect</button>
+            </div>
+            <label class="checkbox compact">
+              <input id="autoConnectCheckbox" type="checkbox" />
+              Auto-connect bridge when plugin opens
+            </label>
+            <div id="bridgeStatus" class="bridge-status">Ready to connect.</div>
+          </div>
+        </div>
+
+        <div class="panel stack">
+          <div class="panel-header">
+            <div>
+              <div class="section-title">Manual fallback bundle</div>
+              <p>Load the exact bundle written by <code>pubfig figma sync --write-bundle</code> for manual import and recovery.</p>
+            </div>
+            <span id="bundlePanelBadge" class="badge idle">Waiting</span>
+          </div>
+          <div class="file-block">
+            <label>
+              <span class="section-title">Bundle file</span>
+              <input id="bundleFile" type="file" accept=".json,.pubfig-figma.json" />
+            </label>
+            <div class="hint">
+              Best with the bundle written by <code>pubfig figma sync --write-bundle</code> so bridge sync and manual fallback use the same payload.
+            </div>
+          </div>
+
+          <div id="bundleSummary" class="summary-card">
+            <div class="summary-head">
+              <div>
+                <div class="section-title">Bundle summary</div>
+                <div id="bundleSummaryTitle" class="summary-title">Choose a bundle file</div>
+              </div>
+              <span id="bundleReadyBadge" class="badge idle">Not loaded</span>
+            </div>
+            <div id="bundleSummaryGrid" class="summary-grid"></div>
+            <div id="summaryTools" class="summary-tools">
+              <button id="copyBundlePathButton" class="ghost" disabled>Copy bundle path</button>
+              <button id="copySourcePathButton" class="ghost" disabled>Copy source path</button>
+            </div>
+            <div id="bundleSummaryHint" class="hint">
+              Load one <code>.pubfig-figma.json</code> bundle to enable manual import / refresh and fallback recovery.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel stack">
+          <div class="panel-header">
+            <div>
+              <div class="section-title">Layout tuning</div>
+              <p>Apply light layout overrides before manual import or refresh.</p>
+            </div>
+            <span class="badge info">Optional</span>
+          </div>
+          <div class="control-grid">
+            <label>
+              Layout preset
+              <select id="presetSelect">
+                <option value="auto">auto</option>
+                <option value="grid">grid</option>
+                <option value="row">row</option>
+                <option value="column">column</option>
+                <option value="two_by_two">two_by_two</option>
+                <option value="hero_left">hero_left</option>
+                <option value="hero_top">hero_top</option>
+              </select>
+            </label>
+            <label>
+              Legend position
+              <select id="legendPositionSelect">
+                <option value="right">right</option>
+                <option value="bottom">bottom</option>
+              </select>
+            </label>
+            <label>
+              Panel gap
+              <input id="panelGapInput" type="number" min="0" step="1" placeholder="e.g. 6" />
+            </label>
+            <label>
+              Row panel counts
+              <input id="rowPanelCountsInput" type="text" placeholder="e.g. 2,2 or 3,1" />
+            </label>
+            <label>
+              Label offset X
+              <input id="labelOffsetXInput" type="number" min="0" step="1" placeholder="e.g. 12" />
+            </label>
+            <label>
+              Label offset Y
+              <input id="labelOffsetYInput" type="number" min="0" step="1" placeholder="e.g. 12" />
+            </label>
+            <label>
+              Label align X
+              <select id="labelAlignXSelect">
+                <option value="column">column</option>
+                <option value="panel">panel</option>
+              </select>
+            </label>
+            <label>
+              Label align Y
+              <select id="labelAlignYSelect">
+                <option value="row">row</option>
+                <option value="panel">panel</option>
+              </select>
+            </label>
+          </div>
+          <div class="toggle-grid">
+            <label class="checkbox">
+              <input id="preserveRefreshCheckbox" type="checkbox" checked />
+              Preserve manual positions on refresh
+            </label>
+            <label class="checkbox">
+              <input id="sharedTitleCheckbox" type="checkbox" />
+              Shared title placeholder
+            </label>
+            <label class="checkbox">
+              <input id="sharedLegendCheckbox" type="checkbox" />
+              Shared legend placeholder
+            </label>
+          </div>
+        </div>
+
+        <div class="panel stack">
+          <div class="panel-header">
+            <div>
+              <div class="section-title">Manual actions</div>
+              <p>Use these only when you want to import or refresh directly from the loaded bundle.</p>
+            </div>
+            <span id="actionPanelBadge" class="badge warn">Bundle required</span>
+          </div>
+          <div class="action-grid">
+            <button id="refreshButton" class="primary">Manual Refresh</button>
+            <button id="relayoutButton" class="secondary">Refresh + Relayout</button>
+            <button id="importButton" class="ghost">Import as New</button>
+          </div>
+          <div class="section-foot">
+            <div class="action-note">
+              If terminal bridge sync stalls, keep this plugin open, choose the latest bundle written by <code>--write-bundle</code>, then use the manual buttons here.
+            </div>
+            <div class="microcopy">Bridge sync does not require loading a bundle manually; manual actions do.</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="section-title">Recent activity</div>
+        <div id="status" class="status">Choose a bundle file to begin.</div>
+      </div>
+    </div>
+
+    <script>
+      const UI_VERSION = "0.4.7";
+      const BRIDGE_URL_STORAGE_KEY = "pubfigBridgeUrl";
+      const BRIDGE_AUTO_CONNECT_STORAGE_KEY = "pubfigBridgeAutoConnect";
+      const BRIDGE_POLL_INTERVAL_MS = 1800;
+
+      function safeStorageGet(key, fallbackValue) {
+        try {
+          const value = window.localStorage.getItem(key);
+          if (value === null || value === undefined) {
+            return fallbackValue;
+          }
+          return value;
+        } catch (error) {
+          return fallbackValue;
+        }
+      }
+
+      function safeStorageSet(key, value) {
+        try {
+          window.localStorage.setItem(key, value);
+          return true;
+        } catch (error) {
+          return false;
+        }
+      }
+
+      function withDefault(value, fallback) {
+        if (value === null || value === undefined) {
+          return fallback;
+        }
+        return value;
+      }
+
+      const bundleFileInput = document.getElementById("bundleFile");
+      const bridgeUrlInput = document.getElementById("bridgeUrlInput");
+      const autoConnectCheckbox = document.getElementById("autoConnectCheckbox");
+      const connectBridgeButton = document.getElementById("connectBridgeButton");
+      const disconnectBridgeButton = document.getElementById("disconnectBridgeButton");
+      const bridgeStatus = document.getElementById("bridgeStatus");
+      const pluginVersionText = document.getElementById("pluginVersionText");
+      const presetSelect = document.getElementById("presetSelect");
+      const legendPositionSelect = document.getElementById("legendPositionSelect");
+      const panelGapInput = document.getElementById("panelGapInput");
+      const rowPanelCountsInput = document.getElementById("rowPanelCountsInput");
+      const labelOffsetXInput = document.getElementById("labelOffsetXInput");
+      const labelOffsetYInput = document.getElementById("labelOffsetYInput");
+      const labelAlignXSelect = document.getElementById("labelAlignXSelect");
+      const labelAlignYSelect = document.getElementById("labelAlignYSelect");
+      const preserveRefreshCheckbox = document.getElementById("preserveRefreshCheckbox");
+      const sharedTitleCheckbox = document.getElementById("sharedTitleCheckbox");
+      const sharedLegendCheckbox = document.getElementById("sharedLegendCheckbox");
+      const importButton = document.getElementById("importButton");
+      const refreshButton = document.getElementById("refreshButton");
+      const relayoutButton = document.getElementById("relayoutButton");
+      const bundleSummaryTitle = document.getElementById("bundleSummaryTitle");
+      const bundleSummaryGrid = document.getElementById("bundleSummaryGrid");
+      const bundleSummaryHint = document.getElementById("bundleSummaryHint");
+      const bundleReadyBadge = document.getElementById("bundleReadyBadge");
+      const summaryTools = document.getElementById("summaryTools");
+      const copyBundlePathButton = document.getElementById("copyBundlePathButton");
+      const copySourcePathButton = document.getElementById("copySourcePathButton");
+      const heroBridgeBadge = document.getElementById("heroBridgeBadge");
+      const heroBundleBadge = document.getElementById("heroBundleBadge");
+      const bridgePanelBadge = document.getElementById("bridgePanelBadge");
+      const bundlePanelBadge = document.getElementById("bundlePanelBadge");
+      const actionPanelBadge = document.getElementById("actionPanelBadge");
+      const runtimeStateValue = document.getElementById("runtimeStateValue");
+      const sessionStateValue = document.getElementById("sessionStateValue");
+      const status = document.getElementById("status");
+
+      const bridgeState = {
+        connected: false,
+        runtimeReady: false,
+        bridgeUrl: safeStorageGet(BRIDGE_URL_STORAGE_KEY, "http://localhost:47329"),
+        sessionId: null,
+        pollTimer: null,
+        isPolling: false,
+        activeJobId: null,
+        pendingJob: null,
+        connectTimeout: null,
+      };
+      const summaryState = {
+        bundlePath: null,
+        sourcePath: null,
+      };
+
+      pluginVersionText.textContent = "v" + UI_VERSION;
+      bridgeUrlInput.value = bridgeState.bridgeUrl;
+      autoConnectCheckbox.checked = safeStorageGet(BRIDGE_AUTO_CONNECT_STORAGE_KEY, "false") === "true";
+
+      function setBadge(element, tone, text) {
+        element.textContent = text;
+        element.className = "badge " + tone;
+      }
+
+      function setStatus(message, isError) {
+        status.textContent = message;
+        status.classList.toggle("error", Boolean(isError));
+      }
+
+      function setBridgeStatus(message, isError) {
+        bridgeStatus.textContent = message;
+        bridgeStatus.style.color = isError ? "#a61b1b" : "var(--muted)";
+      }
+
+      function hasLoadedBundle() {
+        return Boolean(bundleFileInput.files && bundleFileInput.files[0]);
+      }
+
+      function updateCopyAvailability() {
+        const hasAnyPath = Boolean(summaryState.bundlePath || summaryState.sourcePath);
+        summaryTools.style.display = hasAnyPath ? "flex" : "none";
+        copyBundlePathButton.disabled = !summaryState.bundlePath;
+        copySourcePathButton.disabled = !summaryState.sourcePath;
+      }
+
+      function updateActionAvailability() {
+        const bundleReady = hasLoadedBundle();
+        importButton.disabled = !bundleReady;
+        refreshButton.disabled = !bundleReady;
+        relayoutButton.disabled = !bundleReady;
+        setBadge(heroBundleBadge, bundleReady ? "ready" : "idle", bundleReady ? "Bundle ready" : "Load bundle");
+        setBadge(bundlePanelBadge, bundleReady ? "ready" : "idle", bundleReady ? "Loaded" : "Load bundle");
+        setBadge(actionPanelBadge, bundleReady ? "info" : "warn", bundleReady ? "Manual actions ready" : "Bundle required");
+      }
+
+      function renderSummaryItems(items) {
+        bundleSummaryGrid.innerHTML = "";
+        items.forEach(function (item) {
+          const cell = document.createElement("div");
+          cell.className = "summary-item";
+          const label = document.createElement("strong");
+          label.textContent = item.label;
+          const value = document.createElement("span");
+          value.textContent = item.value;
+          cell.appendChild(label);
+          cell.appendChild(value);
+          bundleSummaryGrid.appendChild(cell);
+        });
+      }
+
+      function renderBundleSummary(bundle, fileName) {
+        const layout = bundle.layout || {};
+        const panelLabels = bundle.panel_labels || {};
+        const placeholders = bundle.placeholders || {};
+        const rowCounts = Array.isArray(layout.row_panel_counts) && layout.row_panel_counts.length
+          ? layout.row_panel_counts.join(",")
+          : "auto";
+        const sourcePanelDir = bundle.source_panel_dir || "embedded bundle";
+        summaryState.bundlePath = null;
+        summaryState.sourcePath = sourcePanelDir || null;
+        bundleSummaryTitle.textContent = fileName
+          ? (fileName + " · " + String(bundle.figure_id || "pubfig-figure"))
+          : String(bundle.figure_id || "pubfig-figure");
+        bundleReadyBadge.textContent = "Loaded";
+        bundleReadyBadge.className = "badge ready";
+        renderSummaryItems([
+          { label: "Panels", value: String(Array.isArray(bundle.panels) ? bundle.panels.length : 0) },
+          { label: "Preset", value: String(layout.preset || "auto") },
+          { label: "Panel gap", value: String(layout.panel_gap === undefined ? "default" : layout.panel_gap) },
+          { label: "Rows", value: rowCounts },
+          { label: "Source", value: sourcePanelDir },
+          {
+            label: "Placeholders",
+            value: "title=" + Boolean(placeholders.shared_title && placeholders.shared_title.enabled)
+              + ", legend=" + Boolean(placeholders.shared_legend && placeholders.shared_legend.enabled),
+          },
+          {
+            label: "Labels",
+            value: "(" + String(panelLabels.align_x || "column") + ", " + String(panelLabels.align_y || "row")
+              + ") / (" + String(panelLabels.offset_x === undefined ? 12 : panelLabels.offset_x)
+              + ", " + String(panelLabels.offset_y === undefined ? 12 : panelLabels.offset_y) + ")",
+          },
+          { label: "Workflow", value: String((bundle.workflow && bundle.workflow.path) || "panel-first") },
+        ]);
+        bundleSummaryHint.textContent =
+          "Manual fallback ready. This loaded bundle can be imported or refreshed directly without bridge re-generation.";
+        updateCopyAvailability();
+        updateActionAvailability();
+      }
+
+      function renderBridgeProvenance(provenance) {
+        if (!provenance || typeof provenance !== "object") {
+          return;
+        }
+        summaryState.bundlePath = provenance.bundle_path || null;
+        summaryState.sourcePath = provenance.source_path || null;
+        bundleSummaryTitle.textContent =
+          "Bridge push · " + String(provenance.bundle_path || provenance.source_path || "unknown source");
+        bundleReadyBadge.textContent = "Bridge";
+        bundleReadyBadge.className = "badge ready";
+        renderSummaryItems([
+          { label: "Source kind", value: String(provenance.source_kind || "unknown") },
+          { label: "Bundle path", value: String(provenance.bundle_path || "not written") },
+          { label: "Source path", value: String(provenance.source_path || "unknown") },
+          { label: "Origin", value: String(provenance.bundle_origin || "unknown") },
+          { label: "Bundle written", value: String(Boolean(provenance.bundle_written)) },
+        ]);
+        bundleSummaryHint.textContent =
+          "Bridge delivered this job with bundle provenance attached. If sync fails later, open the same bundle path for manual fallback.";
+        updateCopyAvailability();
+      }
+
+      function resetBundleSummary(message) {
+        summaryState.bundlePath = null;
+        summaryState.sourcePath = null;
+        bundleSummaryTitle.textContent = "Choose a bundle file";
+        bundleReadyBadge.textContent = "Not loaded";
+        bundleReadyBadge.className = "badge idle";
+        renderSummaryItems([]);
+        bundleSummaryHint.textContent = message || "Load one .pubfig-figma.json bundle to enable manual fallback.";
+        updateCopyAvailability();
+        updateActionAvailability();
+      }
+
+      function persistBridgePreferences() {
+        safeStorageSet(BRIDGE_URL_STORAGE_KEY, bridgeUrlInput.value.trim());
+        safeStorageSet(BRIDGE_AUTO_CONNECT_STORAGE_KEY, autoConnectCheckbox.checked ? "true" : "false");
+      }
+
+      function buildBridgeUrl(path) {
+        const base = bridgeState.bridgeUrl.replace(/\/+$/, "");
+        return base + path;
+      }
+
+      async function bridgeRequest(method, path, payload) {
+        const options = {
+          method: method,
+          headers: { "Content-Type": "application/json" },
+        };
+        if (payload) {
+          options.body = JSON.stringify(payload);
+        }
+        const response = await fetch(buildBridgeUrl(path), options);
+        const data = await response.json();
+        if (!response.ok || data.ok === false) {
+          throw new Error(data.error || ("Bridge request failed: " + response.status));
+        }
+        return data;
+      }
+
+      function stopBridgePolling() {
+        if (bridgeState.pollTimer) {
+          clearInterval(bridgeState.pollTimer);
+          bridgeState.pollTimer = null;
+        }
+        bridgeState.isPolling = false;
+      }
+
+      function clearBridgeConnectTimeout() {
+        if (bridgeState.connectTimeout) {
+          clearTimeout(bridgeState.connectTimeout);
+          bridgeState.connectTimeout = null;
+        }
+      }
+
+      function updateBridgeUi() {
+        let statusText = "Ready to connect.";
+        if (bridgeState.connected && bridgeState.activeJobId) {
+          statusText = "Active bridge job: " + bridgeState.activeJobId;
+        } else if (bridgeState.connected) {
+          statusText = "Waiting for terminal sync jobs.";
+        }
+        setBridgeStatus(statusText, false);
+        runtimeStateValue.textContent = bridgeState.runtimeReady ? "Runtime ready" : "Waiting for runtime";
+        sessionStateValue.textContent = bridgeState.sessionId || "Not connected";
+        setBadge(heroBridgeBadge, bridgeState.connected ? "ready" : "idle", bridgeState.connected ? "Bridge live" : "Bridge offline");
+        setBadge(
+          bridgePanelBadge,
+          bridgeState.activeJobId ? "info" : "idle",
+          bridgeState.activeJobId ? "Job active" : bridgeState.connected ? "Waiting" : "Idle"
+        );
+        connectBridgeButton.disabled = bridgeState.connected;
+        disconnectBridgeButton.disabled = !bridgeState.connected;
+      }
+
+      async function postBridgeJobResult(resultMessage) {
+        if (!bridgeState.pendingJob) {
+          return;
+        }
+        const pending = bridgeState.pendingJob;
+        bridgeState.pendingJob = null;
+        bridgeState.activeJobId = null;
+        let payload;
+        if (resultMessage.ok) {
+          const resultPayload = {
+            figure_id: resultMessage.figureId,
+            root_name: resultMessage.rootName,
+            page_name: resultMessage.pageName,
+            mode: resultMessage.mode,
+            relayout: resultMessage.relayout,
+          };
+          if (resultMessage.bundleProvenance && typeof resultMessage.bundleProvenance === "object") {
+            resultPayload.bundle_provenance = resultMessage.bundleProvenance;
+          }
+          payload = {
+            result: resultPayload,
+            error: null,
+          };
+        } else {
+          payload = {
+            result: null,
+            error: resultMessage.error || "Bridge import failed",
+          };
+        }
+        try {
+          await bridgeRequest("POST", "/jobs/" + pending.job_id + "/result", payload);
+          updateBridgeUi();
+        } catch (error) {
+          setBridgeStatus("Connected, but failed to post job result:\n" + (error.message || String(error)), true);
+        }
+      }
+
+      async function pollBridgeOnce() {
+        if (!bridgeState.connected || bridgeState.isPolling || !bridgeState.sessionId || bridgeState.pendingJob) {
+          return;
+        }
+        bridgeState.isPolling = true;
+        try {
+          const data = await bridgeRequest("GET", "/sessions/" + bridgeState.sessionId + "/next-job");
+          if (data.job) {
+            bridgeState.pendingJob = data.job;
+            bridgeState.activeJobId = data.job.job_id;
+            updateBridgeUi();
+            const incomingBundle = data.job.bundle || {};
+            const incomingProvenance = data.job.bundle_provenance || null;
+            setStatus(
+              "Bridge job " + data.job.job_id
+                + "\nfigure=" + data.job.figure_id
+                + "\nmode=" + data.job.mode
+                + "\nrelayout=" + data.job.relayout
+                + "\nsource=" + String(incomingProvenance && incomingProvenance.source_path ? incomingProvenance.source_path : "unknown")
+                + "\nbundle=" + String(incomingProvenance && incomingProvenance.bundle_path ? incomingProvenance.bundle_path : "not written"),
+              false
+            );
+            renderBridgeProvenance(incomingProvenance);
+            if (incomingBundle && incomingBundle.bundle_type === "pubfig_figma_bundle") {
+              bundleSummaryHint.textContent =
+                "Bridge delivered figure " + String(incomingBundle.figure_id || data.job.figure_id)
+                + ". If needed, open the matching .pubfig-figma.json shown above for manual fallback.";
+            }
+            parent.postMessage(
+              {
+                pluginMessage: {
+                  type: "import-bundle",
+                  bundle: data.job.bundle,
+                  bundleProvenance: incomingProvenance,
+                  mode: data.job.mode,
+                  relayout: data.job.relayout,
+                },
+              },
+              "*"
+            );
+          }
+        } catch (error) {
+          stopBridgePolling();
+          bridgeState.connected = false;
+          setBridgeStatus("Bridge polling failed:\n" + (error.message || String(error)), true);
+        } finally {
+          bridgeState.isPolling = false;
+        }
+      }
+
+      function startBridgePolling() {
+        stopBridgePolling();
+        bridgeState.pollTimer = setInterval(function () {
+          void pollBridgeOnce();
+        }, BRIDGE_POLL_INTERVAL_MS);
+        void pollBridgeOnce();
+      }
+
+      function requestPluginPing() {
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "ping",
+            },
+          },
+          "*"
+        );
+      }
+
+      function requestBridgeSnapshot() {
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "bridge-session-snapshot",
+              bridgeUrl: bridgeState.bridgeUrl,
+            },
+          },
+          "*"
+        );
+      }
+
+      async function connectBridge() {
+        persistBridgePreferences();
+        bridgeState.bridgeUrl = bridgeUrlInput.value.trim() || "http://localhost:47329";
+        setBridgeStatus("Connecting bridge...");
+        setStatus("Connecting bridge…", false);
+        clearBridgeConnectTimeout();
+        bridgeState.connectTimeout = setTimeout(function () {
+          setBridgeStatus(
+            "Plugin runtime did not reply to the bridge connect request.\nPlease re-import the dev plugin manifest and reopen the plugin.",
+            true
+          );
+        }, 3000);
+        requestBridgeSnapshot();
+      }
+
+      function disconnectBridge() {
+        clearBridgeConnectTimeout();
+        stopBridgePolling();
+        bridgeState.connected = false;
+        bridgeState.sessionId = null;
+        bridgeState.pendingJob = null;
+        bridgeState.activeJobId = null;
+        updateBridgeUi();
+      }
+
+      function parseRowPanelCountsInput(value, expectedTotal) {
+        const raw = String(value || "").trim();
+        if (!raw) {
+          return null;
+        }
+        const parts = raw.split(",").map(function (item) { return item.trim(); }).filter(Boolean);
+        if (!parts.length) {
+          return null;
+        }
+        const counts = parts.map(function (item) {
+          const parsed = Number(item);
+          if (!Number.isFinite(parsed) || parsed <= 0 || Math.floor(parsed) !== parsed) {
+            throw new Error("Row panel counts must be a comma-separated list of positive integers.");
+          }
+          return parsed;
+        });
+        if (Number.isFinite(expectedTotal) && expectedTotal > 0) {
+          const total = counts.reduce(function (sum, count) { return sum + count; }, 0);
+          if (total !== expectedTotal) {
+            throw new Error("Row panel counts must sum to the panel count (" + expectedTotal + ").");
+          }
+        }
+        return counts;
+      }
+
+      function applyUiOptions(bundle) {
+        if (bundle.bundle_type !== "pubfig_figma_bundle") {
+          return bundle;
+        }
+        bundle.layout = bundle.layout || {};
+        bundle.panel_labels = bundle.panel_labels || {};
+        bundle.layout.preset = presetSelect.value;
+        const panelGapValue = panelGapInput.value.trim();
+        if (panelGapValue) {
+          const parsedGap = Number(panelGapValue);
+          if (!Number.isFinite(parsedGap) || parsedGap < 0) {
+            throw new Error("Panel gap must be a non-negative number.");
+          }
+          bundle.layout.panel_gap = parsedGap;
+        } else if (Object.prototype.hasOwnProperty.call(bundle.layout, "panel_gap")) {
+          delete bundle.layout.panel_gap;
+        }
+
+        const rowPanelCounts = parseRowPanelCountsInput(
+          rowPanelCountsInput.value,
+          Array.isArray(bundle.panels) ? bundle.panels.length : 0
+        );
+        if (rowPanelCounts) {
+          bundle.layout.row_panel_counts = rowPanelCounts;
+          if (Object.prototype.hasOwnProperty.call(bundle.layout, "columns")) {
+            delete bundle.layout.columns;
+          }
+        } else if (Object.prototype.hasOwnProperty.call(bundle.layout, "row_panel_counts")) {
+          delete bundle.layout.row_panel_counts;
+        }
+
+        const labelOffsetXValue = labelOffsetXInput.value.trim();
+        if (labelOffsetXValue) {
+          const parsedOffsetX = Number(labelOffsetXValue);
+          if (!Number.isFinite(parsedOffsetX) || parsedOffsetX < 0) {
+            throw new Error("Label offset X must be a non-negative number.");
+          }
+          bundle.panel_labels.offset_x = parsedOffsetX;
+        } else if (Object.prototype.hasOwnProperty.call(bundle.panel_labels, "offset_x")) {
+          delete bundle.panel_labels.offset_x;
+        }
+
+        const labelOffsetYValue = labelOffsetYInput.value.trim();
+        if (labelOffsetYValue) {
+          const parsedOffsetY = Number(labelOffsetYValue);
+          if (!Number.isFinite(parsedOffsetY) || parsedOffsetY < 0) {
+            throw new Error("Label offset Y must be a non-negative number.");
+          }
+          bundle.panel_labels.offset_y = parsedOffsetY;
+        } else if (Object.prototype.hasOwnProperty.call(bundle.panel_labels, "offset_y")) {
+          delete bundle.panel_labels.offset_y;
+        }
+        bundle.panel_labels.align_x = labelAlignXSelect.value;
+        bundle.panel_labels.align_y = labelAlignYSelect.value;
+        bundle.panel_labels.enabled = true;
+        bundle.layout.preserve_positions_on_refresh = preserveRefreshCheckbox.checked;
+        bundle.placeholders = bundle.placeholders || {};
+        bundle.placeholders.shared_title = bundle.placeholders.shared_title || {};
+        bundle.placeholders.shared_legend = bundle.placeholders.shared_legend || {};
+        bundle.placeholders.shared_title.enabled = sharedTitleCheckbox.checked;
+        bundle.placeholders.shared_legend.enabled = sharedLegendCheckbox.checked;
+        bundle.placeholders.shared_legend.position = legendPositionSelect.value;
+        return bundle;
+      }
+
+      async function readBundleFile() {
+        const file = bundleFileInput.files && bundleFileInput.files[0];
+        if (!file) {
+          throw new Error("Please choose a pubfig Figma bundle JSON file.");
+        }
+        const text = await file.text();
+        const bundle = JSON.parse(text);
+        if (bundle.bundle_type !== "pubfig_figma_bundle") {
+          throw new Error("Selected file is not a pubfig Figma bundle.");
+        }
+        const layout = bundle.layout || {};
+        const panelLabels = bundle.panel_labels || {};
+        const placeholders = bundle.placeholders || {};
+        presetSelect.value = layout.preset || "auto";
+        panelGapInput.value = layout.panel_gap === undefined || layout.panel_gap === null ? "" : String(layout.panel_gap);
+        rowPanelCountsInput.value = Array.isArray(layout.row_panel_counts) ? layout.row_panel_counts.join(",") : "";
+        labelOffsetXInput.value = panelLabels.offset_x === undefined || panelLabels.offset_x === null ? "12" : String(panelLabels.offset_x);
+        labelOffsetYInput.value = panelLabels.offset_y === undefined || panelLabels.offset_y === null ? "12" : String(panelLabels.offset_y);
+        labelAlignXSelect.value = panelLabels.align_x || "column";
+        labelAlignYSelect.value = panelLabels.align_y || "row";
+        preserveRefreshCheckbox.checked = Boolean(withDefault(layout.preserve_positions_on_refresh, true));
+        sharedTitleCheckbox.checked = Boolean(placeholders.shared_title && placeholders.shared_title.enabled);
+        sharedLegendCheckbox.checked = Boolean(placeholders.shared_legend && placeholders.shared_legend.enabled);
+        legendPositionSelect.value = (placeholders.shared_legend && placeholders.shared_legend.position) || "right";
+        const finalBundle = applyUiOptions(bundle);
+        renderBundleSummary(finalBundle, file.name);
+        return { bundle: finalBundle, fileName: file.name };
+      }
+
+      async function sendBundle(mode, relayout) {
+        try {
+          const loaded = await readBundleFile();
+          const bundle = loaded.bundle;
+          const descriptor = bundle.panels.length + " panels";
+          const rowCountsText = Array.isArray(bundle.layout && bundle.layout.row_panel_counts)
+            ? bundle.layout.row_panel_counts.join(",")
+            : "auto";
+          const panelLabels = bundle.panel_labels || {};
+          setStatus(
+            "Sending " + bundle.figure_id + " (" + descriptor + ")\nmode=" + mode
+              + (bundle.layout ? "\npreset=" + (bundle.layout.preset || "auto") : "")
+              + "\npanel_gap=" + ((bundle.layout && bundle.layout.panel_gap !== undefined) ? bundle.layout.panel_gap : "default")
+              + "\nrow_panel_counts=" + rowCountsText
+              + "\nlabel_offset=(" + String(panelLabels.offset_x === undefined ? 12 : panelLabels.offset_x) + ", "
+              + String(panelLabels.offset_y === undefined ? 12 : panelLabels.offset_y) + ")"
+              + "\nlabel_align=(" + String(panelLabels.align_x || "column") + ", " + String(panelLabels.align_y || "row") + ")"
+              + "\nfile=" + loaded.fileName,
+            false
+          );
+          parent.postMessage(
+            {
+              pluginMessage: {
+                type: "import-bundle",
+                mode: mode,
+                relayout: relayout,
+                bundle: bundle,
+                bundleProvenance: null,
+              },
+            },
+            "*"
+          );
+        } catch (error) {
+          setStatus(error.message || String(error), true);
+        }
+      }
+
+      async function previewBundleSelection() {
+        try {
+          const loaded = await readBundleFile();
+          setStatus(
+            "Bundle loaded.\nFigure: " + loaded.bundle.figure_id
+              + "\nPanels: " + loaded.bundle.panels.length
+              + "\nManual fallback is ready.",
+            false
+          );
+        } catch (error) {
+          resetBundleSummary(error.message || String(error));
+          setStatus(error.message || String(error), true);
+        }
+      }
+
+      async function copyTextToClipboard(value, label) {
+        if (!value) {
+          setStatus("No " + label.toLowerCase() + " available to copy yet.", true);
+          return;
+        }
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(value);
+          } else {
+            const textarea = document.createElement("textarea");
+            textarea.value = value;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            textarea.remove();
+          }
+          setStatus(label + " copied.\n" + value, false);
+        } catch (error) {
+          setStatus("Failed to copy " + label.toLowerCase() + ".\n" + (error.message || String(error)), true);
+        }
+      }
+
+      connectBridgeButton.addEventListener("click", function () {
+        void connectBridge();
+      });
+      disconnectBridgeButton.addEventListener("click", function () {
+        disconnectBridge();
+      });
+      importButton.addEventListener("click", function () {
+        void sendBundle("import", true);
+      });
+      refreshButton.addEventListener("click", function () {
+        void sendBundle("refresh", false);
+      });
+      relayoutButton.addEventListener("click", function () {
+        void sendBundle("refresh", true);
+      });
+      copyBundlePathButton.addEventListener("click", function () {
+        void copyTextToClipboard(summaryState.bundlePath, "Bundle path");
+      });
+      copySourcePathButton.addEventListener("click", function () {
+        void copyTextToClipboard(summaryState.sourcePath, "Source path");
+      });
+      bundleFileInput.addEventListener("change", function () {
+        void previewBundleSelection();
+      });
+      bridgeUrlInput.addEventListener("change", function () {
+        persistBridgePreferences();
+      });
+      autoConnectCheckbox.addEventListener("change", function () {
+        persistBridgePreferences();
+      });
+
+      window.onmessage = function (event) {
+        const pluginMessage = event.data && event.data.pluginMessage ? event.data.pluginMessage : null;
+        if (!pluginMessage) {
+          return;
+        }
+
+        if (pluginMessage.type === "pong") {
+          bridgeState.runtimeReady = true;
+          updateBridgeUi();
+          setStatus(
+            "Plugin ready.\nUI v" + UI_VERSION + "\nCurrent page: " + (pluginMessage.pageName || "unknown"),
+            false
+          );
+          return;
+        }
+
+        if (pluginMessage.type === "bridge-session-snapshot") {
+          clearBridgeConnectTimeout();
+          void bridgeRequest("POST", "/sessions/register", pluginMessage.snapshot)
+            .then(function (data) {
+              bridgeState.connected = true;
+              bridgeState.sessionId = data.session.session_id;
+              updateBridgeUi();
+              startBridgePolling();
+              setStatus("Bridge linked. Waiting for next sync job.", false);
+            })
+            .catch(function (error) {
+              clearBridgeConnectTimeout();
+              bridgeState.connected = false;
+              setBridgeStatus("Bridge connection failed:\n" + (error.message || String(error)), true);
+              setStatus("Bridge connection failed.\n" + (error.message || String(error)), true);
+            });
+          return;
+        }
+
+        if (pluginMessage.type === "import-result") {
+          if (pluginMessage.ok) {
+            setStatus(
+              "Done.\nFigure: " + pluginMessage.figureId
+                + "\nPanels: " + String(pluginMessage.panelCount || 0)
+                + "\nPage: " + pluginMessage.pageName
+                + "\nRoot: " + pluginMessage.rootName
+                + "\nmode=" + pluginMessage.mode
+                + "\nrelayout=" + pluginMessage.relayout
+                + "\nworkflow=" + String(pluginMessage.workflowPath || "panel-first")
+                + (pluginMessage.sourcePanelDir ? "\nsource=" + pluginMessage.sourcePanelDir : "")
+                + (pluginMessage.bundleProvenance && pluginMessage.bundleProvenance.bundle_path
+                  ? "\nbundle=" + pluginMessage.bundleProvenance.bundle_path
+                  : "")
+                + "\nManual fallback: ready if bundle stays loaded.",
+              false
+            );
+          } else {
+            setStatus(pluginMessage.error || "Import failed.", true);
+          }
+          void postBridgeJobResult(pluginMessage);
+        }
+      };
+
+      window.addEventListener("error", function (event) {
+        const detail = event && event.message ? event.message : "Unknown UI error";
+        setBridgeStatus("UI script error:\n" + detail, true);
+        setStatus("UI script error:\n" + detail, true);
+      });
+
+      updateBridgeUi();
+      resetBundleSummary();
+      updateActionAvailability();
+      setStatus("UI booted.\nVersion: " + UI_VERSION + "\nWaiting for plugin runtime ping...", false);
+      requestPluginPing();
+      if (autoConnectCheckbox.checked) {
+        void connectBridge();
+      }
+    </script>
+  </body>
+</html>

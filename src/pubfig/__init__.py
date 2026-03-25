@@ -14,7 +14,12 @@ from .colors import (
     register_palette,
     show_palette,
 )
-from .export import batch_export, save_figure
+from .export import PanelExportRecord, batch_export, export_panel, export_panels, save_figure
+from .figma import (
+    inspect_figma_bundle,
+    package_figma_bundle,
+    validate_figma_bundle,
+)
 from .plots import (
     area,
     bar,
@@ -68,6 +73,12 @@ __all__ = [
     # Export
     "save_figure",
     "batch_export",
+    "PanelExportRecord",
+    "export_panel",
+    "export_panels",
+    "package_figma_bundle",
+    "validate_figma_bundle",
+    "inspect_figma_bundle",
     # Figure specs
     "FigureSpec",
     "get_figure_spec",
