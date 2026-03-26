@@ -30,12 +30,18 @@
 - **2026-03-25**: Panel-first Figma 链路继续打磨 — panel 导出现在默认产出无 title 的干净资产，便于在 Figma 里做整图级标题编排；`pubfig-sync` 默认关闭 shared title / legend placeholders；bridge/watch 也会直接暴露 bundle provenance 和 manual fallback 对应的 bundle 路径。
 - **2026-03-20**: Figma 本地 bridge 自动化同步 — 增加 bridge 驱动的 `pubfig figma bridge|sync|watch` 工作流，升级 `pubfig-sync` 的 bridge connection mode，并支持在一次 plugin 连接后由 CLI 触发矢量导入/刷新。
 - **2026-03-20**: Figma plugin v2 工作流打磨 — 增加 `auto` / `hero_top` relayout presets，补齐 shared title / legend placeholders，并改进 refresh 行为，使用户在 Figma 中手调过的位置默认能更稳定地保留下来。
+
+<details>
+<summary><strong>View older changelog</strong></summary>
+
 - **2026-03-20**: CLI + Figma plugin 工作流 — 新增 `pubfig figma package|validate|inspect`，引入单文件的 Figma bundle JSON 格式，并提供 `figma-plugin/pubfig-sync` 插件脚手架，用于节点级导入与刷新。
 - **2026-03-20**: Figma-first panel 导出工作流 — 新增 `export_panel(...)` 和 `export_panels(...)`，用于稳定导出 subplot 资产；同时增加最小化的 `panel-index.json` 同步索引，并补充 Codex + Figma MCP 的多 panel 精修路径说明。
 - **2026-03-20**: 与 pubtab 风格对齐并刷新首页结构 — 按照 pubtab 的首页组织方式重排 README，补上居中 badges、语言切换、highlights、带日期的 recent news、精选示例和 gallery hero 图。
 - **2026-03-20**: 默认完整安装与元信息简化 — 将 `pip install pubfig` 调整为默认安装完整绘图栈，移除主安装路径上的用户可见 extras，并同步统一包元信息、GitHub About 和 README 文案。
 - **2026-03-19**: 新增 raincloud 并刷新 gallery — 增加 `raincloud(...)`，优化其默认样式，接入 gallery，并重新导出整套图像产物。
 - **2026-03-19**: 更新 PCA biplot 与 radar 默认示例 — 扩展 `pca_biplot(...)` 的 loading panel 模式和 group ellipses，刷新 radar 默认示例，统一字体处理，并重新导出 gallery。
+
+</details>
 
 ## 示例
 
@@ -46,7 +52,8 @@
   <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="48%" alt="Raincloud 示例"></a>
 </p>
 <p align="center">
-  <a href="examples/radar.png"><img src="examples/radar.png" width="72%" alt="Radar 示例"></a>
+  <a href="examples/line.png"><img src="examples/line.png" width="48%" alt="Line 示例"></a>
+  <a href="examples/radar.png"><img src="examples/radar.png" width="48%" alt="Radar 示例"></a>
 </p>
 
 <details>
@@ -124,7 +131,7 @@ fig = pf.bar_scatter(
 
 #### Quick Start
 
-1. 在 Figma 里安装或打开 `pubfig-sync` plugin。
+1. 第一次使用时，在 Figma Desktop 里进入 **Plugins → Development → Import plugin from manifest...**，选择本仓库里的 `figma-plugin/pubfig-sync/manifest.json` 完成安装。之后可从 **Plugins → Development → pubfig-sync** 重新打开。
 2. 在 plugin 里点一次 **Connect Bridge**。
 3. 从 Python 导出 panels。
 4. 在终端运行 `pubfig figma push <panel_dir> --figure-id <id>`。

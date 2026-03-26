@@ -30,12 +30,18 @@
 - **2026-03-25**: Panel-first Figma loop polish — panel export now defaults to title-free assets for cleaner Figma assembly, `pubfig-sync` now keeps shared title / legend placeholders off by default, and bridge/watch flows now surface bundle provenance plus the exact manual-fallback bundle path.
 - **2026-03-20**: Local bridge automation for Figma sync — added a bridge-backed `pubfig figma bridge|sync|watch` workflow, upgraded `pubfig-sync` with bridge connection mode, and enabled CLI-triggered vector import/refresh after one-time plugin connection.
 - **2026-03-20**: Figma plugin v2 workflow polish — added `auto` / `hero_top` relayout presets, upgraded shared title / legend placeholders, and improved refresh behavior so manual Figma positioning is preserved more reliably unless relayout is requested.
+
+<details>
+<summary><strong>View older changelog</strong></summary>
+
 - **2026-03-20**: CLI + Figma plugin workflow — added `pubfig figma package|validate|inspect`, introduced a single-file Figma bundle JSON format for exported panels, and scaffolded the `figma-plugin/pubfig-sync` plugin for node-level import and refresh.
 - **2026-03-20**: Figma-first panel export workflow — added `export_panel(...)` and `export_panels(...)` for stable subplot asset export, introduced a minimal `panel-index.json` sync index, and documented the Codex + Figma MCP refinement path for multi-panel figures.
 - **2026-03-20**: README alignment with pubtab style and homepage refresh — reorganized the README into a pubtab-style homepage with centered badges, language switch, highlights, dated recent news, showcase examples, and an embedded gallery hero.
 - **2026-03-20**: Default full install and metadata simplification — changed `pip install pubfig` to install the full plotting stack by default, removed user-facing extras from the main install path, and aligned package metadata, GitHub About, and README wording.
 - **2026-03-19**: Raincloud plot support and gallery refresh — added `raincloud(...)`, tuned its default styling, integrated it into the gallery, and regenerated the exported figure set.
 - **2026-03-19**: PCA biplot and radar default updates — expanded `pca_biplot(...)` with loading panel modes and group ellipses, refreshed radar defaults, unified font handling, and re-exported the gallery.
+
+</details>
 
 ## Examples
 
@@ -46,7 +52,8 @@
   <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="48%" alt="Raincloud example"></a>
 </p>
 <p align="center">
-  <a href="examples/radar.png"><img src="examples/radar.png" width="72%" alt="Radar example"></a>
+  <a href="examples/line.png"><img src="examples/line.png" width="48%" alt="Line example"></a>
+  <a href="examples/radar.png"><img src="examples/radar.png" width="48%" alt="Radar example"></a>
 </p>
 
 <details>
@@ -124,7 +131,7 @@ For day-to-day use, the main command is `pubfig figma push`.
 
 #### Quick Start
 
-1. Install or open the `pubfig-sync` plugin in Figma.
+1. Install `pubfig-sync` in Figma Desktop the first time: go to **Plugins → Development → Import plugin from manifest...**, then select `figma-plugin/pubfig-sync/manifest.json` from this repo. After that, reopen it from **Plugins → Development → pubfig-sync**.
 2. Click **Connect Bridge** once in the plugin.
 3. Export your panels from Python.
 4. Run `pubfig figma push <panel_dir> --figure-id <id>` from the terminal.
