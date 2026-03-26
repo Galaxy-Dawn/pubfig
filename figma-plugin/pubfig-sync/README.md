@@ -2,47 +2,31 @@
 
 A Figma plugin for **panel-bundle import / refresh** in the `pubfig` panel-first workflow.
 
-## Recommended workflow
+## Primary workflow
 
 1. Build panels in Python with `pubfig`
 2. Export them with `export_panel(...)` or `export_panels(...)`
-3. Package the panel directory with `pubfig figma package`
-4. Import or refresh it in Figma with this plugin
-5. Use plugin relayout presets only for panel placement refinement in Figma
-
-## CLI pairing
-
-Agent-first default:
+3. Open this plugin in Figma and click **Connect Bridge**
+4. Run `pubfig figma push <panel_dir> --figure-id <id>` from the terminal
+5. Use the loaded bundle only when you need manual fallback
 
 ```bash
 pubfig figma push examples/figma_panels_demo_output --figure-id figure-01
 ```
 
-`push` ensures the local bridge is running, defaults to the latest connected
-session, auto-enables `--write-bundle`, and then performs the sync / refresh.
+`push` is the default daily command. It ensures the local bridge is running,
+defaults to the latest connected session, auto-enables `--write-bundle`, and
+then performs the sync / refresh.
 
-Create a bundle from an exported panel directory:
+## Manual fallback
 
 ```bash
 pubfig figma package examples/figma_panels_demo_output --figure-id figure-01
 ```
 
-Sync that bundle through the local bridge:
-
-```bash
-pubfig figma sync examples/figma_panels_demo_output/figure-01.pubfig-figma.json
-```
-
-`sync` and `watch` also still accept the original panel directory when you want
-to rebuild the bundle in memory on every refresh:
-
-```bash
-pubfig figma sync examples/figma_panels_demo_output --figure-id figure-01 --write-bundle
-pubfig figma watch examples/figma_panels_demo_output --session latest --figure-id figure-01 --write-bundle
-```
-
-With `--write-bundle`, the CLI writes the exact bridge payload to disk first, so
-the same bundle can be imported manually in the plugin if bridge sync fails.
+Or just load the exact `.pubfig-figma.json` bundle already written by
+`pubfig figma push`. The plugin UI exposes manual import / refresh controls so
+you can recover quickly if bridge sync fails.
 
 The plugin UI now surfaces a bundle summary card for manual fallback, so after
 you choose the written `.pubfig-figma.json` you can see the figure id, panel
@@ -58,6 +42,22 @@ available.
 1. Open the plugin in Figma, set the bridge URL to `http://localhost:47329`, and click **Connect Bridge**
 2. Optionally enable **Auto-connect bridge when plugin opens**
 3. Trigger future refreshes from the terminal with `pubfig figma push ...`
+
+## Secondary and advanced commands
+
+Secondary:
+
+```bash
+pubfig figma package examples/figma_panels_demo_output --figure-id figure-01
+```
+
+Advanced:
+
+```bash
+pubfig figma sync examples/figma_panels_demo_output/figure-01.pubfig-figma.json --session latest
+pubfig figma watch examples/figma_panels_demo_output --session latest --figure-id figure-01 --write-bundle
+pubfig figma bridge status
+```
 
 ## Supported relayout presets
 

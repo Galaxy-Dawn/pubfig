@@ -442,7 +442,7 @@
           <div class="panel-header">
             <div>
               <div class="section-title">Bridge session</div>
-              <p>Keep the plugin connected so terminal sync can refresh the active figure in place.</p>
+              <p>Keep the plugin connected so terminal <code>pubfig figma push</code> can refresh the active figure in place.</p>
             </div>
             <span id="bridgePanelBadge" class="badge idle">Idle</span>
           </div>
@@ -467,7 +467,7 @@
           <div class="panel-header">
             <div>
               <div class="section-title">Manual fallback bundle</div>
-              <p>Load the exact bundle written by <code>pubfig figma sync --write-bundle</code> for manual import and recovery.</p>
+              <p>Load the exact bundle written by <code>pubfig figma push</code> for manual import and recovery.</p>
             </div>
             <span id="bundlePanelBadge" class="badge idle">Waiting</span>
           </div>
@@ -477,7 +477,7 @@
               <input id="bundleFile" type="file" accept=".json,.pubfig-figma.json" />
             </label>
             <div class="hint">
-              Best with the bundle written by <code>pubfig figma sync --write-bundle</code> so bridge sync and manual fallback use the same payload.
+              Best with the bundle automatically written by <code>pubfig figma push</code> so bridge sync and manual fallback use the same payload.
             </div>
           </div>
 
@@ -590,7 +590,7 @@
           </div>
           <div class="section-foot">
             <div class="action-note">
-              If terminal bridge sync stalls, keep this plugin open, choose the latest bundle written by <code>--write-bundle</code>, then use the manual buttons here.
+              If terminal bridge sync stalls, keep this plugin open, choose the latest bundle written by <code>pubfig figma push</code>, then use the manual buttons here.
             </div>
             <div class="microcopy">Bridge sync does not require loading a bundle manually; manual actions do.</div>
           </div>

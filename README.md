@@ -166,7 +166,7 @@ pubfig figma push panels --figure-id figure-01
 ```
 
 This writes panel assets such as `a.svg`, `b.svg`, and `panel-index.json`, then
-pushes them into Figma through the panel-first workflow.
+uses `push` as the primary panel-first handoff into Figma.
 
 #### How refresh works
 
@@ -193,15 +193,15 @@ If bridge refresh stalls, load the latest written `.pubfig-figma.json` bundle in
 `pubfig-sync`, then use **Import as New**, **Manual Refresh**, or **Refresh + Relayout**.
 
 **When should I use `pubfig figma package`?**  
-Use it as the secondary path when you only want to write a standalone bundle
-without pushing immediately.
+Use it as the **secondary** path when you only want to write a standalone
+bundle without pushing immediately.
 
 ```bash
 pubfig figma package panels --figure-id figure-01
 ```
 
 **Where are the advanced commands?**  
-Use these only when you need finer control or debugging:
+Use these only for finer control or debugging after the normal `push` path:
 
 ```bash
 pubfig figma sync figure-01.pubfig-figma.json --session latest

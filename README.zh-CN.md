@@ -165,8 +165,8 @@ pf.export_panels(panels, "panels", overwrite=True)  # 默认导出 title-free ar
 pubfig figma push panels --figure-id figure-01
 ```
 
-这会先写出 `a.svg`、`b.svg`、`panel-index.json` 之类的 panel 资产，然后通过
-panel-first 工作流把它们推到 Figma。
+这会先写出 `a.svg`、`b.svg`、`panel-index.json` 之类的 panel 资产，然后用
+`push` 作为默认的 panel-first 交接命令把它们送到 Figma。
 
 #### How refresh works
 
@@ -192,15 +192,15 @@ refresh、debug 或 recovery。
 `pubfig-sync`，再用 **Import as New**、**Manual Refresh** 或 **Refresh + Relayout**。
 
 **什么时候用 `pubfig figma package`？**  
-当你只想先写出一个独立 bundle、暂时不立刻 push 到 Figma 时，用这个 secondary
-命令。
+当你只想先写出一个独立 bundle、暂时不立刻 push 到 Figma 时，用这个
+**secondary** 命令。
 
 ```bash
 pubfig figma package panels --figure-id figure-01
 ```
 
 **高级命令放在哪里？**  
-只有在你需要更细的控制或排障时，再用这些 advanced 命令：
+只有在正常 `push` 路径之外，你确实需要更细的控制或排障时，再用这些 advanced 命令：
 
 ```bash
 pubfig figma sync figure-01.pubfig-figma.json --session latest

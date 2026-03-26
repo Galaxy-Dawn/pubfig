@@ -408,12 +408,19 @@ def _build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    figma_parser = subparsers.add_parser("figma", help="Figma-oriented bundle workflows.")
+    figma_parser = subparsers.add_parser(
+        "figma",
+        help="Figma panel-first workflows. `push` is the recommended daily command.",
+        description=(
+            "Figma panel-first workflows. Use `pubfig figma push` as the primary daily command. "
+            "`package` is secondary; `sync`, `watch`, and `bridge` are advanced controls."
+        ),
+    )
     figma_subparsers = figma_parser.add_subparsers(dest="figma_command", required=True)
 
     package_parser = figma_subparsers.add_parser(
         "package",
-        help="Package an exported panel directory into a single plugin-friendly Figma bundle JSON file.",
+        help="Secondary: package an exported panel directory into a single plugin-friendly Figma bundle JSON file.",
     )
     package_parser.add_argument("panel_dir", help="Directory containing panel-index.json and SVG panel assets.")
     package_parser.add_argument("-o", "--output", dest="output_path", help="Output bundle JSON path.")
@@ -466,17 +473,20 @@ def _build_parser() -> argparse.ArgumentParser:
 
     validate_parser = figma_subparsers.add_parser(
         "validate",
-        help="Validate either an exported panel directory or a packaged Figma bundle JSON file.",
+        help="Advanced: validate either an exported panel directory or a packaged Figma bundle JSON file.",
     )
     validate_parser.add_argument("path", help="Panel directory or bundle JSON path.")
 
     inspect_parser = figma_subparsers.add_parser(
         "inspect",
-        help="Inspect a packaged Figma bundle JSON file and print a compact summary.",
+        help="Advanced: inspect a packaged Figma bundle JSON file and print a compact summary.",
     )
     inspect_parser.add_argument("path", help="Bundle JSON path.")
 
-    bridge_parser = figma_subparsers.add_parser("bridge", help="Run or inspect the local pubfig Figma bridge.")
+    bridge_parser = figma_subparsers.add_parser(
+        "bridge",
+        help="Advanced: run or inspect the local pubfig Figma bridge.",
+    )
     bridge_subparsers = bridge_parser.add_subparsers(dest="bridge_command", required=True)
 
     bridge_start_parser = bridge_subparsers.add_parser("start", help="Start the local pubfig Figma bridge server.")
@@ -488,7 +498,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     sync_parser = figma_subparsers.add_parser(
         "sync",
-        help="Send either a panel directory or a packaged Figma bundle JSON file to a connected pubfig-sync session.",
+        help="Advanced: send either a panel directory or a packaged Figma bundle JSON file to a connected pubfig-sync session.",
     )
     sync_parser.add_argument(
         "source",
@@ -557,7 +567,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     push_parser = figma_subparsers.add_parser(
         "push",
-        help="Agent-first sync wrapper: ensure local bridge, default to latest session, write bundle, then sync.",
+        help="Primary: ensure local bridge, default to latest session, write bundle, then sync.",
     )
     push_parser.add_argument(
         "source",
@@ -628,7 +638,7 @@ def _build_parser() -> argparse.ArgumentParser:
 
     watch_parser = figma_subparsers.add_parser(
         "watch",
-        help="Watch a panel directory or packaged bundle file and auto-sync changes to a connected bridge session.",
+        help="Advanced: watch a panel directory or packaged bundle file and auto-sync changes to a connected bridge session.",
     )
     watch_parser.add_argument(
         "source",
