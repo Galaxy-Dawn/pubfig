@@ -1,5 +1,6 @@
 """Export a gallery of pubfig plot types to output_figures/."""
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -16,6 +17,12 @@ pf.set_default_theme("nature")
 OUT = ROOT / "output_figures"
 GALLERY_HERO = ROOT / "examples" / "gallery-hero.png"
 CONTACT_SHEET = OUT / "all_plots_contact_sheet.png"
+FEATURED_EXPORTS = {
+    "03_bar_scatter.png": ROOT / "examples" / "bar_scatter.png",
+    "08b_raincloud.png": ROOT / "examples" / "raincloud.png",
+    "10_line.png": ROOT / "examples" / "line.png",
+    "17_radar.png": ROOT / "examples" / "radar.png",
+}
 OUT.mkdir(parents=True, exist_ok=True)
 rng = np.random.default_rng(7)
 
@@ -389,6 +396,9 @@ build_gallery_contact_sheet(
     contact_sheet_path=CONTACT_SHEET,
     hero_path=GALLERY_HERO,
 )
+for exported_name, target_path in FEATURED_EXPORTS.items():
+    shutil.copy2(OUT / exported_name, target_path)
+    print(f"  ✓ {target_path.relative_to(ROOT)}")  # noqa: T201 - example script
 print(f"  ✓ {CONTACT_SHEET.relative_to(ROOT)}")  # noqa: T201 - example script
 print(f"  ✓ {GALLERY_HERO.relative_to(ROOT)}")  # noqa: T201 - example script
 

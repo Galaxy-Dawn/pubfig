@@ -228,7 +228,7 @@ def bar_scatter(
     legend_gap: float = 0.07,
     legend_y_anchor_min: float = 1.02,
     legend_y_anchor_no_title: float = 1.18,
-    legend_above_stats_margin_axes: float = 0.02,
+    legend_above_stats_margin_axes: float = 0.045,
     legend_columnspacing: float = 1.6,
     legend_handlelength: float = 1.4,
     legend_handletextpad: float = 0.4,
