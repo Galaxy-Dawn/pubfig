@@ -11,7 +11,7 @@
     <a href="https://github.com/Galaxy-Dawn/pubfig"><img src="https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=flat-square" alt="GitHub Stars"/></a>
   </p>
 
-  <strong>Language</strong>: <a href="https://github.com/Galaxy-Dawn/pubfig/blob/main/README.md">English</a> | <a href="https://github.com/Galaxy-Dawn/pubfig/blob/main/README.zh-CN.md">中文</a>
+  <strong>语言</strong>: <a href="https://github.com/Galaxy-Dawn/pubfig/blob/main/README.md">English</a> | <a href="https://github.com/Galaxy-Dawn/pubfig/blob/main/README.zh-CN.md">中文</a>
 
 </div>
 
@@ -20,26 +20,26 @@
 ## 亮点
 
 - **论文导向默认值** — 更紧凑的标题、更干净的图例、显式字体处理，以及更接近论文风格的线宽。
-- **常见图形集中在一个库里** — 统计图、分布图、降维图、评估曲线、热图与 flow 图都在同一个 API 表面之下。
-- **面向投稿的导出接口** — `save_figure(...)` 支持 `single`/`double` 栏宽、vector 格式、raster DPI 和 trim。
+- **常见图形集中在一个库里** — 统计图、分布图、降维图、评估曲线、热图与流向图都统一在同一套绘图接口之下。
+- **面向投稿的导出接口** — `save_figure(...)` 支持 `single`/`double` 栏宽、矢量格式、位图 DPI 和裁边。
 - **Matplotlib 原生工作流** — 所有绘图函数都返回 Matplotlib `Figure` 对象，便于接入现有分析脚本。
-- **显式布局控制** — 可精细控制刻度朝向、box/grid 显示、palette、legend 与各图专属布局参数。
+- **显式布局控制** — 可精细控制刻度朝向、边框/网格显示、调色板、图例与各图专属布局参数。
 
-## Recent News
+## 近期更新
 
-- **2026-03-25**: Panel-first Figma 链路继续打磨 — panel 导出现在默认产出无 title 的干净资产，便于在 Figma 里做整图级标题编排；`pubfig-sync` 默认关闭 shared title / legend placeholders；bridge/watch 也会直接暴露 bundle provenance 和 manual fallback 对应的 bundle 路径。
-- **2026-03-20**: Figma 本地 bridge 自动化同步 — 增加 bridge 驱动的 `pubfig figma bridge|sync|watch` 工作流，升级 `pubfig-sync` 的 bridge connection mode，并支持在一次 plugin 连接后由 CLI 触发矢量导入/刷新。
-- **2026-03-20**: Figma plugin v2 工作流打磨 — 增加 `auto` / `hero_top` relayout presets，补齐 shared title / legend placeholders，并改进 refresh 行为，使用户在 Figma 中手调过的位置默认能更稳定地保留下来。
+- **2026-03-25**: 面板优先的 Figma 链路继续打磨 — 面板导出现在默认产出不带标题的干净资产，便于在 Figma 里做整图级标题编排；`pubfig-sync` 默认关闭共享标题 / 图例占位；`bridge` / `watch` 也会直接暴露 bundle 来源信息和手动兜底对应的打包文件路径。
+- **2026-03-20**: Figma 本地桥接自动化同步 — 增加由桥接驱动的 `pubfig figma bridge|sync|watch` 工作流，升级 `pubfig-sync` 的桥接连接模式，并支持在一次插件连接后由命令行触发矢量导入 / 刷新。
+- **2026-03-20**: Figma 插件 v2 工作流打磨 — 增加 `auto` / `hero_top` 重新布局预设，补齐共享标题 / 图例占位，并改进刷新行为，使用户在 Figma 中手调过的位置默认能更稳定地保留下来。
 
 <details>
-<summary><strong>View older changelog</strong></summary>
+<summary><strong>查看更早更新</strong></summary>
 
-- **2026-03-20**: CLI + Figma plugin 工作流 — 新增 `pubfig figma package|validate|inspect`，引入单文件的 Figma bundle JSON 格式，并提供 `figma-plugin/pubfig-sync` 插件脚手架，用于节点级导入与刷新。
-- **2026-03-20**: Figma-first panel 导出工作流 — 新增 `export_panel(...)` 和 `export_panels(...)`，用于稳定导出 subplot 资产；同时增加最小化的 `panel-index.json` 同步索引，并补充 Codex + Figma MCP 的多 panel 精修路径说明。
-- **2026-03-20**: 与 pubtab 风格对齐并刷新首页结构 — 按照 pubtab 的首页组织方式重排 README，补上居中 badges、语言切换、highlights、带日期的 recent news、精选示例和 gallery hero 图。
-- **2026-03-20**: 默认完整安装与元信息简化 — 将 `pip install pubfig` 调整为默认安装完整绘图栈，移除主安装路径上的用户可见 extras，并同步统一包元信息、GitHub About 和 README 文案。
-- **2026-03-19**: 新增 raincloud 并刷新 gallery — 增加 `raincloud(...)`，优化其默认样式，接入 gallery，并重新导出整套图像产物。
-- **2026-03-19**: 更新 PCA biplot 与 radar 默认示例 — 扩展 `pca_biplot(...)` 的 loading panel 模式和 group ellipses，刷新 radar 默认示例，统一字体处理，并重新导出 gallery。
+- **2026-03-20**: CLI + Figma 插件工作流 — 新增 `pubfig figma package|validate|inspect`，引入单文件的 Figma bundle JSON 格式，并提供 `figma-plugin/pubfig-sync` 插件脚手架，用于节点级导入与刷新。
+- **2026-03-20**: Figma 优先的面板导出工作流 — 新增 `export_panel(...)` 和 `export_panels(...)`，用于稳定导出子图资产；同时增加最小化的 `panel-index.json` 同步索引，并补充 Codex + Figma MCP 的多面板精修路径说明。
+- **2026-03-20**: 与 pubtab 风格对齐并刷新首页结构 — 按照 pubtab 的首页组织方式重排 README，补上居中徽章、语言切换、亮点、带日期的近期更新、精选示例和图库头图。
+- **2026-03-20**: 默认完整安装与元信息简化 — 将 `pip install pubfig` 调整为默认安装完整绘图栈，移除主安装路径上的用户可见额外依赖选项，并同步统一包元信息、GitHub About 和 README 文案。
+- **2026-03-19**: 新增 raincloud 并刷新图库 — 增加 `raincloud(...)`，优化其默认样式，接入图库，并重新导出整套图像产物。
+- **2026-03-19**: 更新 PCA biplot 与 radar 默认示例 — 扩展 `pca_biplot(...)` 的载荷面板模式和分组椭圆，刷新 radar 默认示例，统一字体处理，并重新导出图库。
 
 </details>
 
@@ -104,7 +104,7 @@ pf.save_figure(fig, "figure1", spec="nature", width="single")
 ```
 
 - `category_names`：x 轴分组名称
-- `series_names`：legend 名称
+- `series_names`：图例名称
 - `title`：图标题
 - `spec` / `width`：期刊风格导出预设
 
@@ -170,9 +170,9 @@ pf.save_figure(fig, "heatmap_demo")
 
 下一步最常改的参数：`category_names`、`title`、颜色范围相关参数。
 
-#### 其余图类型的 compact recipes
+#### 其余图类型的精简示例速查
 
-下面这些行只保留 plotting call。导出时直接复用上面的 `pf.save_figure(fig, "name")` 即可。
+下面这些行只保留绘图调用。导出时直接复用上面的 `pf.save_figure(fig, "name")` 即可。
 
 ```python
 import numpy as np
@@ -229,7 +229,7 @@ rng = np.random.default_rng(0)
 | <a id="recipe-pr_curve"></a>`pr_curve` | `pf.pr_curve([np.array([1.0, 0.9, 0.8, 0.6])], [np.array([0.1, 0.4, 0.7, 1.0])], series_names=["Model A"])` | `series_names`, `title`, `xlim` / `ylim` |
 | <a id="recipe-sankey"></a>`sankey` | `pf.sankey([0, 0, 1], [2, 3, 3], [10, 5, 8], node_names=["Input A", "Input B", "Path 1", "Outcome"])` | `node_names`, `title`, `color_palette` |
 
-对于 `bar_scatter(...)`，显著性标注相关的 spacing 参数现在统一使用更明确的按 orientation 命名：
+对于 `bar_scatter(...)`，显著性标注相关的间距参数现在统一使用更明确的按方向命名：
 
 ```python
 fig = pf.bar_scatter(
@@ -250,22 +250,22 @@ fig = pf.bar_scatter(
 
 日常使用时，主命令固定就是 `pubfig figma push`。
 
-#### Quick Start
+#### 快速开始
 
-1. 第一次使用时，在 Figma Desktop 里进入 **Plugins → Development → Import plugin from manifest...**，选择本仓库里的 `figma-plugin/pubfig-sync/manifest.json` 完成安装。之后可从 **Plugins → Development → pubfig-sync** 重新打开。
-2. 在 plugin 里点一次 **Connect Bridge**。
-3. 从 Python 导出 panels。
+1. 第一次使用时，在 Figma 桌面版里进入 **Plugins → Development → Import plugin from manifest...**，选择本仓库里的 `figma-plugin/pubfig-sync/manifest.json` 完成安装。之后可从 **Plugins → Development → pubfig-sync** 重新打开。
+2. 在插件里点一次 **Connect Bridge**。
+3. 从 Python 导出面板。
 4. 在终端运行 `pubfig figma push <panel_dir> --figure-id <id>`。
-5. 如果 bridge 路径失败，就把刚写出的 bundle 载入 plugin，走 manual fallback。
+5. 如果桥接路径失败，就把刚写出的 bundle 载入插件，走手动兜底路径。
 
 ```bash
 pubfig figma push panels --figure-id figure-01
 ```
 
-#### Minimal example
+#### 最小示例
 
-现在 panel 导出默认就是**不带 title 的干净图形资产**，这样 subplot title 可以留在
-Figma 的整图装配层处理。如果你确实要保留 panel 内嵌标题，再显式传
+现在面板导出默认就是**不带标题的干净图形资产**，这样子图标题可以留在
+Figma 的整图装配层处理。如果你确实要保留面板内嵌标题，再显式传
 `include_title=True`。
 
 ```python
@@ -279,49 +279,49 @@ panels = {
     "b": pf.scatter(rng.normal(size=40), rng.normal(size=40)),
 }
 
-pf.export_panels(panels, "panels", overwrite=True)  # 默认导出 title-free art
+pf.export_panels(panels, "panels", overwrite=True)  # 默认导出不带标题的干净面板
 ```
 
 ```bash
 pubfig figma push panels --figure-id figure-01
 ```
 
-这会先写出 `a.svg`、`b.svg`、`panel-index.json` 之类的 panel 资产，然后用
-`push` 作为默认的 panel-first 交接命令把它们送到 Figma。
+这会先写出 `a.svg`、`b.svg`、`panel-index.json` 之类的面板资产，然后用
+`push` 作为默认的面板优先交接命令把它们送到 Figma。
 
-#### How refresh works
+#### 刷新规则
 
-- `figure_id` 保持稳定时，会原地 refresh 现有 figure。
-- 换一个新的 `figure_id` 时，会导入成一张新的 figure。
+- `figure_id` 保持稳定时，会原地刷新现有图稿。
+- 换一个新的 `figure_id` 时，会导入成一张新的图稿。
 
-#### FAQ / Troubleshooting
+#### 常见问题 / 排障
 
 **Connect Bridge 是做什么的？**  
-它会把当前打开的 Figma plugin 和你的本地终端工作流连起来，后续 `push` 才知道该
-刷新哪个 live session。
+它会把当前打开的 Figma 插件和你的本地终端工作流连起来，后续 `push` 才知道该
+刷新哪个活动会话。
 
 **`pubfig figma push` 会自动做什么？**  
-它是默认的 agent-first 主命令，会自动确保本地 bridge 可用、选择最新连接的
-session、写出 bundle，然后执行 sync / refresh。
+它是默认的面向 agent 的主命令，会自动确保本地桥接可用、选择最新连接的
+会话、写出 bundle 文件，然后执行同步 / 刷新。
 
 **`.pubfig-figma.json` 是什么？**  
-它就是一张 figure 的 Figma 交接 bundle。保留这份文件，就能做 manual import、
-refresh、debug 或 recovery。
+它就是一张图稿的 Figma 交接 bundle 文件。保留这份文件，就能做手动导入、
+刷新、排障或恢复。
 
-**bridge 失败时怎么 manual fallback？**  
-如果 bridge refresh 卡住，就把最新写出的 `.pubfig-figma.json` bundle 载入
+**bridge 失败时怎么手动兜底？**  
+如果 bridge 刷新卡住，就把最新写出的 `.pubfig-figma.json` bundle 文件载入
 `pubfig-sync`，再用 **Import as New**、**Manual Refresh** 或 **Refresh + Relayout**。
 
 **什么时候用 `pubfig figma package`？**  
-当你只想先写出一个独立 bundle、暂时不立刻 push 到 Figma 时，用这个
-**secondary** 命令。
+当你只想先写出一个独立 bundle 文件、暂时不立刻 push 到 Figma 时，用这个
+**次级** 命令。
 
 ```bash
 pubfig figma package panels --figure-id figure-01
 ```
 
 **高级命令放在哪里？**  
-只有在正常 `push` 路径之外，你确实需要更细的控制或排障时，再用这些 advanced 命令：
+只有在正常 `push` 路径之外，你确实需要更细的控制或排障时，再用这些高级命令：
 
 ```bash
 pubfig figma sync figure-01.pubfig-figma.json --session latest
@@ -330,7 +330,7 @@ pubfig figma bridge status
 ```
 
 如果你在本地使用 Codex，也可以继续让配套 skill `pubfig-figma-workflow` 协调
-panel 导出 → Figma 导入 → MCP review 这一整条链路。
+面板导出 → Figma 导入 → MCP 审阅这一整条链路。
 
 ## 图类型分组
 
@@ -340,7 +340,7 @@ panel 导出 → Figma 导入 → MCP review 这一整条链路。
 |------|------|------|
 | `bar` | 简单柱状图与分组柱状图 | [示例](#recipe-bar) |
 | `bar_scatter` | 带原始点和显著性标注的分组柱状图 | [示例](#recipe-bar-scatter) |
-| `stacked_bar` | 横向 stacked bar | [示例](#recipe-stacked_bar) |
+| `stacked_bar` | 横向堆叠柱状图 | [示例](#recipe-stacked_bar) |
 | `paired` | 配对点图 | [示例](#recipe-paired) |
 
 ### 分布图
@@ -350,10 +350,10 @@ panel 导出 → Figma 导入 → MCP review 这一整条链路。
 | `box` | 箱线图 | [示例](#recipe-box) |
 | `violin` | 小提琴图 | [示例](#recipe-violin) |
 | `strip` | 条带散点图 | [示例](#recipe-strip) |
-| `raincloud` | half-violin + box + raw-point 的云雨图 | [示例](#recipe-raincloud) |
-| `density` | 带 KDE 的密度图 | [示例](#recipe-density) |
-| `histogram` | 可选 KDE 的直方图 | [示例](#recipe-histogram) |
-| `ridgeline` | Ridgeline 图 | [示例](#recipe-ridgeline) |
+| `raincloud` | 半小提琴 + 箱线图 + 原始点的云雨图 | [示例](#recipe-raincloud) |
+| `density` | 带核密度估计的密度图 | [示例](#recipe-density) |
+| `histogram` | 可选核密度曲线的直方图 | [示例](#recipe-histogram) |
+| `ridgeline` | 山峦图 | [示例](#recipe-ridgeline) |
 
 ### 趋势与关系图
 
@@ -361,9 +361,9 @@ panel 导出 → Figma 导入 → MCP review 这一整条链路。
 |------|------|------|
 | `line` | 可带 CI 的折线图 | [示例](#recipe-line) |
 | `area` | 堆叠面积图 | [示例](#recipe-area) |
-| `scatter` | 支持分组工作流的散点图 | [示例](#recipe-scatter) |
+| `scatter` | 支持分组绘制的散点图 | [示例](#recipe-scatter) |
 | `bubble` | 气泡图 | [示例](#recipe-bubble) |
-| `contour2d` | 带边缘分布的 2D contour 图 | [示例](#recipe-contour2d) |
+| `contour2d` | 带边缘分布的二维等高线图 | [示例](#recipe-contour2d) |
 | `radar` | 雷达图 | [示例](#recipe-radar) |
 
 ### 矩阵、嵌入与多变量图
@@ -374,10 +374,10 @@ panel 导出 → Figma 导入 → MCP review 这一整条链路。
 | `corr_matrix` | 相关性热图 | [示例](#recipe-corr_matrix) |
 | `clustermap` | 聚类热图 | [示例](#recipe-clustermap) |
 | `dimreduce` | 降维散点图 | [示例](#recipe-dimreduce) |
-| `pca_biplot` | 支持 loadings 与 group ellipses 的 PCA biplot | [示例](#recipe-pca_biplot) |
+| `pca_biplot` | 支持载荷与分组椭圆的 PCA 双标图 | [示例](#recipe-pca_biplot) |
 | `parallel_coordinates` | 平行坐标图 | [示例](#recipe-parallel_coordinates) |
 
-### 评估与 Flow 图
+### 评估与流向图
 
 | 函数 | 说明 | 示例 |
 |------|------|------|
@@ -400,7 +400,7 @@ panel 导出 → Figma 导入 → MCP review 这一整条链路。
 pf.set_default_theme("science")
 ```
 
-### Figure Specs
+### 图尺寸规格
 
 在导出时，`save_figure(...)` 支持这些命名规格：
 
@@ -431,33 +431,33 @@ from pubfig import NATURE, show_palette
 show_palette(NATURE).show()
 ```
 
-你也可以按名称获取 palette：
+你也可以按名称获取调色板：
 
 ```python
 palette = pf.get_palette("science")
 palette = pf.get_palette("carto_blugrn")
 ```
 
-这些期刊风格 palette 都应理解为 **inspired palettes**，不是期刊官方强制标准色。在 `pubfig` 里，`NATURE`、`SCIENCE`、`LANCET`、`JAMA` 这些色卡来自社区里常用的 **ggsci-derived community palettes**，而不是出版社发布的唯一配色规范。
+这些期刊风格 palette 都应理解为**受其启发的调色板**，不是期刊官方强制标准色。在 `pubfig` 里，`NATURE`、`SCIENCE`、`LANCET`、`JAMA` 这些色卡来自社区里常用的 **ggsci 衍生调色板**，而不是出版社发布的唯一配色规范。
 
 来源说明：ggsci 将这些 palette 分别表述为受 NPG / Nature Publishing Group、AAAS / Science、Lancet journals 和 JAMA 图形风格启发。可参考 [pal_npg](https://nanx.me/ggsci/reference/pal_npg.html)、[pal_aaas](https://nanx.me/ggsci/reference/pal_aaas.html)、[pal_lancet](https://nanx.me/ggsci/reference/pal_lancet.html)、[pal_jama](https://nanx.me/ggsci/reference/pal_jama.html)。
 
-如果你想直接查看所有 palette 的实际颜色，可以看 [`docs/palette-gallery.zh-CN.md`](docs/palette-gallery.zh-CN.md)。
+如果你想直接查看所有调色板的实际颜色，可以看 [`docs/palette-gallery.zh-CN.md`](docs/palette-gallery.zh-CN.md)。
 
-[![精选 palette 预览](examples/palettes/featured-palettes.png)](docs/palette-gallery.zh-CN.md)
+[![精选调色板预览](examples/palettes/featured-palettes.png)](docs/palette-gallery.zh-CN.md)
 
-## Gallery 与示例
+## 图库与示例
 
 示例入口包括：
 
 - `examples/gallery.py` —— 快速浏览支持的图类型
-- `examples/export_gallery.py` —— 把 gallery 导出到 `output_figures/`
+- `examples/export_gallery.py` —— 把图库导出到 `output_figures/`
 - `examples/export_gallery_mpl.py` —— 更聚焦的 Matplotlib 导出示例
-- `examples/figma_panels_demo.py` —— 导出多个 pubfig panel，并生成 `panel-index.json` 同步文件
-- `examples/figma_workflow_demo.md` —— panel-first 的 pubfig → Figma 工作流说明
-- `figma-plugin/pubfig-sync/` —— Figma plugin 脚手架，用于 panel 导入与刷新
-- `examples/generate_palette_gallery.py` —— 重新生成 palette 预览图与 gallery 文档
-- [`docs/palette-gallery.zh-CN.md`](docs/palette-gallery.zh-CN.md) —— 内置与 Plotly 派生 palette 的可视化总览
+- `examples/figma_panels_demo.py` —— 导出多个 pubfig 面板，并生成 `panel-index.json` 同步文件
+- `examples/figma_workflow_demo.md` —— 面板优先的 pubfig → Figma 工作流说明
+- `figma-plugin/pubfig-sync/` —— Figma 插件脚手架，用于面板导入与刷新
+- `examples/generate_palette_gallery.py` —— 重新生成调色板预览图与图库文档
+- [`docs/palette-gallery.zh-CN.md`](docs/palette-gallery.zh-CN.md) —— 内置与 Plotly 派生调色板的可视化总览
 
 ## 开发
 
@@ -479,7 +479,7 @@ pytest
 ruff check src tests examples
 ```
 
-### 重导 Gallery
+### 重新导出图库
 
 ```bash
 python examples/export_gallery.py
