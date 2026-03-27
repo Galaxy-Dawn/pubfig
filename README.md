@@ -442,6 +442,7 @@ If you only want the main entry points, start here:
 - `examples/figma_panels_demo.py` — exports multiple pubfig panels for Figma handoff
 - `examples/figma_workflow_demo.md` — panel-first pubfig → Figma workflow guide
 - `examples/generate_palette_gallery.py` — regenerates the palette preview sheets and gallery docs
+- `examples/README.md` — keep/remove inventory for this folder
 
 Advanced / secondary:
 

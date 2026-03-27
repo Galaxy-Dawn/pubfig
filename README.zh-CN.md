@@ -438,6 +438,7 @@ palette = pf.get_palette("carto_blugrn")
 - `examples/figma_panels_demo.py` —— 导出多个 pubfig 面板给 Figma 使用
 - `examples/figma_workflow_demo.md` —— 面板优先的 pubfig → Figma 工作流说明
 - `examples/generate_palette_gallery.py` —— 重新生成调色板预览图与图库文档
+- `examples/README.md` —— 这个目录的保留 / 生成 / 清理清单
 
 进阶 / 次要入口：
 
