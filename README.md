@@ -73,15 +73,27 @@ pip install pubfig
 
 ### Python Quick Start
 
+Start with the fewest possible parameters first:
+
 ```python
 import numpy as np
 import pubfig as pf
 
-pf.set_default_theme("nature")
-
 rng = np.random.default_rng(0)
-data = rng.normal(loc=0.0, scale=1.0, size=(3, 2, 20))
+data = rng.normal(size=(3, 2, 20))
 
+fig = pf.bar_scatter(data)
+pf.save_figure(fig, "figure1")
+```
+
+This is enough to get your first figure out. You do **not** need to understand
+layout, export, or publication-specific parameters before the first run.
+
+#### Most common next parameters
+
+Once the minimal example works, these are usually the first parameters worth adding:
+
+```python
 fig = pf.bar_scatter(
     data,
     category_names=["Condition A", "Condition B", "Condition C"],
@@ -89,24 +101,353 @@ fig = pf.bar_scatter(
     title="Bar + Scatter",
 )
 
-pf.save_figure(
-    fig,
-    "figure1",
-    spec="nature",
-    width="single",
-    aspect_ratio=0.65,
-    raster_dpi=600,
-    vector_formats=("pdf", "svg"),
-    raster_formats=("png", "tiff"),
-    trim=True,
-)
+pf.save_figure(fig, "figure1", spec="nature", width="single")
 ```
 
-If you want explicit suffix-based export instead of the journal-oriented wrapper, use:
+- `category_names`: names on the x-axis
+- `series_names`: names in the legend
+- `title`: figure title
+- `spec` / `width`: journal-style export presets
+
+Only add parameters like `aspect_ratio`, `vector_formats`, `raster_formats`, or
+`trim` when you already know why you need them.
+
+#### Where to look up detailed parameters
+
+If you want to understand a specific plot in more detail, start here:
 
 ```python
-pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
+help(pf.bar_scatter)
+help(pf.line)
+help(pf.heatmap)
 ```
+
+You can also inspect runnable examples under [`examples/`](examples/).
+
+#### Minimal examples by plot type
+
+<a id="recipe-bar-scatter"></a>
+**`bar_scatter`** — good for grouped comparisons with raw points.
+
+```python
+import numpy as np
+import pubfig as pf
+
+rng = np.random.default_rng(0)
+data = rng.normal(size=(3, 2, 20))
+
+fig = pf.bar_scatter(data)
+pf.save_figure(fig, "bar_scatter_demo")
+```
+
+Most common next parameters: `category_names`, `series_names`, `show_statistics`.
+
+<a id="recipe-line"></a>
+**`line`** — good for trends over time or ordered positions.
+
+```python
+import numpy as np
+import pubfig as pf
+
+x = np.linspace(0, 2 * np.pi, 100)
+fig = pf.line(np.sin(x), x=x)
+pf.save_figure(fig, "line_demo")
+```
+
+Most common next parameters: `x_label`, `y_label`, `series_names`, `title`.
+
+<a id="recipe-heatmap"></a>
+**`heatmap`** — good for matrices such as correlations or confusion tables.
+
+```python
+import numpy as np
+import pubfig as pf
+
+rng = np.random.default_rng(0)
+matrix = rng.uniform(size=(4, 4))
+
+fig = pf.heatmap(matrix)
+pf.save_figure(fig, "heatmap_demo")
+```
+
+Most common next parameters: `category_names`, `title`, color scale related options.
+
+#### Compact recipes for the rest
+
+These assume the same shared setup:
+
+```python
+import numpy as np
+import pubfig as pf
+
+rng = np.random.default_rng(0)
+```
+
+<a id="recipe-bar"></a>
+**`bar`** — the simplest categorical bar chart.
+
+```python
+fig = pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])
+pf.save_figure(fig, "bar_demo")
+```
+
+Most common next parameters: `category_names`, `title`, `color_palette`.
+
+<a id="recipe-stacked_bar"></a>
+**`stacked_bar`** — composition across grouped rows.
+
+```python
+data = np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float)
+fig = pf.stacked_bar(data, group_names=["Batch 1", "Batch 2"])
+pf.save_figure(fig, "stacked_bar_demo")
+```
+
+Most common next parameters: `group_names`, `normalize`, `title`.
+
+<a id="recipe-paired"></a>
+**`paired`** — before/after comparisons for matched samples.
+
+```python
+before = np.array([1.0, 2.0, 2.5, 3.0])
+after = before + np.array([0.3, 0.1, 0.4, 0.2])
+fig = pf.paired(before, after)
+pf.save_figure(fig, "paired_demo")
+```
+
+Most common next parameters: `x_labels`, `y_label`, `title`.
+
+<a id="recipe-box"></a>
+**`box`** — compact summary of grouped distributions.
+
+```python
+data = rng.normal(size=(80, 3))
+fig = pf.box(data, category_names=["A", "B", "C"])
+pf.save_figure(fig, "box_demo")
+```
+
+Most common next parameters: `category_names`, `show_means`, `title`.
+
+<a id="recipe-violin"></a>
+**`violin`** — grouped distributions with full density shape.
+
+```python
+data = rng.normal(size=(80, 3))
+fig = pf.violin(data, category_names=["A", "B", "C"])
+pf.save_figure(fig, "violin_demo")
+```
+
+Most common next parameters: `category_names`, `show_box`, `show_points`.
+
+<a id="recipe-strip"></a>
+**`strip`** — raw points with categorical jitter.
+
+```python
+data = rng.normal(size=(80, 3))
+fig = pf.strip(data, category_names=["A", "B", "C"])
+pf.save_figure(fig, "strip_demo")
+```
+
+Most common next parameters: `category_names`, `jitter`, `title`.
+
+<a id="recipe-raincloud"></a>
+**`raincloud`** — violin + box + raw points in one view.
+
+```python
+data = rng.normal(size=(80, 3))
+fig = pf.raincloud(data, category_names=["A", "B", "C"])
+pf.save_figure(fig, "raincloud_demo")
+```
+
+Most common next parameters: `category_names`, `orientation`, `title`.
+
+<a id="recipe-density"></a>
+**`density`** — one continuous distribution as a KDE curve.
+
+```python
+samples = rng.normal(size=400)
+fig = pf.density(samples)
+pf.save_figure(fig, "density_demo")
+```
+
+Most common next parameters: `title`, `color_palette`, `bins`.
+
+<a id="recipe-histogram"></a>
+**`histogram`** — histogram with optional KDE overlay.
+
+```python
+samples = rng.normal(size=400)
+fig = pf.histogram(samples, show_kde=True)
+pf.save_figure(fig, "histogram_demo")
+```
+
+Most common next parameters: `bins`, `show_kde`, `title`.
+
+<a id="recipe-ridgeline"></a>
+**`ridgeline`** — stacked densities across categories.
+
+```python
+data = [rng.normal(loc=i, size=200) for i in range(4)]
+fig = pf.ridgeline(data, category_names=["S1", "S2", "S3", "S4"])
+pf.save_figure(fig, "ridgeline_demo")
+```
+
+Most common next parameters: `category_names`, `offset_step`, `title`.
+
+<a id="recipe-area"></a>
+**`area`** — stacked area chart for cumulative trends.
+
+```python
+fig = pf.area(rng.random((20, 3)), series_names=["A", "B", "C"])
+pf.save_figure(fig, "area_demo")
+```
+
+Most common next parameters: `series_names`, `x`, `title`.
+
+<a id="recipe-scatter"></a>
+**`scatter`** — relationship between two variables, optionally grouped.
+
+```python
+x = rng.normal(size=60)
+y = 0.5 * x + rng.normal(scale=0.3, size=60)
+fig = pf.scatter(x, y)
+pf.save_figure(fig, "scatter_demo")
+```
+
+Most common next parameters: `labels`, `x_label`, `y_label`.
+
+<a id="recipe-bubble"></a>
+**`bubble`** — scatter plot with size as a third variable.
+
+```python
+x = rng.normal(size=30)
+y = rng.normal(size=30)
+size = rng.uniform(1, 10, size=30)
+fig = pf.bubble(x, y, size)
+pf.save_figure(fig, "bubble_demo")
+```
+
+Most common next parameters: `labels`, `size_label`, `title`.
+
+<a id="recipe-contour2d"></a>
+**`contour2d`** — dense scatter summarized as contours plus marginals.
+
+```python
+x = rng.normal(size=500)
+y = 0.6 * x + rng.normal(scale=0.5, size=500)
+fig = pf.contour2d(x, y)
+pf.save_figure(fig, "contour2d_demo")
+```
+
+Most common next parameters: `bins`, `colorscale`, `title`.
+
+<a id="recipe-radar"></a>
+**`radar`** — compare several series across the same axes.
+
+```python
+fig = pf.radar(
+    [[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]],
+    categories=["Speed", "Accuracy", "Recall", "Stability"],
+    series_names=["Model A", "Model B"],
+)
+pf.save_figure(fig, "radar_demo")
+```
+
+Most common next parameters: `categories`, `series_names`, `title`.
+
+<a id="recipe-corr_matrix"></a>
+**`corr_matrix`** — correlation heatmap from a feature table.
+
+```python
+data = rng.normal(size=(60, 4))
+fig = pf.corr_matrix(data, variable_names=["A", "B", "C", "D"])
+pf.save_figure(fig, "corr_matrix_demo")
+```
+
+Most common next parameters: `variable_names`, `method`, `title`.
+
+<a id="recipe-clustermap"></a>
+**`clustermap`** — clustered heatmap for rows and columns.
+
+```python
+data = rng.uniform(size=(8, 6))
+fig = pf.clustermap(data)
+pf.save_figure(fig, "clustermap_demo")
+```
+
+Most common next parameters: `row_category_names`, `column_category_names`, `title`.
+
+<a id="recipe-dimreduce"></a>
+**`dimreduce`** — t-SNE view of high-dimensional samples.
+
+```python
+data = rng.normal(size=(40, 8))
+fig, _ = pf.dimreduce(data, cluster_id=np.repeat([0, 1], 20))
+pf.save_figure(fig, "dimreduce_demo")
+```
+
+Most common next parameters: `cluster_id`, `labels`, `n_components`.
+
+<a id="recipe-pca_biplot"></a>
+**`pca_biplot`** — PCA scores plus optional loading arrows.
+
+```python
+data = rng.normal(size=(40, 5))
+labels = np.repeat(["A", "B"], 20)
+fig = pf.pca_biplot(data, labels=labels, variable_names=["V1", "V2", "V3", "V4", "V5"])
+pf.save_figure(fig, "pca_biplot_demo")
+```
+
+Most common next parameters: `labels`, `variable_names`, `loading_panel`.
+
+<a id="recipe-parallel_coordinates"></a>
+**`parallel_coordinates`** — compare multivariate profiles row by row.
+
+```python
+data = rng.uniform(size=(20, 4))
+fig = pf.parallel_coordinates(data, variable_names=["W", "X", "Y", "Z"])
+pf.save_figure(fig, "parallel_coordinates_demo")
+```
+
+Most common next parameters: `variable_names`, `color_col`, `title`.
+
+<a id="recipe-roc"></a>
+**`roc`** — ROC curves for one or more models.
+
+```python
+fpr = [np.array([0.0, 0.1, 0.3, 1.0]), np.array([0.0, 0.2, 0.4, 1.0])]
+tpr = [np.array([0.0, 0.7, 0.9, 1.0]), np.array([0.0, 0.6, 0.85, 1.0])]
+fig = pf.roc(fpr, tpr, series_names=["Model A", "Model B"])
+pf.save_figure(fig, "roc_demo")
+```
+
+Most common next parameters: `series_names`, `baseline`, `title`.
+
+<a id="recipe-pr_curve"></a>
+**`pr_curve`** — precision-recall curves for one or more models.
+
+```python
+precision = [np.array([1.0, 0.9, 0.8, 0.6]), np.array([1.0, 0.85, 0.72, 0.5])]
+recall = [np.array([0.1, 0.4, 0.7, 1.0]), np.array([0.1, 0.4, 0.7, 1.0])]
+fig = pf.pr_curve(precision, recall, series_names=["Model A", "Model B"])
+pf.save_figure(fig, "pr_curve_demo")
+```
+
+Most common next parameters: `series_names`, `title`, `xlim` / `ylim`.
+
+<a id="recipe-sankey"></a>
+**`sankey`** — flow between discrete stages.
+
+```python
+fig = pf.sankey(
+    [0, 0, 1, 1, 2, 3],
+    [2, 3, 2, 3, 4, 5],
+    [10, 5, 8, 3, 12, 11],
+    node_names=["Input A", "Input B", "Path 1", "Path 2", "Outcome +", "Outcome -"],
+)
+pf.save_figure(fig, "sankey_demo")
+```
+
+Most common next parameters: `node_names`, `title`, `color_palette`.
 
 For `bar_scatter(...)`, significance spacing parameters now follow explicit orientation-based names:
 
@@ -216,54 +557,54 @@ orchestrate the panel export → Figma import → MCP review loop.
 
 ### Categorical and Statistical Plots
 
-| Function | Description |
-|----------|-------------|
-| `bar` | Simple bar chart and grouped bar chart |
-| `bar_scatter` | Grouped bar chart with raw points and significance annotations |
-| `stacked_bar` | Horizontal stacked bar chart |
-| `paired` | Paired dot plot |
+| Function | Description | Recipe |
+|----------|-------------|--------|
+| `bar` | Simple bar chart and grouped bar chart | [recipe](#recipe-bar) |
+| `bar_scatter` | Grouped bar chart with raw points and significance annotations | [recipe](#recipe-bar-scatter) |
+| `stacked_bar` | Horizontal stacked bar chart | [recipe](#recipe-stacked_bar) |
+| `paired` | Paired dot plot | [recipe](#recipe-paired) |
 
 ### Distribution Plots
 
-| Function | Description |
-|----------|-------------|
-| `box` | Box plot |
-| `violin` | Violin plot |
-| `strip` | Strip plot |
-| `raincloud` | Half-violin + box + raw-point raincloud plot |
-| `density` | Density plot with KDE |
-| `histogram` | Histogram with optional KDE |
-| `ridgeline` | Ridgeline plot |
+| Function | Description | Recipe |
+|----------|-------------|--------|
+| `box` | Box plot | [recipe](#recipe-box) |
+| `violin` | Violin plot | [recipe](#recipe-violin) |
+| `strip` | Strip plot | [recipe](#recipe-strip) |
+| `raincloud` | Half-violin + box + raw-point raincloud plot | [recipe](#recipe-raincloud) |
+| `density` | Density plot with KDE | [recipe](#recipe-density) |
+| `histogram` | Histogram with optional KDE | [recipe](#recipe-histogram) |
+| `ridgeline` | Ridgeline plot | [recipe](#recipe-ridgeline) |
 
 ### Trend and Relationship Plots
 
-| Function | Description |
-|----------|-------------|
-| `line` | Line chart with optional CI |
-| `area` | Stacked area chart |
-| `scatter` | Scatter plot with optional grouped workflow |
-| `bubble` | Bubble chart |
-| `contour2d` | 2D contour plot with marginals |
-| `radar` | Radar chart |
+| Function | Description | Recipe |
+|----------|-------------|--------|
+| `line` | Line chart with optional CI | [recipe](#recipe-line) |
+| `area` | Stacked area chart | [recipe](#recipe-area) |
+| `scatter` | Scatter plot with optional grouped workflow | [recipe](#recipe-scatter) |
+| `bubble` | Bubble chart | [recipe](#recipe-bubble) |
+| `contour2d` | 2D contour plot with marginals | [recipe](#recipe-contour2d) |
+| `radar` | Radar chart | [recipe](#recipe-radar) |
 
 ### Matrix, Embedding, and Multivariate Plots
 
-| Function | Description |
-|----------|-------------|
-| `heatmap` | Heatmap |
-| `corr_matrix` | Correlation heatmap |
-| `clustermap` | Clustered heatmap |
-| `dimreduce` | Dimensionality-reduction scatter plot |
-| `pca_biplot` | PCA biplot with optional loadings and group ellipses |
-| `parallel_coordinates` | Parallel coordinates plot |
+| Function | Description | Recipe |
+|----------|-------------|--------|
+| `heatmap` | Heatmap | [recipe](#recipe-heatmap) |
+| `corr_matrix` | Correlation heatmap | [recipe](#recipe-corr_matrix) |
+| `clustermap` | Clustered heatmap | [recipe](#recipe-clustermap) |
+| `dimreduce` | Dimensionality-reduction scatter plot | [recipe](#recipe-dimreduce) |
+| `pca_biplot` | PCA biplot with optional loadings and group ellipses | [recipe](#recipe-pca_biplot) |
+| `parallel_coordinates` | Parallel coordinates plot | [recipe](#recipe-parallel_coordinates) |
 
 ### Evaluation and Flow Plots
 
-| Function | Description |
-|----------|-------------|
-| `roc` | ROC curve with AUC |
-| `pr_curve` | Precision-Recall curve with AP |
-| `sankey` | Sankey diagram |
+| Function | Description | Recipe |
+|----------|-------------|--------|
+| `roc` | ROC curve with AUC | [recipe](#recipe-roc) |
+| `pr_curve` | Precision-Recall curve with AP | [recipe](#recipe-pr_curve) |
+| `sankey` | Sankey diagram | [recipe](#recipe-sankey) |
 
 ## Themes, Specs, and Palettes
 

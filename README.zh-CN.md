@@ -73,15 +73,26 @@ pip install pubfig
 
 ### Python 快速上手
 
+先用**最少参数**跑通第一张图：
+
 ```python
 import numpy as np
 import pubfig as pf
 
-pf.set_default_theme("nature")
-
 rng = np.random.default_rng(0)
-data = rng.normal(loc=0.0, scale=1.0, size=(3, 2, 20))
+data = rng.normal(size=(3, 2, 20))
 
+fig = pf.bar_scatter(data)
+pf.save_figure(fig, "figure1")
+```
+
+这已经足够导出你的第一张图。第一次使用时，你**不需要先理解**布局、导出或投稿风格相关参数。
+
+#### 下一步最常用的参数
+
+等最小例子跑通之后，通常最先需要补的就是这几个参数：
+
+```python
 fig = pf.bar_scatter(
     data,
     category_names=["Condition A", "Condition B", "Condition C"],
@@ -89,24 +100,352 @@ fig = pf.bar_scatter(
     title="Bar + Scatter",
 )
 
-pf.save_figure(
-    fig,
-    "figure1",
-    spec="nature",
-    width="single",
-    aspect_ratio=0.65,
-    raster_dpi=600,
-    vector_formats=("pdf", "svg"),
-    raster_formats=("png", "tiff"),
-    trim=True,
-)
+pf.save_figure(fig, "figure1", spec="nature", width="single")
 ```
 
-如果你想使用显式后缀驱动的导出，而不是期刊导向的包装接口，可以用：
+- `category_names`：x 轴分组名称
+- `series_names`：legend 名称
+- `title`：图标题
+- `spec` / `width`：期刊风格导出预设
+
+像 `aspect_ratio`、`vector_formats`、`raster_formats`、`trim` 这类参数，只有在你已经明确知道自己为什么要改时再加。
+
+#### 去哪里看详细参数
+
+如果你想看某一类图的详细参数，建议从这里开始：
 
 ```python
-pf.batch_export(fig, "figure1", formats=("pdf", "png"), dpi=300)
+help(pf.bar_scatter)
+help(pf.line)
+help(pf.heatmap)
 ```
+
+也可以直接看 [`examples/`](examples/) 里的可运行示例。
+
+#### 按图类型看的最小示例
+
+<a id="recipe-bar-scatter"></a>
+**`bar_scatter`** —— 适合做分组比较，并同时保留原始散点。
+
+```python
+import numpy as np
+import pubfig as pf
+
+rng = np.random.default_rng(0)
+data = rng.normal(size=(3, 2, 20))
+
+fig = pf.bar_scatter(data)
+pf.save_figure(fig, "bar_scatter_demo")
+```
+
+下一步最常改的参数：`category_names`、`series_names`、`show_statistics`。
+
+<a id="recipe-line"></a>
+**`line`** —— 适合展示时间趋势或有序位置上的变化。
+
+```python
+import numpy as np
+import pubfig as pf
+
+x = np.linspace(0, 2 * np.pi, 100)
+fig = pf.line(np.sin(x), x=x)
+pf.save_figure(fig, "line_demo")
+```
+
+下一步最常改的参数：`x_label`、`y_label`、`series_names`、`title`。
+
+<a id="recipe-heatmap"></a>
+**`heatmap`** —— 适合矩阵数据，比如相关矩阵或混淆矩阵。
+
+```python
+import numpy as np
+import pubfig as pf
+
+rng = np.random.default_rng(0)
+matrix = rng.uniform(size=(4, 4))
+
+fig = pf.heatmap(matrix)
+pf.save_figure(fig, "heatmap_demo")
+```
+
+下一步最常改的参数：`category_names`、`title`、颜色范围相关参数。
+
+#### 其余图类型的 compact recipes
+
+下面这些示例都默认先有同样的共享准备：
+
+```python
+import numpy as np
+import pubfig as pf
+
+rng = np.random.default_rng(0)
+```
+
+<a id="recipe-bar"></a>
+**`bar`** —— 最基础的类别柱状图。
+
+```python
+fig = pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])
+pf.save_figure(fig, "bar_demo")
+```
+
+下一步最常改的参数：`category_names`、`title`、`color_palette`。
+
+<a id="recipe-stacked_bar"></a>
+**`stacked_bar`** —— 适合看每组内部成分占比。
+
+```python
+data = np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float)
+fig = pf.stacked_bar(data, group_names=["Batch 1", "Batch 2"])
+pf.save_figure(fig, "stacked_bar_demo")
+```
+
+下一步最常改的参数：`group_names`、`normalize`、`title`。
+
+<a id="recipe-paired"></a>
+**`paired`** —— 适合 before/after 这种配对样本比较。
+
+```python
+before = np.array([1.0, 2.0, 2.5, 3.0])
+after = before + np.array([0.3, 0.1, 0.4, 0.2])
+fig = pf.paired(before, after)
+pf.save_figure(fig, "paired_demo")
+```
+
+下一步最常改的参数：`x_labels`、`y_label`、`title`。
+
+<a id="recipe-box"></a>
+**`box`** —— 适合快速看分组分布概况。
+
+```python
+data = rng.normal(size=(80, 3))
+fig = pf.box(data, category_names=["A", "B", "C"])
+pf.save_figure(fig, "box_demo")
+```
+
+下一步最常改的参数：`category_names`、`show_means`、`title`。
+
+<a id="recipe-violin"></a>
+**`violin`** —— 适合看完整分布形状。
+
+```python
+data = rng.normal(size=(80, 3))
+fig = pf.violin(data, category_names=["A", "B", "C"])
+pf.save_figure(fig, "violin_demo")
+```
+
+下一步最常改的参数：`category_names`、`show_box`、`show_points`。
+
+<a id="recipe-strip"></a>
+**`strip`** —— 适合保留原始点的分类散点。
+
+```python
+data = rng.normal(size=(80, 3))
+fig = pf.strip(data, category_names=["A", "B", "C"])
+pf.save_figure(fig, "strip_demo")
+```
+
+下一步最常改的参数：`category_names`、`jitter`、`title`。
+
+<a id="recipe-raincloud"></a>
+**`raincloud`** —— 把 violin、box 和 raw points 合在一起。
+
+```python
+data = rng.normal(size=(80, 3))
+fig = pf.raincloud(data, category_names=["A", "B", "C"])
+pf.save_figure(fig, "raincloud_demo")
+```
+
+下一步最常改的参数：`category_names`、`orientation`、`title`。
+
+<a id="recipe-density"></a>
+**`density`** —— 单一连续分布的 KDE 曲线。
+
+```python
+samples = rng.normal(size=400)
+fig = pf.density(samples)
+pf.save_figure(fig, "density_demo")
+```
+
+下一步最常改的参数：`title`、`color_palette`、`bins`。
+
+<a id="recipe-histogram"></a>
+**`histogram`** —— 直方图，可选叠加 KDE。
+
+```python
+samples = rng.normal(size=400)
+fig = pf.histogram(samples, show_kde=True)
+pf.save_figure(fig, "histogram_demo")
+```
+
+下一步最常改的参数：`bins`、`show_kde`、`title`。
+
+<a id="recipe-ridgeline"></a>
+**`ridgeline`** —— 多组分布沿 y 轴堆叠展开。
+
+```python
+data = [rng.normal(loc=i, size=200) for i in range(4)]
+fig = pf.ridgeline(data, category_names=["S1", "S2", "S3", "S4"])
+pf.save_figure(fig, "ridgeline_demo")
+```
+
+下一步最常改的参数：`category_names`、`offset_step`、`title`。
+
+<a id="recipe-area"></a>
+**`area`** —— 堆叠面积图，适合看累计趋势。
+
+```python
+fig = pf.area(rng.random((20, 3)), series_names=["A", "B", "C"])
+pf.save_figure(fig, "area_demo")
+```
+
+下一步最常改的参数：`series_names`、`x`、`title`。
+
+<a id="recipe-scatter"></a>
+**`scatter`** —— 两个变量之间的关系图。
+
+```python
+x = rng.normal(size=60)
+y = 0.5 * x + rng.normal(scale=0.3, size=60)
+fig = pf.scatter(x, y)
+pf.save_figure(fig, "scatter_demo")
+```
+
+下一步最常改的参数：`labels`、`x_label`、`y_label`。
+
+<a id="recipe-bubble"></a>
+**`bubble`** —— 用点大小编码第三个变量。
+
+```python
+x = rng.normal(size=30)
+y = rng.normal(size=30)
+size = rng.uniform(1, 10, size=30)
+fig = pf.bubble(x, y, size)
+pf.save_figure(fig, "bubble_demo")
+```
+
+下一步最常改的参数：`labels`、`size_label`、`title`。
+
+<a id="recipe-contour2d"></a>
+**`contour2d`** —— 稠密散点的 contour + marginal 视图。
+
+```python
+x = rng.normal(size=500)
+y = 0.6 * x + rng.normal(scale=0.5, size=500)
+fig = pf.contour2d(x, y)
+pf.save_figure(fig, "contour2d_demo")
+```
+
+下一步最常改的参数：`bins`、`colorscale`、`title`。
+
+<a id="recipe-radar"></a>
+**`radar`** —— 多个 series 在同一组指标上对比。
+
+```python
+fig = pf.radar(
+    [[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]],
+    categories=["Speed", "Accuracy", "Recall", "Stability"],
+    series_names=["Model A", "Model B"],
+)
+pf.save_figure(fig, "radar_demo")
+```
+
+下一步最常改的参数：`categories`、`series_names`、`title`。
+
+<a id="recipe-corr_matrix"></a>
+**`corr_matrix`** —— 从特征表直接生成相关性热图。
+
+```python
+data = rng.normal(size=(60, 4))
+fig = pf.corr_matrix(data, variable_names=["A", "B", "C", "D"])
+pf.save_figure(fig, "corr_matrix_demo")
+```
+
+下一步最常改的参数：`variable_names`、`method`、`title`。
+
+<a id="recipe-clustermap"></a>
+**`clustermap`** —— 行列同时聚类的热图。
+
+```python
+data = rng.uniform(size=(8, 6))
+fig = pf.clustermap(data)
+pf.save_figure(fig, "clustermap_demo")
+```
+
+下一步最常改的参数：`row_category_names`、`column_category_names`、`title`。
+
+<a id="recipe-dimreduce"></a>
+**`dimreduce`** —— 高维样本的 t-SNE 可视化。
+
+```python
+data = rng.normal(size=(40, 8))
+fig, _ = pf.dimreduce(data, cluster_id=np.repeat([0, 1], 20))
+pf.save_figure(fig, "dimreduce_demo")
+```
+
+下一步最常改的参数：`cluster_id`、`labels`、`n_components`。
+
+<a id="recipe-pca_biplot"></a>
+**`pca_biplot`** —— PCA scores + loading arrows。
+
+```python
+data = rng.normal(size=(40, 5))
+labels = np.repeat(["A", "B"], 20)
+fig = pf.pca_biplot(data, labels=labels, variable_names=["V1", "V2", "V3", "V4", "V5"])
+pf.save_figure(fig, "pca_biplot_demo")
+```
+
+下一步最常改的参数：`labels`、`variable_names`、`loading_panel`。
+
+<a id="recipe-parallel_coordinates"></a>
+**`parallel_coordinates`** —— 一行一个样本的多变量 profile。
+
+```python
+data = rng.uniform(size=(20, 4))
+fig = pf.parallel_coordinates(data, variable_names=["W", "X", "Y", "Z"])
+pf.save_figure(fig, "parallel_coordinates_demo")
+```
+
+下一步最常改的参数：`variable_names`、`color_col`、`title`。
+
+<a id="recipe-roc"></a>
+**`roc`** —— 一个或多个模型的 ROC 曲线。
+
+```python
+fpr = [np.array([0.0, 0.1, 0.3, 1.0]), np.array([0.0, 0.2, 0.4, 1.0])]
+tpr = [np.array([0.0, 0.7, 0.9, 1.0]), np.array([0.0, 0.6, 0.85, 1.0])]
+fig = pf.roc(fpr, tpr, series_names=["Model A", "Model B"])
+pf.save_figure(fig, "roc_demo")
+```
+
+下一步最常改的参数：`series_names`、`baseline`、`title`。
+
+<a id="recipe-pr_curve"></a>
+**`pr_curve`** —— 一个或多个模型的 Precision-Recall 曲线。
+
+```python
+precision = [np.array([1.0, 0.9, 0.8, 0.6]), np.array([1.0, 0.85, 0.72, 0.5])]
+recall = [np.array([0.1, 0.4, 0.7, 1.0]), np.array([0.1, 0.4, 0.7, 1.0])]
+fig = pf.pr_curve(precision, recall, series_names=["Model A", "Model B"])
+pf.save_figure(fig, "pr_curve_demo")
+```
+
+下一步最常改的参数：`series_names`、`title`、`xlim` / `ylim`。
+
+<a id="recipe-sankey"></a>
+**`sankey`** —— 离散阶段之间的 flow 图。
+
+```python
+fig = pf.sankey(
+    [0, 0, 1, 1, 2, 3],
+    [2, 3, 2, 3, 4, 5],
+    [10, 5, 8, 3, 12, 11],
+    node_names=["Input A", "Input B", "Path 1", "Path 2", "Outcome +", "Outcome -"],
+)
+pf.save_figure(fig, "sankey_demo")
+```
+
+下一步最常改的参数：`node_names`、`title`、`color_palette`。
 
 对于 `bar_scatter(...)`，显著性标注相关的 spacing 参数现在统一使用更明确的按 orientation 命名：
 
@@ -215,54 +554,54 @@ panel 导出 → Figma 导入 → MCP review 这一整条链路。
 
 ### 类别与统计图
 
-| 函数 | 说明 |
-|------|------|
-| `bar` | 简单柱状图与分组柱状图 |
-| `bar_scatter` | 带原始点和显著性标注的分组柱状图 |
-| `stacked_bar` | 横向 stacked bar |
-| `paired` | 配对点图 |
+| 函数 | 说明 | 示例 |
+|------|------|------|
+| `bar` | 简单柱状图与分组柱状图 | [示例](#recipe-bar) |
+| `bar_scatter` | 带原始点和显著性标注的分组柱状图 | [示例](#recipe-bar-scatter) |
+| `stacked_bar` | 横向 stacked bar | [示例](#recipe-stacked_bar) |
+| `paired` | 配对点图 | [示例](#recipe-paired) |
 
 ### 分布图
 
-| 函数 | 说明 |
-|------|------|
-| `box` | 箱线图 |
-| `violin` | 小提琴图 |
-| `strip` | 条带散点图 |
-| `raincloud` | half-violin + box + raw-point 的云雨图 |
-| `density` | 带 KDE 的密度图 |
-| `histogram` | 可选 KDE 的直方图 |
-| `ridgeline` | Ridgeline 图 |
+| 函数 | 说明 | 示例 |
+|------|------|------|
+| `box` | 箱线图 | [示例](#recipe-box) |
+| `violin` | 小提琴图 | [示例](#recipe-violin) |
+| `strip` | 条带散点图 | [示例](#recipe-strip) |
+| `raincloud` | half-violin + box + raw-point 的云雨图 | [示例](#recipe-raincloud) |
+| `density` | 带 KDE 的密度图 | [示例](#recipe-density) |
+| `histogram` | 可选 KDE 的直方图 | [示例](#recipe-histogram) |
+| `ridgeline` | Ridgeline 图 | [示例](#recipe-ridgeline) |
 
 ### 趋势与关系图
 
-| 函数 | 说明 |
-|------|------|
-| `line` | 可带 CI 的折线图 |
-| `area` | 堆叠面积图 |
-| `scatter` | 支持分组工作流的散点图 |
-| `bubble` | 气泡图 |
-| `contour2d` | 带边缘分布的 2D contour 图 |
-| `radar` | 雷达图 |
+| 函数 | 说明 | 示例 |
+|------|------|------|
+| `line` | 可带 CI 的折线图 | [示例](#recipe-line) |
+| `area` | 堆叠面积图 | [示例](#recipe-area) |
+| `scatter` | 支持分组工作流的散点图 | [示例](#recipe-scatter) |
+| `bubble` | 气泡图 | [示例](#recipe-bubble) |
+| `contour2d` | 带边缘分布的 2D contour 图 | [示例](#recipe-contour2d) |
+| `radar` | 雷达图 | [示例](#recipe-radar) |
 
 ### 矩阵、嵌入与多变量图
 
-| 函数 | 说明 |
-|------|------|
-| `heatmap` | 热图 |
-| `corr_matrix` | 相关性热图 |
-| `clustermap` | 聚类热图 |
-| `dimreduce` | 降维散点图 |
-| `pca_biplot` | 支持 loadings 与 group ellipses 的 PCA biplot |
-| `parallel_coordinates` | 平行坐标图 |
+| 函数 | 说明 | 示例 |
+|------|------|------|
+| `heatmap` | 热图 | [示例](#recipe-heatmap) |
+| `corr_matrix` | 相关性热图 | [示例](#recipe-corr_matrix) |
+| `clustermap` | 聚类热图 | [示例](#recipe-clustermap) |
+| `dimreduce` | 降维散点图 | [示例](#recipe-dimreduce) |
+| `pca_biplot` | 支持 loadings 与 group ellipses 的 PCA biplot | [示例](#recipe-pca_biplot) |
+| `parallel_coordinates` | 平行坐标图 | [示例](#recipe-parallel_coordinates) |
 
 ### 评估与 Flow 图
 
-| 函数 | 说明 |
-|------|------|
-| `roc` | 带 AUC 的 ROC 曲线 |
-| `pr_curve` | 带 AP 的 Precision-Recall 曲线 |
-| `sankey` | Sankey 图 |
+| 函数 | 说明 | 示例 |
+|------|------|------|
+| `roc` | 带 AUC 的 ROC 曲线 | [示例](#recipe-roc) |
+| `pr_curve` | 带 AP 的 Precision-Recall 曲线 | [示例](#recipe-pr_curve) |
+| `sankey` | Sankey 图 | [示例](#recipe-sankey) |
 
 ## 主题、规格与配色
 
