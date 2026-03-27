@@ -129,63 +129,31 @@ help(pf.heatmap)
 
 也可以直接看 [`examples/`](examples/) 里的可运行示例。
 
-#### 按图类型看的最小示例
+#### 如何保存 PNG / SVG / PDF
 
-<a id="recipe-bar-scatter"></a>
-**`bar_scatter`** —— 适合做分组比较，并同时保留原始散点。
+`pf.save_figure(fig, "figure1")` 传入的是**不带扩展名**的基础路径，默认会写出：
+
+- `figure1.pdf`
+- `figure1.svg`
+- `figure1.png`
+
+如果你想显式指定导出格式，可以这样写：
 
 ```python
-import numpy as np
-import pubfig as pf
-
-rng = np.random.default_rng(0)
-data = rng.normal(size=(3, 2, 20))
-
-fig = pf.bar_scatter(data)
-pf.save_figure(fig, "bar_scatter_demo")
+pf.save_figure(fig, "figure1", vector_formats=("pdf",), raster_formats=())
+pf.save_figure(fig, "figure1", vector_formats=("svg",), raster_formats=("png",))
 ```
 
-下一步最常改的参数：`category_names`、`series_names`、`show_statistics`。
+#### 按图类型速查
 
-<a id="recipe-line"></a>
-**`line`** —— 适合展示时间趋势或有序位置上的变化。
+下面这些行给的是最短可用调用。真正导出时，直接复用 Quick Start 里的
+`pf.save_figure(fig, "name")` 即可。
 
-```python
-import numpy as np
-import pubfig as pf
-
-x = np.linspace(0, 2 * np.pi, 100)
-fig = pf.line(np.sin(x), x=x)
-pf.save_figure(fig, "line_demo")
-```
-
-下一步最常改的参数：`x_label`、`y_label`、`series_names`、`title`。
-
-<a id="recipe-heatmap"></a>
-**`heatmap`** —— 适合矩阵数据，比如相关矩阵或混淆矩阵。
+默认假设你已经写了：
 
 ```python
 import numpy as np
 import pubfig as pf
-
-rng = np.random.default_rng(0)
-matrix = rng.uniform(size=(4, 4))
-
-fig = pf.heatmap(matrix)
-pf.save_figure(fig, "heatmap_demo")
-```
-
-下一步最常改的参数：`category_names`、`title`、颜色范围相关参数。
-
-#### 其余图类型的精简示例速查
-
-下面这些行只保留绘图调用。导出时直接复用上面的 `pf.save_figure(fig, "name")` 即可。
-
-```python
-import numpy as np
-import pubfig as pf
-
-rng = np.random.default_rng(0)
 ```
 
 ##### 类别与统计
@@ -193,6 +161,7 @@ rng = np.random.default_rng(0)
 | 图 | 最小调用 | 常改参数 |
 |----|----------|----------|
 | <a id="recipe-bar"></a>`bar` | `pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])` | `category_names`, `title`, `color_palette` |
+| <a id="recipe-bar-scatter"></a>`bar_scatter` | `pf.bar_scatter(np.random.default_rng(0).normal(size=(3, 2, 20)))` | `category_names`, `series_names`, `show_statistics` |
 | <a id="recipe-stacked_bar"></a>`stacked_bar` | `pf.stacked_bar(np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float), group_names=["Batch 1", "Batch 2"])` | `group_names`, `normalize`, `title` |
 | <a id="recipe-paired"></a>`paired` | `pf.paired(np.array([1.0, 2.0, 2.5, 3.0]), np.array([1.3, 2.1, 2.9, 3.2]))` | `x_labels`, `y_label`, `title` |
 
@@ -200,33 +169,35 @@ rng = np.random.default_rng(0)
 
 | 图 | 最小调用 | 常改参数 |
 |----|----------|----------|
-| <a id="recipe-box"></a>`box` | `pf.box(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_means`, `title` |
-| <a id="recipe-violin"></a>`violin` | `pf.violin(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_box`, `show_points` |
-| <a id="recipe-strip"></a>`strip` | `pf.strip(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `jitter`, `title` |
-| <a id="recipe-raincloud"></a>`raincloud` | `pf.raincloud(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `orientation`, `title` |
-| <a id="recipe-density"></a>`density` | `pf.density(rng.normal(size=400))` | `title`, `color_palette`, `bins` |
-| <a id="recipe-histogram"></a>`histogram` | `pf.histogram(rng.normal(size=400), show_kde=True)` | `bins`, `show_kde`, `title` |
-| <a id="recipe-ridgeline"></a>`ridgeline` | `pf.ridgeline([rng.normal(loc=i, size=200) for i in range(4)], category_names=["S1", "S2", "S3", "S4"])` | `category_names`, `offset_step`, `title` |
+| <a id="recipe-box"></a>`box` | `pf.box(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_means`, `title` |
+| <a id="recipe-violin"></a>`violin` | `pf.violin(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_box`, `show_points` |
+| <a id="recipe-strip"></a>`strip` | `pf.strip(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `jitter`, `title` |
+| <a id="recipe-raincloud"></a>`raincloud` | `pf.raincloud(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `orientation`, `title` |
+| <a id="recipe-density"></a>`density` | `pf.density(np.random.default_rng(0).normal(size=400))` | `title`, `color_palette`, `bins` |
+| <a id="recipe-histogram"></a>`histogram` | `pf.histogram(np.random.default_rng(0).normal(size=400), show_kde=True)` | `bins`, `show_kde`, `title` |
+| <a id="recipe-ridgeline"></a>`ridgeline` | `pf.ridgeline([np.random.default_rng(0).normal(loc=i, size=200) for i in range(4)], category_names=["S1", "S2", "S3", "S4"])` | `category_names`, `offset_step`, `title` |
 
 ##### 趋势与关系
 
 | 图 | 最小调用 | 常改参数 |
 |----|----------|----------|
-| <a id="recipe-area"></a>`area` | `pf.area(rng.random((20, 3)), series_names=["A", "B", "C"])` | `series_names`, `x`, `title` |
-| <a id="recipe-scatter"></a>`scatter` | `pf.scatter(rng.normal(size=60), rng.normal(size=60))` | `labels`, `x_label`, `y_label` |
-| <a id="recipe-bubble"></a>`bubble` | `pf.bubble(rng.normal(size=30), rng.normal(size=30), rng.uniform(1, 10, size=30))` | `labels`, `size_label`, `title` |
-| <a id="recipe-contour2d"></a>`contour2d` | `pf.contour2d(rng.normal(size=500), rng.normal(size=500))` | `bins`, `colorscale`, `title` |
+| <a id="recipe-area"></a>`area` | `pf.area(np.random.default_rng(0).random((20, 3)), series_names=["A", "B", "C"])` | `series_names`, `x`, `title` |
+| <a id="recipe-line"></a>`line` | `pf.line(np.sin(np.linspace(0, 2 * np.pi, 100)), x=np.linspace(0, 2 * np.pi, 100))` | `x_label`, `y_label`, `series_names`, `title` |
+| <a id="recipe-scatter"></a>`scatter` | `pf.scatter(np.random.default_rng(0).normal(size=60), np.random.default_rng(1).normal(size=60))` | `labels`, `x_label`, `y_label` |
+| <a id="recipe-bubble"></a>`bubble` | `pf.bubble(np.random.default_rng(0).normal(size=30), np.random.default_rng(1).normal(size=30), np.random.default_rng(2).uniform(1, 10, size=30))` | `labels`, `size_label`, `title` |
+| <a id="recipe-contour2d"></a>`contour2d` | `pf.contour2d(np.random.default_rng(0).normal(size=500), np.random.default_rng(1).normal(size=500))` | `bins`, `colorscale`, `title` |
 | <a id="recipe-radar"></a>`radar` | `pf.radar([[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]], categories=["Speed", "Accuracy", "Recall", "Stability"], series_names=["Model A", "Model B"])` | `categories`, `series_names`, `title` |
 
 ##### 矩阵与多变量
 
 | 图 | 最小调用 | 常改参数 |
 |----|----------|----------|
-| <a id="recipe-corr_matrix"></a>`corr_matrix` | `pf.corr_matrix(rng.normal(size=(60, 4)), variable_names=["A", "B", "C", "D"])` | `variable_names`, `method`, `title` |
-| <a id="recipe-clustermap"></a>`clustermap` | `pf.clustermap(rng.uniform(size=(8, 6)))` | `row_category_names`, `column_category_names`, `title` |
-| <a id="recipe-dimreduce"></a>`dimreduce` | `fig, _ = pf.dimreduce(rng.normal(size=(40, 8)), cluster_id=np.repeat([0, 1], 20))` | `cluster_id`, `labels`, `n_components` |
-| <a id="recipe-pca_biplot"></a>`pca_biplot` | `pf.pca_biplot(rng.normal(size=(40, 5)), labels=np.repeat(["A", "B"], 20), variable_names=["V1", "V2", "V3", "V4", "V5"])` | `labels`, `variable_names`, `loading_panel` |
-| <a id="recipe-parallel_coordinates"></a>`parallel_coordinates` | `pf.parallel_coordinates(rng.uniform(size=(20, 4)), variable_names=["W", "X", "Y", "Z"])` | `variable_names`, `color_col`, `title` |
+| <a id="recipe-heatmap"></a>`heatmap` | `pf.heatmap(np.random.default_rng(0).uniform(size=(4, 4)))` | `category_names`, `title`, 颜色范围相关参数 |
+| <a id="recipe-corr_matrix"></a>`corr_matrix` | `pf.corr_matrix(np.random.default_rng(0).normal(size=(60, 4)), variable_names=["A", "B", "C", "D"])` | `variable_names`, `method`, `title` |
+| <a id="recipe-clustermap"></a>`clustermap` | `pf.clustermap(np.random.default_rng(0).uniform(size=(8, 6)))` | `row_category_names`, `column_category_names`, `title` |
+| <a id="recipe-dimreduce"></a>`dimreduce` | `fig, _ = pf.dimreduce(np.random.default_rng(0).normal(size=(40, 8)), cluster_id=np.repeat([0, 1], 20))` | `cluster_id`, `labels`, `n_components` |
+| <a id="recipe-pca_biplot"></a>`pca_biplot` | `pf.pca_biplot(np.random.default_rng(0).normal(size=(40, 5)), labels=np.repeat(["A", "B"], 20), variable_names=["V1", "V2", "V3", "V4", "V5"])` | `labels`, `variable_names`, `loading_panel` |
+| <a id="recipe-parallel_coordinates"></a>`parallel_coordinates` | `pf.parallel_coordinates(np.random.default_rng(0).uniform(size=(20, 4)), variable_names=["W", "X", "Y", "Z"])` | `variable_names`, `color_col`, `title` |
 
 ##### 评估与 flow
 
@@ -455,15 +426,23 @@ palette = pf.get_palette("carto_blugrn")
 
 ## 图库与示例
 
-示例入口包括：
+`examples/` 下面的文件主要分成两类：
+
+- 可运行的示例脚本
+- README 和调色板文档会直接用到的渲染产物
+
+如果你只想抓主入口，先看这几个：
 
 - `examples/gallery.py` —— 快速浏览支持的图类型
 - `examples/export_gallery.py` —— 把图库导出到 `output_figures/`
-- `examples/export_gallery_mpl.py` —— 更聚焦的 Matplotlib 导出示例
-- `examples/figma_panels_demo.py` —— 导出多个 pubfig 面板，并生成 `panel-index.json` 同步文件
+- `examples/figma_panels_demo.py` —— 导出多个 pubfig 面板给 Figma 使用
 - `examples/figma_workflow_demo.md` —— 面板优先的 pubfig → Figma 工作流说明
-- `figma-plugin/pubfig-sync/` —— Figma 插件脚手架，用于面板导入与刷新
 - `examples/generate_palette_gallery.py` —— 重新生成调色板预览图与图库文档
+
+进阶 / 次要入口：
+
+- `examples/export_gallery_mpl.py` —— 更聚焦的 Matplotlib 导出示例
+- `figma-plugin/pubfig-sync/` —— Figma 插件脚手架，用于面板导入与刷新
 - [`docs/palette-gallery.zh-CN.md`](docs/palette-gallery.zh-CN.md) —— 内置与 Plotly 派生调色板的可视化总览
 
 ## 开发

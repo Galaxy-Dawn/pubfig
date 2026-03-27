@@ -131,63 +131,32 @@ help(pf.heatmap)
 
 You can also inspect runnable examples under [`examples/`](examples/).
 
-#### Minimal examples by plot type
+#### Saving PNG / SVG / PDF
 
-<a id="recipe-bar-scatter"></a>
-**`bar_scatter`** — good for grouped comparisons with raw points.
+`pf.save_figure(fig, "figure1")` takes a base path **without** an extension and,
+by default, writes:
+
+- `figure1.pdf`
+- `figure1.svg`
+- `figure1.png`
+
+If you want to choose formats explicitly:
 
 ```python
-import numpy as np
-import pubfig as pf
-
-rng = np.random.default_rng(0)
-data = rng.normal(size=(3, 2, 20))
-
-fig = pf.bar_scatter(data)
-pf.save_figure(fig, "bar_scatter_demo")
+pf.save_figure(fig, "figure1", vector_formats=("pdf",), raster_formats=())
+pf.save_figure(fig, "figure1", vector_formats=("svg",), raster_formats=("png",))
 ```
 
-Most common next parameters: `category_names`, `series_names`, `show_statistics`.
+#### Plot recipes by family
 
-<a id="recipe-line"></a>
-**`line`** — good for trends over time or ordered positions.
+These rows are the shortest useful plotting calls. When you want to export one,
+reuse `pf.save_figure(fig, "name")` from Quick Start.
 
-```python
-import numpy as np
-import pubfig as pf
-
-x = np.linspace(0, 2 * np.pi, 100)
-fig = pf.line(np.sin(x), x=x)
-pf.save_figure(fig, "line_demo")
-```
-
-Most common next parameters: `x_label`, `y_label`, `series_names`, `title`.
-
-<a id="recipe-heatmap"></a>
-**`heatmap`** — good for matrices such as correlations or confusion tables.
+Each row assumes:
 
 ```python
 import numpy as np
 import pubfig as pf
-
-rng = np.random.default_rng(0)
-matrix = rng.uniform(size=(4, 4))
-
-fig = pf.heatmap(matrix)
-pf.save_figure(fig, "heatmap_demo")
-```
-
-Most common next parameters: `category_names`, `title`, color scale related options.
-
-#### Compact recipes for the rest
-
-These rows show only the plotting call. Reuse `pf.save_figure(fig, "name")` from the examples above.
-
-```python
-import numpy as np
-import pubfig as pf
-
-rng = np.random.default_rng(0)
 ```
 
 ##### Categorical and statistical
@@ -195,6 +164,7 @@ rng = np.random.default_rng(0)
 | Plot | Minimal call | Common next parameters |
 |------|--------------|------------------------|
 | <a id="recipe-bar"></a>`bar` | `pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])` | `category_names`, `title`, `color_palette` |
+| <a id="recipe-bar-scatter"></a>`bar_scatter` | `pf.bar_scatter(np.random.default_rng(0).normal(size=(3, 2, 20)))` | `category_names`, `series_names`, `show_statistics` |
 | <a id="recipe-stacked_bar"></a>`stacked_bar` | `pf.stacked_bar(np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float), group_names=["Batch 1", "Batch 2"])` | `group_names`, `normalize`, `title` |
 | <a id="recipe-paired"></a>`paired` | `pf.paired(np.array([1.0, 2.0, 2.5, 3.0]), np.array([1.3, 2.1, 2.9, 3.2]))` | `x_labels`, `y_label`, `title` |
 
@@ -202,33 +172,35 @@ rng = np.random.default_rng(0)
 
 | Plot | Minimal call | Common next parameters |
 |------|--------------|------------------------|
-| <a id="recipe-box"></a>`box` | `pf.box(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_means`, `title` |
-| <a id="recipe-violin"></a>`violin` | `pf.violin(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_box`, `show_points` |
-| <a id="recipe-strip"></a>`strip` | `pf.strip(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `jitter`, `title` |
-| <a id="recipe-raincloud"></a>`raincloud` | `pf.raincloud(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `orientation`, `title` |
-| <a id="recipe-density"></a>`density` | `pf.density(rng.normal(size=400))` | `title`, `color_palette`, `bins` |
-| <a id="recipe-histogram"></a>`histogram` | `pf.histogram(rng.normal(size=400), show_kde=True)` | `bins`, `show_kde`, `title` |
-| <a id="recipe-ridgeline"></a>`ridgeline` | `pf.ridgeline([rng.normal(loc=i, size=200) for i in range(4)], category_names=["S1", "S2", "S3", "S4"])` | `category_names`, `offset_step`, `title` |
+| <a id="recipe-box"></a>`box` | `pf.box(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_means`, `title` |
+| <a id="recipe-violin"></a>`violin` | `pf.violin(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_box`, `show_points` |
+| <a id="recipe-strip"></a>`strip` | `pf.strip(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `jitter`, `title` |
+| <a id="recipe-raincloud"></a>`raincloud` | `pf.raincloud(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `orientation`, `title` |
+| <a id="recipe-density"></a>`density` | `pf.density(np.random.default_rng(0).normal(size=400))` | `title`, `color_palette`, `bins` |
+| <a id="recipe-histogram"></a>`histogram` | `pf.histogram(np.random.default_rng(0).normal(size=400), show_kde=True)` | `bins`, `show_kde`, `title` |
+| <a id="recipe-ridgeline"></a>`ridgeline` | `pf.ridgeline([np.random.default_rng(0).normal(loc=i, size=200) for i in range(4)], category_names=["S1", "S2", "S3", "S4"])` | `category_names`, `offset_step`, `title` |
 
 ##### Trend and relationship
 
 | Plot | Minimal call | Common next parameters |
 |------|--------------|------------------------|
-| <a id="recipe-area"></a>`area` | `pf.area(rng.random((20, 3)), series_names=["A", "B", "C"])` | `series_names`, `x`, `title` |
-| <a id="recipe-scatter"></a>`scatter` | `pf.scatter(rng.normal(size=60), rng.normal(size=60))` | `labels`, `x_label`, `y_label` |
-| <a id="recipe-bubble"></a>`bubble` | `pf.bubble(rng.normal(size=30), rng.normal(size=30), rng.uniform(1, 10, size=30))` | `labels`, `size_label`, `title` |
-| <a id="recipe-contour2d"></a>`contour2d` | `pf.contour2d(rng.normal(size=500), rng.normal(size=500))` | `bins`, `colorscale`, `title` |
+| <a id="recipe-area"></a>`area` | `pf.area(np.random.default_rng(0).random((20, 3)), series_names=["A", "B", "C"])` | `series_names`, `x`, `title` |
+| <a id="recipe-line"></a>`line` | `pf.line(np.sin(np.linspace(0, 2 * np.pi, 100)), x=np.linspace(0, 2 * np.pi, 100))` | `x_label`, `y_label`, `series_names`, `title` |
+| <a id="recipe-scatter"></a>`scatter` | `pf.scatter(np.random.default_rng(0).normal(size=60), np.random.default_rng(1).normal(size=60))` | `labels`, `x_label`, `y_label` |
+| <a id="recipe-bubble"></a>`bubble` | `pf.bubble(np.random.default_rng(0).normal(size=30), np.random.default_rng(1).normal(size=30), np.random.default_rng(2).uniform(1, 10, size=30))` | `labels`, `size_label`, `title` |
+| <a id="recipe-contour2d"></a>`contour2d` | `pf.contour2d(np.random.default_rng(0).normal(size=500), np.random.default_rng(1).normal(size=500))` | `bins`, `colorscale`, `title` |
 | <a id="recipe-radar"></a>`radar` | `pf.radar([[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]], categories=["Speed", "Accuracy", "Recall", "Stability"], series_names=["Model A", "Model B"])` | `categories`, `series_names`, `title` |
 
 ##### Matrix and multivariate
 
 | Plot | Minimal call | Common next parameters |
 |------|--------------|------------------------|
-| <a id="recipe-corr_matrix"></a>`corr_matrix` | `pf.corr_matrix(rng.normal(size=(60, 4)), variable_names=["A", "B", "C", "D"])` | `variable_names`, `method`, `title` |
-| <a id="recipe-clustermap"></a>`clustermap` | `pf.clustermap(rng.uniform(size=(8, 6)))` | `row_category_names`, `column_category_names`, `title` |
-| <a id="recipe-dimreduce"></a>`dimreduce` | `fig, _ = pf.dimreduce(rng.normal(size=(40, 8)), cluster_id=np.repeat([0, 1], 20))` | `cluster_id`, `labels`, `n_components` |
-| <a id="recipe-pca_biplot"></a>`pca_biplot` | `pf.pca_biplot(rng.normal(size=(40, 5)), labels=np.repeat(["A", "B"], 20), variable_names=["V1", "V2", "V3", "V4", "V5"])` | `labels`, `variable_names`, `loading_panel` |
-| <a id="recipe-parallel_coordinates"></a>`parallel_coordinates` | `pf.parallel_coordinates(rng.uniform(size=(20, 4)), variable_names=["W", "X", "Y", "Z"])` | `variable_names`, `color_col`, `title` |
+| <a id="recipe-heatmap"></a>`heatmap` | `pf.heatmap(np.random.default_rng(0).uniform(size=(4, 4)))` | `category_names`, `title`, color scale related options |
+| <a id="recipe-corr_matrix"></a>`corr_matrix` | `pf.corr_matrix(np.random.default_rng(0).normal(size=(60, 4)), variable_names=["A", "B", "C", "D"])` | `variable_names`, `method`, `title` |
+| <a id="recipe-clustermap"></a>`clustermap` | `pf.clustermap(np.random.default_rng(0).uniform(size=(8, 6)))` | `row_category_names`, `column_category_names`, `title` |
+| <a id="recipe-dimreduce"></a>`dimreduce` | `fig, _ = pf.dimreduce(np.random.default_rng(0).normal(size=(40, 8)), cluster_id=np.repeat([0, 1], 20))` | `cluster_id`, `labels`, `n_components` |
+| <a id="recipe-pca_biplot"></a>`pca_biplot` | `pf.pca_biplot(np.random.default_rng(0).normal(size=(40, 5)), labels=np.repeat(["A", "B"], 20), variable_names=["V1", "V2", "V3", "V4", "V5"])` | `labels`, `variable_names`, `loading_panel` |
+| <a id="recipe-parallel_coordinates"></a>`parallel_coordinates` | `pf.parallel_coordinates(np.random.default_rng(0).uniform(size=(20, 4)), variable_names=["W", "X", "Y", "Z"])` | `variable_names`, `color_col`, `title` |
 
 ##### Evaluation and flow
 
@@ -458,15 +430,23 @@ For a visual preview of all currently available palettes, see [`docs/palette-gal
 
 ## Gallery and Examples
 
-Example entry points:
+Most files under `examples/` are either:
+
+- runnable example scripts, or
+- rendered assets used by this README and the palette docs.
+
+If you only want the main entry points, start here:
 
 - `examples/gallery.py` — quick visual walkthrough of supported plots
 - `examples/export_gallery.py` — exports the gallery to `output_figures/`
-- `examples/export_gallery_mpl.py` — focused Matplotlib export examples
-- `examples/figma_panels_demo.py` — exports multiple pubfig panels plus a `panel-index.json` sync file
+- `examples/figma_panels_demo.py` — exports multiple pubfig panels for Figma handoff
 - `examples/figma_workflow_demo.md` — panel-first pubfig → Figma workflow guide
-- `figma-plugin/pubfig-sync/` — Figma plugin scaffold for panel import and refresh
 - `examples/generate_palette_gallery.py` — regenerates the palette preview sheets and gallery docs
+
+Advanced / secondary:
+
+- `examples/export_gallery_mpl.py` — focused Matplotlib export examples
+- `figma-plugin/pubfig-sync/` — Figma plugin scaffold for panel import and refresh
 - [`docs/palette-gallery.md`](docs/palette-gallery.md) — visual palette gallery for built-in and Plotly-derived palettes
 
 ## Development

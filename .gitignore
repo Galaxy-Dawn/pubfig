@@ -24,6 +24,9 @@ output_figures/
 output_figures_mpl/
 temp/
 temp_*/
+examples/figma_panels_demo_output/
+examples/figma_panels_3344_demo_output/
+examples/__pycache__/
 
 # Local tooling
 .claude/
