@@ -19,9 +19,9 @@
 
 ## Highlights
 
-- **Paper-Oriented Defaults** — Compact titles, cleaner legends, explicit font handling, and lighter publication-style line weights.
+- **Publication-Style Defaults** — Compact titles, cleaner legends, explicit font handling, and line weights that read more like finished paper figures.
 - **One Library for Common Figure Types** — Statistical plots, distribution plots, dimensionality-reduction plots, evaluation curves, heatmaps, and flow plots in one API surface.
-- **Journal-Aware Export** — `save_figure(...)` supports `single`/`double` column widths, vector formats, raster DPI, and trimming for submission workflows.
+- **Export Specs Without Boilerplate** — `save_figure(...)` directly handles `single`/`double` column widths, vector formats, raster DPI, and trimming.
 - **Matplotlib-Native Workflow** — Plot functions return Matplotlib `Figure` objects, so existing analysis scripts remain easy to integrate.
 - **Explicit Layout Controls** — Fine-grained control over tick direction, box/grid visibility, palettes, legends, and plot-specific layout options.
 
@@ -80,7 +80,14 @@ import numpy as np
 import pubfig as pf
 
 rng = np.random.default_rng(0)
-data = rng.normal(size=(3, 2, 20))
+means = np.array([
+    [0.78, 0.96],
+    [0.88, 1.08],
+    [0.84, 1.00],
+], dtype=float)
+
+data = rng.normal(loc=means[..., None], scale=0.08, size=(3, 2, 18))
+data = np.clip(data, 0.0, None)
 
 fig = pf.bar_scatter(data)
 pf.save_figure(fig, "figure1")

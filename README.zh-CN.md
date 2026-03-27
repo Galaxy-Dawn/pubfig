@@ -19,9 +19,9 @@
 
 ## 亮点
 
-- **论文导向默认值** — 更紧凑的标题、更干净的图例、显式字体处理，以及更接近论文风格的线宽。
+- **更接近论文图的默认风格** — 标题、图例、字体和线宽默认更紧凑、更干净。
 - **常见图形集中在一个库里** — 统计图、分布图、降维图、评估曲线、热图与流向图都统一在同一套绘图接口之下。
-- **面向投稿的导出接口** — `save_figure(...)` 支持 `single`/`double` 栏宽、矢量格式、位图 DPI 和裁边。
+- **更省事的导出规格控制** — `save_figure(...)` 直接支持 `single`/`double` 栏宽、矢量格式、位图 DPI 和裁边。
 - **Matplotlib 原生工作流** — 所有绘图函数都返回 Matplotlib `Figure` 对象，便于接入现有分析脚本。
 - **显式布局控制** — 可精细控制刻度朝向、边框/网格显示、调色板、图例与各图专属布局参数。
 
@@ -80,7 +80,14 @@ import numpy as np
 import pubfig as pf
 
 rng = np.random.default_rng(0)
-data = rng.normal(size=(3, 2, 20))
+means = np.array([
+    [0.78, 0.96],
+    [0.88, 1.08],
+    [0.84, 1.00],
+], dtype=float)
+
+data = rng.normal(loc=means[..., None], scale=0.08, size=(3, 2, 18))
+data = np.clip(data, 0.0, None)
 
 fig = pf.bar_scatter(data)
 pf.save_figure(fig, "figure1")
