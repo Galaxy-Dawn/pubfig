@@ -161,7 +161,7 @@ import pubfig as pf
 | 图 | 最小调用 | 常改参数 |
 |----|----------|----------|
 | <a id="recipe-bar"></a>`bar` | `pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])` | `category_names`, `title`, `color_palette` |
-| <a id="recipe-bar-scatter"></a>`bar_scatter` | `pf.bar_scatter(np.random.default_rng(0).normal(size=(3, 2, 20)))` | `category_names`, `series_names`, `show_statistics` |
+| <a id="recipe-bar-scatter"></a>`bar_scatter` | `pf.bar_scatter(np.clip(np.random.default_rng(0).normal(loc=np.array([[0.78, 0.96], [0.88, 1.08], [0.84, 1.00]])[..., None], scale=0.08, size=(3, 2, 18)), 0.0, None))` | `category_names`, `series_names`, `show_statistics` |
 | <a id="recipe-stacked_bar"></a>`stacked_bar` | `pf.stacked_bar(np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float), group_names=["Batch 1", "Batch 2"])` | `group_names`, `normalize`, `title` |
 | <a id="recipe-paired"></a>`paired` | `pf.paired(np.array([1.0, 2.0, 2.5, 3.0]), np.array([1.3, 2.1, 2.9, 3.2]))` | `x_labels`, `y_label`, `title` |
 
@@ -182,7 +182,7 @@ import pubfig as pf
 | 图 | 最小调用 | 常改参数 |
 |----|----------|----------|
 | <a id="recipe-area"></a>`area` | `pf.area(np.random.default_rng(0).random((20, 3)), series_names=["A", "B", "C"])` | `series_names`, `x`, `title` |
-| <a id="recipe-line"></a>`line` | `pf.line(np.sin(np.linspace(0, 2 * np.pi, 100)), x=np.linspace(0, 2 * np.pi, 100))` | `x_label`, `y_label`, `series_names`, `title` |
+| <a id="recipe-line"></a>`line` | `pf.line(np.column_stack([0.72 + 0.05 * np.linspace(0, 10, 16) + 0.10 * np.sin(np.linspace(0, 10, 16) / 1.7), 0.88 + 0.035 * np.linspace(0, 10, 16) + 0.08 * np.cos(np.linspace(0, 10, 16) / 2.0 + 0.4)]), x=np.linspace(0, 10, 16), series_names=["Series 1", "Series 2"])` | `x_label`, `y_label`, `series_names`, `title` |
 | <a id="recipe-scatter"></a>`scatter` | `pf.scatter(np.random.default_rng(0).normal(size=60), np.random.default_rng(1).normal(size=60))` | `labels`, `x_label`, `y_label` |
 | <a id="recipe-bubble"></a>`bubble` | `pf.bubble(np.random.default_rng(0).normal(size=30), np.random.default_rng(1).normal(size=30), np.random.default_rng(2).uniform(1, 10, size=30))` | `labels`, `size_label`, `title` |
 | <a id="recipe-contour2d"></a>`contour2d` | `pf.contour2d(np.random.default_rng(0).normal(size=500), np.random.default_rng(1).normal(size=500))` | `bins`, `colorscale`, `title` |
@@ -195,7 +195,7 @@ import pubfig as pf
 | <a id="recipe-heatmap"></a>`heatmap` | `pf.heatmap(np.random.default_rng(0).uniform(size=(4, 4)))` | `category_names`, `title`, 颜色范围相关参数 |
 | <a id="recipe-corr_matrix"></a>`corr_matrix` | `pf.corr_matrix(np.random.default_rng(0).normal(size=(60, 4)), variable_names=["A", "B", "C", "D"])` | `variable_names`, `method`, `title` |
 | <a id="recipe-clustermap"></a>`clustermap` | `pf.clustermap(np.random.default_rng(0).uniform(size=(8, 6)))` | `row_category_names`, `column_category_names`, `title` |
-| <a id="recipe-dimreduce"></a>`dimreduce` | `fig, _ = pf.dimreduce(np.random.default_rng(0).normal(size=(40, 8)), cluster_id=np.repeat([0, 1], 20))` | `cluster_id`, `labels`, `n_components` |
+| <a id="recipe-dimreduce"></a>`dimreduce` | `fig, _ = pf.dimreduce(np.random.default_rng(0).normal(size=(40, 8)), cluster_id=np.repeat([0, 1], 20), perplexity=10)` | `cluster_id`, `labels`, `n_components` |
 | <a id="recipe-pca_biplot"></a>`pca_biplot` | `pf.pca_biplot(np.random.default_rng(0).normal(size=(40, 5)), labels=np.repeat(["A", "B"], 20), variable_names=["V1", "V2", "V3", "V4", "V5"])` | `labels`, `variable_names`, `loading_panel` |
 | <a id="recipe-parallel_coordinates"></a>`parallel_coordinates` | `pf.parallel_coordinates(np.random.default_rng(0).uniform(size=(20, 4)), variable_names=["W", "X", "Y", "Z"])` | `variable_names`, `color_col`, `title` |
 
