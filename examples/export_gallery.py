@@ -227,17 +227,16 @@ def make_ridgeline_demo() -> tuple[list[np.ndarray], list[str]]:
 
 
 def save(fig, name: str) -> None:
-    pf.save_figure(
-        fig,
-        OUT / name,
-        spec="nature",
-        width="single",
-        aspect_ratio=0.75,
-        raster_dpi=600,
-        vector_formats=VECTOR_FORMATS,
-        raster_formats=RASTER_FORMATS,
-        trim=True,
-    )
+    for suffix in (*VECTOR_FORMATS, *RASTER_FORMATS):
+        pf.save_figure(
+            fig,
+            (OUT / name).with_suffix(f".{suffix}"),
+            spec="nature",
+            width="single",
+            aspect_ratio=0.75,
+            raster_dpi=600,
+            trim=True,
+        )
     try:
         import matplotlib.pyplot as plt
 

@@ -41,17 +41,16 @@ def main() -> None:
         random_seed=0,
     )
 
-    pf.save_figure(
-        fig,
-        OUT / "01_bar_scatter_mpl",
-        spec="nature",
-        width="single",
-        aspect_ratio=0.6,
-        raster_dpi=600,
-        vector_formats=("pdf", "svg"),
-        raster_formats=("png", "tiff"),
-        trim=True,
-    )
+    for suffix in ("pdf", "svg", "png", "tiff"):
+        pf.save_figure(
+            fig,
+            (OUT / "01_bar_scatter_mpl").with_suffix(f".{suffix}"),
+            spec="nature",
+            width="single",
+            aspect_ratio=0.6,
+            raster_dpi=600,
+            trim=True,
+        )
     try:
         import matplotlib.pyplot as plt
 
@@ -71,17 +70,16 @@ def main() -> None:
         random_seed=0,
     )
 
-    pf.save_figure(
-        fig_h,
-        OUT / "02_bar_scatter_horizontal_mpl",
-        spec="nature",
-        width="single",
-        aspect_ratio=0.6,
-        raster_dpi=600,
-        vector_formats=("pdf", "svg"),
-        raster_formats=("png", "tiff"),
-        trim=True,
-    )
+    for suffix in ("pdf", "svg", "png", "tiff"):
+        pf.save_figure(
+            fig_h,
+            (OUT / "02_bar_scatter_horizontal_mpl").with_suffix(f".{suffix}"),
+            spec="nature",
+            width="single",
+            aspect_ratio=0.6,
+            raster_dpi=600,
+            trim=True,
+        )
     try:
         import matplotlib.pyplot as plt
 

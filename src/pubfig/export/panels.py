@@ -214,12 +214,10 @@ def export_panel(
             export_width = width if width is not None else "single"
             save_figure(
                 mpl_fig,
-                target_path.with_suffix(""),
+                target_path,
                 spec=export_spec,
                 width=export_width,
                 height_mm=height_mm,
-                vector_formats=(format_name,) if format_name in {"svg", "pdf", "eps", "ps"} else (),
-                raster_formats=(format_name,) if format_name not in {"svg", "pdf", "eps", "ps"} else (),
                 transparent=transparent,
                 trim=trim,
                 svg_fonttype=svg_fonttype,

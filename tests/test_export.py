@@ -21,19 +21,16 @@ def test_save_figure_png_size_and_restore(tmp_path):
     fig = _make_simple_fig()
     orig_size = fig.get_size_inches().copy()
 
-    base = tmp_path / "test"
+    out_png = tmp_path / "test.png"
     paths = save_figure(
         fig,
-        base,
+        out_png,
         spec="nature",
         width="single",
         aspect_ratio=0.5,
         raster_dpi=200,
-        vector_formats=(),
-        raster_formats=("png",),
     )
 
-    out_png = tmp_path / "test.png"
     assert out_png in paths
     assert out_png.exists()
     assert out_png.stat().st_size > 0
@@ -49,18 +46,15 @@ def test_save_figure_svg_keeps_text_as_text(tmp_path):
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
 
-    base = tmp_path / "fig_svg"
+    out_svg = tmp_path / "fig_svg.svg"
     paths = save_figure(
         fig,
-        base,
+        out_svg,
         spec="nature",
         width="single",
         aspect_ratio=0.5,
-        vector_formats=("svg",),
-        raster_formats=(),
     )
 
-    out_svg = tmp_path / "fig_svg.svg"
     assert out_svg in paths
     svg = out_svg.read_text(encoding="utf-8")
     assert "<text" in svg
@@ -74,19 +68,16 @@ def test_save_figure_svg_can_outline_text_for_figma(tmp_path):
     ax.set_xlabel("X")
     ax.set_ylabel("Y")
 
-    base = tmp_path / "fig_svg_path"
+    out_svg = tmp_path / "fig_svg_path.svg"
     paths = save_figure(
         fig,
-        base,
+        out_svg,
         spec="nature",
         width="single",
         aspect_ratio=0.5,
-        vector_formats=("svg",),
-        raster_formats=(),
         svg_fonttype="path",
     )
 
-    out_svg = tmp_path / "fig_svg_path.svg"
     assert out_svg in paths
     svg = out_svg.read_text(encoding="utf-8")
     assert "<text" not in svg
@@ -95,22 +86,91 @@ def test_save_figure_svg_can_outline_text_for_figma(tmp_path):
 
 def test_save_figure_png_transparent(tmp_path):
     fig = _make_simple_fig()
-    base = tmp_path / "fig_transparent"
+    out_png = tmp_path / "fig_transparent.png"
 
     save_figure(
         fig,
-        base,
+        out_png,
         spec="nature",
         width="single",
         aspect_ratio=0.5,
         raster_dpi=200,
-        vector_formats=(),
-        raster_formats=("png",),
         transparent=True,
     )
 
-    out_png = tmp_path / "fig_transparent.png"
     assert out_png.exists()
+    plt.close(fig)
+
+
+def test_save_figure_explicit_pdf_suffix_writes_single_pdf(tmp_path):
+    fig = _make_simple_fig()
+
+    paths = save_figure(fig, tmp_path / "explicit.pdf", spec="nature", width="single", aspect_ratio=0.5)
+
+    out_pdf = tmp_path / "explicit.pdf"
+    assert paths == [out_pdf]
+    assert out_pdf.exists()
+    assert not (tmp_path / "explicit.svg").exists()
+    assert not (tmp_path / "explicit.png").exists()
+    plt.close(fig)
+
+
+def test_save_figure_explicit_png_suffix_writes_single_png(tmp_path):
+    fig = _make_simple_fig()
+
+    paths = save_figure(fig, tmp_path / "explicit.png", spec="nature", width="single", aspect_ratio=0.5)
+
+    out_png = tmp_path / "explicit.png"
+    assert paths == [out_png]
+    assert out_png.exists()
+    assert not (tmp_path / "explicit.pdf").exists()
+    assert not (tmp_path / "explicit.svg").exists()
+    plt.close(fig)
+
+
+def test_save_figure_explicit_jpg_suffix_writes_single_jpg(tmp_path):
+    fig = _make_simple_fig()
+
+    paths = save_figure(fig, tmp_path / "explicit.jpg", spec="nature", width="single", aspect_ratio=0.5)
+
+    out_jpg = tmp_path / "explicit.jpg"
+    assert paths == [out_jpg]
+    assert out_jpg.exists()
+    assert not (tmp_path / "explicit.pdf").exists()
+    assert not (tmp_path / "explicit.png").exists()
+    plt.close(fig)
+
+
+def test_save_figure_requires_explicit_suffix(tmp_path):
+    fig = _make_simple_fig()
+
+    with pytest.raises(ValueError) as exc:
+        save_figure(fig, tmp_path / "no_suffix", spec="nature", width="single", aspect_ratio=0.5)
+
+    message = str(exc.value)
+    assert "explicit output suffix" in message
+    assert ".pdf" in message
+    assert ".svg" in message
+    assert ".png" in message
+    assert ".jpg" in message
+    plt.close(fig)
+
+
+def test_save_figure_rejects_legacy_format_parameters(tmp_path):
+    fig = _make_simple_fig()
+
+    with pytest.raises(ValueError) as exc:
+        save_figure(
+            fig,
+            tmp_path / "legacy.pdf",
+            spec="nature",
+            width="single",
+            aspect_ratio=0.5,
+            vector_formats=("pdf",),
+            raster_formats=(),
+        )
+
+    assert "no longer uses vector_formats/raster_formats" in str(exc.value)
     plt.close(fig)
 
 
@@ -127,7 +187,7 @@ def test_batch_export_preserves_explicit_suffix_api(tmp_path):
 
 def test_save_figure_tiff_requires_pillow(tmp_path, monkeypatch):
     fig = _make_simple_fig()
-    base = tmp_path / "fig_tiff"
+    out_tiff = tmp_path / "fig_tiff.tiff"
 
     import pubfig.export.io as export_io
 
@@ -146,13 +206,11 @@ def test_save_figure_tiff_requires_pillow(tmp_path, monkeypatch):
     with pytest.raises(ImportError) as exc:
         save_figure(
             fig,
-            base,
+            out_tiff,
             spec="nature",
             width="single",
             aspect_ratio=0.5,
             raster_dpi=300,
-            vector_formats=(),
-            raster_formats=("tiff",),
         )
     assert "pip install pillow" in str(exc.value)
     plt.close(fig)

@@ -21,7 +21,7 @@
 
 - **更接近论文图的默认风格** — 标题、图例、字体和线宽默认更紧凑、更干净。
 - **常见图形集中在一个库里** — 统计图、分布图、降维图、评估曲线、热图与流向图都统一在同一套绘图接口之下。
-- **更省事的导出规格控制** — `save_figure(...)` 直接支持 `single`/`double` 栏宽、矢量格式、位图 DPI 和裁边。
+- **更省事的导出规格控制** — `save_figure(...)` 直接支持 `single`/`double` 栏宽、显式导出后缀、位图 DPI 和裁边。
 - **Matplotlib 原生工作流** — 所有绘图函数都返回 Matplotlib `Figure` 对象，便于接入现有分析脚本。
 - **显式布局控制** — 可精细控制刻度朝向、边框/网格显示、调色板、图例与各图专属布局参数。
 
@@ -90,7 +90,7 @@ data = rng.normal(loc=means[..., None], scale=0.08, size=(3, 2, 18))
 data = np.clip(data, 0.0, None)
 
 fig = pf.bar_scatter(data)
-pf.save_figure(fig, "figure1")
+pf.save_figure(fig, "figure1.pdf")
 ```
 
 这已经足够导出你的第一张图。第一次使用时，你**不需要先理解**布局、导出或投稿风格相关参数。
@@ -107,7 +107,7 @@ fig = pf.bar_scatter(
     title="Bar + Scatter",
 )
 
-pf.save_figure(fig, "figure1", spec="nature", width="single")
+pf.save_figure(fig, "figure1.pdf", spec="nature", width="single")
 ```
 
 - `category_names`：x 轴分组名称
@@ -115,7 +115,7 @@ pf.save_figure(fig, "figure1", spec="nature", width="single")
 - `title`：图标题
 - `spec` / `width`：期刊风格导出预设
 
-像 `aspect_ratio`、`vector_formats`、`raster_formats`、`trim` 这类参数，只有在你已经明确知道自己为什么要改时再加。
+像 `aspect_ratio`、`trim` 这类参数，只有在你已经明确知道自己为什么要改时再加。
 
 #### 去哪里看详细参数
 
@@ -131,23 +131,23 @@ help(pf.heatmap)
 
 #### 如何保存 PNG / SVG / PDF
 
-`pf.save_figure(fig, "figure1")` 传入的是**不带扩展名**的基础路径，默认会写出：
+`save_figure(...)` 现在要求你显式写出文件后缀：
 
-- `figure1.pdf`
-- `figure1.svg`
-- `figure1.png`
+- `pf.save_figure(fig, "figure1.pdf")` → 存 PDF
+- `pf.save_figure(fig, "figure1.svg")` → 存 SVG
+- `pf.save_figure(fig, "figure1.png")` → 存 PNG
+- `pf.save_figure(fig, "figure1.jpg")` → 存 JPG
 
-如果你想显式指定导出格式，可以这样写：
+如果你想一次导出多个格式，请改用 `batch_export(...)`：
 
 ```python
-pf.save_figure(fig, "figure1", vector_formats=("pdf",), raster_formats=())
-pf.save_figure(fig, "figure1", vector_formats=("svg",), raster_formats=("png",))
+pf.batch_export(fig, "figure1", formats=("pdf", "svg", "png", "jpg"))
 ```
 
 #### 按图类型速查
 
 下面这些行给的是最短可用调用。真正导出时，直接复用 Quick Start 里的
-`pf.save_figure(fig, "name")` 即可。
+`pf.save_figure(fig, "name.pdf")` 即可。
 
 默认假设你已经写了：
 

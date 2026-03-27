@@ -23,6 +23,10 @@ _VECTOR_TEXT_RCPARAMS: dict[str, object] = {
     "svg.fonttype": "none",
 }
 
+_RASTER_SUFFIXES: frozenset[str] = frozenset({"png", "jpg", "jpeg", "tif", "tiff"})
+_VECTOR_SUFFIXES: frozenset[str] = frozenset({"pdf", "svg", "eps", "ps"})
+_SUPPORTED_SAVE_FIGURE_SUFFIXES: tuple[str, ...] = ("pdf", "svg", "png", "jpg", "jpeg", "tif", "tiff", "eps", "ps")
+
 
 def _vector_text_rcparams(*, svg_fonttype: str = "none") -> dict[str, object]:
     """Return vector-text rcParams for the current export.
@@ -161,6 +165,38 @@ def _save_basic_figure(
         mpl_fig.savefig(out, **kwargs)
 
 
+def _normalize_formats(formats: Sequence[str]) -> list[str]:
+    """Normalize a user-provided format sequence."""
+    return [f.strip().lower().lstrip(".") for f in formats]
+
+
+def _supported_save_figure_formats_text() -> str:
+    """Return a short human-readable list of supported explicit suffixes."""
+    return ", ".join(f".{fmt}" for fmt in _SUPPORTED_SAVE_FIGURE_SUFFIXES)
+
+
+def _resolve_save_figure_target(path: str | Path) -> tuple[Path, str]:
+    """Resolve a single explicit output path for save_figure.
+
+    save_figure now requires an explicit filename suffix so the export target is
+    obvious to users and mirrors normal file-save expectations.
+    """
+    target = Path(path)
+    fmt = target.suffix.lower().lstrip(".")
+    if not fmt:
+        raise ValueError(
+            "save_figure requires an explicit output suffix. "
+            f"Supported formats: {_supported_save_figure_formats_text()}. "
+            "For multiple outputs, use batch_export(...)."
+        )
+    if fmt not in _SUPPORTED_SAVE_FIGURE_SUFFIXES:
+        raise ValueError(
+            f"Unsupported save_figure suffix: .{fmt}. "
+            f"Supported formats: {_supported_save_figure_formats_text()}."
+        )
+    return target, fmt
+
+
 def batch_export(
     fig: object,
     base_path: str | Path,
@@ -195,22 +231,36 @@ def save_figure(
     trim: bool = True,
     svg_fonttype: str = "none",
 ) -> list[Path]:
-    """Export a figure using publication defaults (vector + high-DPI raster)."""
+    """Export a figure using publication defaults.
+
+    Examples
+    --------
+    ``save_figure(fig, "figure1.pdf")`` writes PDF.
+
+    ``save_figure(fig, "figure1.png")`` writes PNG.
+
+    ``save_figure(fig, "figure1.jpg")`` writes JPEG.
+    """
     mpl_fig = _coerce_mpl_figure(fig)
+    normalized_vector_formats = _normalize_formats(vector_formats)
+    normalized_raster_formats = _normalize_formats(raster_formats)
+    if normalized_vector_formats != ["pdf", "svg"] or normalized_raster_formats != ["png"]:
+        raise ValueError(
+            "save_figure no longer uses vector_formats/raster_formats. "
+            "Pass an explicit filename suffix like .pdf, .svg, .png, .jpg, or use "
+            "batch_export(...) for multiple outputs."
+        )
 
     s = get_figure_spec(spec)
     width_mm = resolve_width_mm(width, spec=s)
     height_mm_resolved = resolve_height_mm(height_mm, width_mm=width_mm, aspect_ratio=aspect_ratio)
 
-    base = Path(base_path)
-    base.parent.mkdir(parents=True, exist_ok=True)
+    target_path, target_fmt = _resolve_save_figure_target(base_path)
+    target_path.parent.mkdir(parents=True, exist_ok=True)
 
     raster_dpi_final = int(raster_dpi) if raster_dpi is not None else int(s.default_raster_dpi)
     if raster_dpi_final <= 0:
         raise ValueError("raster_dpi must be > 0")
-
-    vfmts = [f.strip().lower().lstrip(".") for f in vector_formats]
-    rfmts = [f.strip().lower().lstrip(".") for f in raster_formats]
 
     use_transparent = bool(transparent) if transparent is not None else False
 
@@ -254,39 +304,24 @@ def save_figure(
         if trim:
             common_kwargs.update({"bbox_inches": "tight", "pad_inches": 0.01})
 
-        for fmt in vfmts:
-            out = base.with_suffix(f'.{fmt}')
+        if target_fmt in _VECTOR_SUFFIXES:
             with mpl.rc_context(_vector_text_rcparams(svg_fonttype=svg_fonttype)):
-                mpl_fig.savefig(out, format=fmt, dpi=int(s.design_dpi), **common_kwargs)
-            saved.append(out)
-
-        png_path: Path | None = None
-        if "png" in rfmts:
-            png_path = base.with_suffix('.png')
-            mpl_fig.savefig(png_path, format='png', dpi=raster_dpi_final, **common_kwargs)
-            saved.append(png_path)
-
-        if any(fmt in rfmts for fmt in ("tif", "tiff")):
+                mpl_fig.savefig(target_path, format=target_fmt, dpi=int(s.design_dpi), **common_kwargs)
+            saved.append(target_path)
+        elif target_fmt in {"png", "jpg", "jpeg"}:
+            mpl_fig.savefig(target_path, format=target_fmt, dpi=raster_dpi_final, **common_kwargs)
+            saved.append(target_path)
+        elif target_fmt in {"tif", "tiff"}:
             _require("PIL", "raster")
             from PIL import Image
 
-            tmp_png: Path | None = None
-            src_png: Path
-            if png_path is not None:
-                src_png = png_path
-            else:
-                tmp_png = base.with_suffix('.tmp_pubfig.png')
-                mpl_fig.savefig(tmp_png, format='png', dpi=raster_dpi_final, **common_kwargs)
-                src_png = tmp_png
-
-            tiff_ext = "tif" if ("tif" in rfmts and "tiff" not in rfmts) else "tiff"
-            out_tiff = base.with_suffix(f'.{tiff_ext}')
+            tmp_png = target_path.with_suffix(".tmp_pubfig.png")
+            mpl_fig.savefig(tmp_png, format="png", dpi=raster_dpi_final, **common_kwargs)
+            src_png = tmp_png
             img = Image.open(src_png)
-            img.save(out_tiff, dpi=(raster_dpi_final, raster_dpi_final), compression='tiff_lzw')
-            saved.append(out_tiff)
-
-            if tmp_png is not None:
-                tmp_png.unlink(missing_ok=True)
+            img.save(target_path, dpi=(raster_dpi_final, raster_dpi_final), compression='tiff_lzw')
+            saved.append(target_path)
+            tmp_png.unlink(missing_ok=True)
 
     finally:
         mpl_fig.set_size_inches(orig_size[0], orig_size[1], forward=True)

@@ -21,7 +21,7 @@
 
 - **Publication-Style Defaults** — Compact titles, cleaner legends, explicit font handling, and line weights that read more like finished paper figures.
 - **One Library for Common Figure Types** — Statistical plots, distribution plots, dimensionality-reduction plots, evaluation curves, heatmaps, and flow plots in one API surface.
-- **Export Specs Without Boilerplate** — `save_figure(...)` directly handles `single`/`double` column widths, vector formats, raster DPI, and trimming.
+- **Export Specs Without Boilerplate** — `save_figure(...)` directly handles `single`/`double` column widths, explicit output suffixes, raster DPI, and trimming.
 - **Matplotlib-Native Workflow** — Plot functions return Matplotlib `Figure` objects, so existing analysis scripts remain easy to integrate.
 - **Explicit Layout Controls** — Fine-grained control over tick direction, box/grid visibility, palettes, legends, and plot-specific layout options.
 
@@ -90,7 +90,7 @@ data = rng.normal(loc=means[..., None], scale=0.08, size=(3, 2, 18))
 data = np.clip(data, 0.0, None)
 
 fig = pf.bar_scatter(data)
-pf.save_figure(fig, "figure1")
+pf.save_figure(fig, "figure1.pdf")
 ```
 
 This is enough to get your first figure out. You do **not** need to understand
@@ -108,7 +108,7 @@ fig = pf.bar_scatter(
     title="Bar + Scatter",
 )
 
-pf.save_figure(fig, "figure1", spec="nature", width="single")
+pf.save_figure(fig, "figure1.pdf", spec="nature", width="single")
 ```
 
 - `category_names`: names on the x-axis
@@ -116,8 +116,8 @@ pf.save_figure(fig, "figure1", spec="nature", width="single")
 - `title`: figure title
 - `spec` / `width`: journal-style export presets
 
-Only add parameters like `aspect_ratio`, `vector_formats`, `raster_formats`, or
-`trim` when you already know why you need them.
+Only add parameters like `aspect_ratio` or `trim` when you already know why you
+need them.
 
 #### Where to look up detailed parameters
 
@@ -133,24 +133,23 @@ You can also inspect runnable examples under [`examples/`](examples/).
 
 #### Saving PNG / SVG / PDF
 
-`pf.save_figure(fig, "figure1")` takes a base path **without** an extension and,
-by default, writes:
+`save_figure(...)` now expects an explicit filename suffix:
 
-- `figure1.pdf`
-- `figure1.svg`
-- `figure1.png`
+- `pf.save_figure(fig, "figure1.pdf")` → write PDF
+- `pf.save_figure(fig, "figure1.svg")` → write SVG
+- `pf.save_figure(fig, "figure1.png")` → write PNG
+- `pf.save_figure(fig, "figure1.jpg")` → write JPG
 
-If you want to choose formats explicitly:
+If you want multiple outputs, use `batch_export(...)` instead:
 
 ```python
-pf.save_figure(fig, "figure1", vector_formats=("pdf",), raster_formats=())
-pf.save_figure(fig, "figure1", vector_formats=("svg",), raster_formats=("png",))
+pf.batch_export(fig, "figure1", formats=("pdf", "svg", "png", "jpg"))
 ```
 
 #### Plot recipes by family
 
 These rows are the shortest useful plotting calls. When you want to export one,
-reuse `pf.save_figure(fig, "name")` from Quick Start.
+reuse `pf.save_figure(fig, "name.pdf")` from Quick Start.
 
 Each row assumes:
 
