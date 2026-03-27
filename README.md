@@ -174,7 +174,7 @@ Most common next parameters: `category_names`, `title`, color scale related opti
 
 #### Compact recipes for the rest
 
-These assume the same shared setup:
+These rows show only the plotting call. Reuse `pf.save_figure(fig, "name")` from the examples above.
 
 ```python
 import numpy as np
@@ -183,271 +183,53 @@ import pubfig as pf
 rng = np.random.default_rng(0)
 ```
 
-<a id="recipe-bar"></a>
-**`bar`** — the simplest categorical bar chart.
-
-```python
-fig = pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])
-pf.save_figure(fig, "bar_demo")
-```
-
-Most common next parameters: `category_names`, `title`, `color_palette`.
-
-<a id="recipe-stacked_bar"></a>
-**`stacked_bar`** — composition across grouped rows.
-
-```python
-data = np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float)
-fig = pf.stacked_bar(data, group_names=["Batch 1", "Batch 2"])
-pf.save_figure(fig, "stacked_bar_demo")
-```
-
-Most common next parameters: `group_names`, `normalize`, `title`.
-
-<a id="recipe-paired"></a>
-**`paired`** — before/after comparisons for matched samples.
-
-```python
-before = np.array([1.0, 2.0, 2.5, 3.0])
-after = before + np.array([0.3, 0.1, 0.4, 0.2])
-fig = pf.paired(before, after)
-pf.save_figure(fig, "paired_demo")
-```
-
-Most common next parameters: `x_labels`, `y_label`, `title`.
-
-<a id="recipe-box"></a>
-**`box`** — compact summary of grouped distributions.
-
-```python
-data = rng.normal(size=(80, 3))
-fig = pf.box(data, category_names=["A", "B", "C"])
-pf.save_figure(fig, "box_demo")
-```
-
-Most common next parameters: `category_names`, `show_means`, `title`.
-
-<a id="recipe-violin"></a>
-**`violin`** — grouped distributions with full density shape.
-
-```python
-data = rng.normal(size=(80, 3))
-fig = pf.violin(data, category_names=["A", "B", "C"])
-pf.save_figure(fig, "violin_demo")
-```
-
-Most common next parameters: `category_names`, `show_box`, `show_points`.
-
-<a id="recipe-strip"></a>
-**`strip`** — raw points with categorical jitter.
-
-```python
-data = rng.normal(size=(80, 3))
-fig = pf.strip(data, category_names=["A", "B", "C"])
-pf.save_figure(fig, "strip_demo")
-```
-
-Most common next parameters: `category_names`, `jitter`, `title`.
-
-<a id="recipe-raincloud"></a>
-**`raincloud`** — violin + box + raw points in one view.
-
-```python
-data = rng.normal(size=(80, 3))
-fig = pf.raincloud(data, category_names=["A", "B", "C"])
-pf.save_figure(fig, "raincloud_demo")
-```
-
-Most common next parameters: `category_names`, `orientation`, `title`.
-
-<a id="recipe-density"></a>
-**`density`** — one continuous distribution as a KDE curve.
-
-```python
-samples = rng.normal(size=400)
-fig = pf.density(samples)
-pf.save_figure(fig, "density_demo")
-```
-
-Most common next parameters: `title`, `color_palette`, `bins`.
-
-<a id="recipe-histogram"></a>
-**`histogram`** — histogram with optional KDE overlay.
-
-```python
-samples = rng.normal(size=400)
-fig = pf.histogram(samples, show_kde=True)
-pf.save_figure(fig, "histogram_demo")
-```
-
-Most common next parameters: `bins`, `show_kde`, `title`.
-
-<a id="recipe-ridgeline"></a>
-**`ridgeline`** — stacked densities across categories.
-
-```python
-data = [rng.normal(loc=i, size=200) for i in range(4)]
-fig = pf.ridgeline(data, category_names=["S1", "S2", "S3", "S4"])
-pf.save_figure(fig, "ridgeline_demo")
-```
-
-Most common next parameters: `category_names`, `offset_step`, `title`.
-
-<a id="recipe-area"></a>
-**`area`** — stacked area chart for cumulative trends.
-
-```python
-fig = pf.area(rng.random((20, 3)), series_names=["A", "B", "C"])
-pf.save_figure(fig, "area_demo")
-```
-
-Most common next parameters: `series_names`, `x`, `title`.
-
-<a id="recipe-scatter"></a>
-**`scatter`** — relationship between two variables, optionally grouped.
-
-```python
-x = rng.normal(size=60)
-y = 0.5 * x + rng.normal(scale=0.3, size=60)
-fig = pf.scatter(x, y)
-pf.save_figure(fig, "scatter_demo")
-```
-
-Most common next parameters: `labels`, `x_label`, `y_label`.
-
-<a id="recipe-bubble"></a>
-**`bubble`** — scatter plot with size as a third variable.
-
-```python
-x = rng.normal(size=30)
-y = rng.normal(size=30)
-size = rng.uniform(1, 10, size=30)
-fig = pf.bubble(x, y, size)
-pf.save_figure(fig, "bubble_demo")
-```
-
-Most common next parameters: `labels`, `size_label`, `title`.
-
-<a id="recipe-contour2d"></a>
-**`contour2d`** — dense scatter summarized as contours plus marginals.
-
-```python
-x = rng.normal(size=500)
-y = 0.6 * x + rng.normal(scale=0.5, size=500)
-fig = pf.contour2d(x, y)
-pf.save_figure(fig, "contour2d_demo")
-```
-
-Most common next parameters: `bins`, `colorscale`, `title`.
-
-<a id="recipe-radar"></a>
-**`radar`** — compare several series across the same axes.
-
-```python
-fig = pf.radar(
-    [[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]],
-    categories=["Speed", "Accuracy", "Recall", "Stability"],
-    series_names=["Model A", "Model B"],
-)
-pf.save_figure(fig, "radar_demo")
-```
-
-Most common next parameters: `categories`, `series_names`, `title`.
-
-<a id="recipe-corr_matrix"></a>
-**`corr_matrix`** — correlation heatmap from a feature table.
-
-```python
-data = rng.normal(size=(60, 4))
-fig = pf.corr_matrix(data, variable_names=["A", "B", "C", "D"])
-pf.save_figure(fig, "corr_matrix_demo")
-```
-
-Most common next parameters: `variable_names`, `method`, `title`.
-
-<a id="recipe-clustermap"></a>
-**`clustermap`** — clustered heatmap for rows and columns.
-
-```python
-data = rng.uniform(size=(8, 6))
-fig = pf.clustermap(data)
-pf.save_figure(fig, "clustermap_demo")
-```
-
-Most common next parameters: `row_category_names`, `column_category_names`, `title`.
-
-<a id="recipe-dimreduce"></a>
-**`dimreduce`** — t-SNE view of high-dimensional samples.
-
-```python
-data = rng.normal(size=(40, 8))
-fig, _ = pf.dimreduce(data, cluster_id=np.repeat([0, 1], 20))
-pf.save_figure(fig, "dimreduce_demo")
-```
-
-Most common next parameters: `cluster_id`, `labels`, `n_components`.
-
-<a id="recipe-pca_biplot"></a>
-**`pca_biplot`** — PCA scores plus optional loading arrows.
-
-```python
-data = rng.normal(size=(40, 5))
-labels = np.repeat(["A", "B"], 20)
-fig = pf.pca_biplot(data, labels=labels, variable_names=["V1", "V2", "V3", "V4", "V5"])
-pf.save_figure(fig, "pca_biplot_demo")
-```
-
-Most common next parameters: `labels`, `variable_names`, `loading_panel`.
-
-<a id="recipe-parallel_coordinates"></a>
-**`parallel_coordinates`** — compare multivariate profiles row by row.
-
-```python
-data = rng.uniform(size=(20, 4))
-fig = pf.parallel_coordinates(data, variable_names=["W", "X", "Y", "Z"])
-pf.save_figure(fig, "parallel_coordinates_demo")
-```
-
-Most common next parameters: `variable_names`, `color_col`, `title`.
-
-<a id="recipe-roc"></a>
-**`roc`** — ROC curves for one or more models.
-
-```python
-fpr = [np.array([0.0, 0.1, 0.3, 1.0]), np.array([0.0, 0.2, 0.4, 1.0])]
-tpr = [np.array([0.0, 0.7, 0.9, 1.0]), np.array([0.0, 0.6, 0.85, 1.0])]
-fig = pf.roc(fpr, tpr, series_names=["Model A", "Model B"])
-pf.save_figure(fig, "roc_demo")
-```
-
-Most common next parameters: `series_names`, `baseline`, `title`.
-
-<a id="recipe-pr_curve"></a>
-**`pr_curve`** — precision-recall curves for one or more models.
-
-```python
-precision = [np.array([1.0, 0.9, 0.8, 0.6]), np.array([1.0, 0.85, 0.72, 0.5])]
-recall = [np.array([0.1, 0.4, 0.7, 1.0]), np.array([0.1, 0.4, 0.7, 1.0])]
-fig = pf.pr_curve(precision, recall, series_names=["Model A", "Model B"])
-pf.save_figure(fig, "pr_curve_demo")
-```
-
-Most common next parameters: `series_names`, `title`, `xlim` / `ylim`.
-
-<a id="recipe-sankey"></a>
-**`sankey`** — flow between discrete stages.
-
-```python
-fig = pf.sankey(
-    [0, 0, 1, 1, 2, 3],
-    [2, 3, 2, 3, 4, 5],
-    [10, 5, 8, 3, 12, 11],
-    node_names=["Input A", "Input B", "Path 1", "Path 2", "Outcome +", "Outcome -"],
-)
-pf.save_figure(fig, "sankey_demo")
-```
-
-Most common next parameters: `node_names`, `title`, `color_palette`.
+##### Categorical and statistical
+
+| Plot | Minimal call | Common next parameters |
+|------|--------------|------------------------|
+| <a id="recipe-bar"></a>`bar` | `pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])` | `category_names`, `title`, `color_palette` |
+| <a id="recipe-stacked_bar"></a>`stacked_bar` | `pf.stacked_bar(np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float), group_names=["Batch 1", "Batch 2"])` | `group_names`, `normalize`, `title` |
+| <a id="recipe-paired"></a>`paired` | `pf.paired(np.array([1.0, 2.0, 2.5, 3.0]), np.array([1.3, 2.1, 2.9, 3.2]))` | `x_labels`, `y_label`, `title` |
+
+##### Distribution
+
+| Plot | Minimal call | Common next parameters |
+|------|--------------|------------------------|
+| <a id="recipe-box"></a>`box` | `pf.box(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_means`, `title` |
+| <a id="recipe-violin"></a>`violin` | `pf.violin(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_box`, `show_points` |
+| <a id="recipe-strip"></a>`strip` | `pf.strip(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `jitter`, `title` |
+| <a id="recipe-raincloud"></a>`raincloud` | `pf.raincloud(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `orientation`, `title` |
+| <a id="recipe-density"></a>`density` | `pf.density(rng.normal(size=400))` | `title`, `color_palette`, `bins` |
+| <a id="recipe-histogram"></a>`histogram` | `pf.histogram(rng.normal(size=400), show_kde=True)` | `bins`, `show_kde`, `title` |
+| <a id="recipe-ridgeline"></a>`ridgeline` | `pf.ridgeline([rng.normal(loc=i, size=200) for i in range(4)], category_names=["S1", "S2", "S3", "S4"])` | `category_names`, `offset_step`, `title` |
+
+##### Trend and relationship
+
+| Plot | Minimal call | Common next parameters |
+|------|--------------|------------------------|
+| <a id="recipe-area"></a>`area` | `pf.area(rng.random((20, 3)), series_names=["A", "B", "C"])` | `series_names`, `x`, `title` |
+| <a id="recipe-scatter"></a>`scatter` | `pf.scatter(rng.normal(size=60), rng.normal(size=60))` | `labels`, `x_label`, `y_label` |
+| <a id="recipe-bubble"></a>`bubble` | `pf.bubble(rng.normal(size=30), rng.normal(size=30), rng.uniform(1, 10, size=30))` | `labels`, `size_label`, `title` |
+| <a id="recipe-contour2d"></a>`contour2d` | `pf.contour2d(rng.normal(size=500), rng.normal(size=500))` | `bins`, `colorscale`, `title` |
+| <a id="recipe-radar"></a>`radar` | `pf.radar([[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]], categories=["Speed", "Accuracy", "Recall", "Stability"], series_names=["Model A", "Model B"])` | `categories`, `series_names`, `title` |
+
+##### Matrix and multivariate
+
+| Plot | Minimal call | Common next parameters |
+|------|--------------|------------------------|
+| <a id="recipe-corr_matrix"></a>`corr_matrix` | `pf.corr_matrix(rng.normal(size=(60, 4)), variable_names=["A", "B", "C", "D"])` | `variable_names`, `method`, `title` |
+| <a id="recipe-clustermap"></a>`clustermap` | `pf.clustermap(rng.uniform(size=(8, 6)))` | `row_category_names`, `column_category_names`, `title` |
+| <a id="recipe-dimreduce"></a>`dimreduce` | `fig, _ = pf.dimreduce(rng.normal(size=(40, 8)), cluster_id=np.repeat([0, 1], 20))` | `cluster_id`, `labels`, `n_components` |
+| <a id="recipe-pca_biplot"></a>`pca_biplot` | `pf.pca_biplot(rng.normal(size=(40, 5)), labels=np.repeat(["A", "B"], 20), variable_names=["V1", "V2", "V3", "V4", "V5"])` | `labels`, `variable_names`, `loading_panel` |
+| <a id="recipe-parallel_coordinates"></a>`parallel_coordinates` | `pf.parallel_coordinates(rng.uniform(size=(20, 4)), variable_names=["W", "X", "Y", "Z"])` | `variable_names`, `color_col`, `title` |
+
+##### Evaluation and flow
+
+| Plot | Minimal call | Common next parameters |
+|------|--------------|------------------------|
+| <a id="recipe-roc"></a>`roc` | `pf.roc([np.array([0.0, 0.1, 0.3, 1.0])], [np.array([0.0, 0.7, 0.9, 1.0])], series_names=["Model A"])` | `series_names`, `baseline`, `title` |
+| <a id="recipe-pr_curve"></a>`pr_curve` | `pf.pr_curve([np.array([1.0, 0.9, 0.8, 0.6])], [np.array([0.1, 0.4, 0.7, 1.0])], series_names=["Model A"])` | `series_names`, `title`, `xlim` / `ylim` |
+| <a id="recipe-sankey"></a>`sankey` | `pf.sankey([0, 0, 1], [2, 3, 3], [10, 5, 8], node_names=["Input A", "Input B", "Path 1", "Outcome"])` | `node_names`, `title`, `color_palette` |
 
 For `bar_scatter(...)`, significance spacing parameters now follow explicit orientation-based names:
 

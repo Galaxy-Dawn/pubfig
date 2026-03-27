@@ -172,7 +172,7 @@ pf.save_figure(fig, "heatmap_demo")
 
 #### 其余图类型的 compact recipes
 
-下面这些示例都默认先有同样的共享准备：
+下面这些行只保留 plotting call。导出时直接复用上面的 `pf.save_figure(fig, "name")` 即可。
 
 ```python
 import numpy as np
@@ -181,271 +181,53 @@ import pubfig as pf
 rng = np.random.default_rng(0)
 ```
 
-<a id="recipe-bar"></a>
-**`bar`** —— 最基础的类别柱状图。
-
-```python
-fig = pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])
-pf.save_figure(fig, "bar_demo")
-```
-
-下一步最常改的参数：`category_names`、`title`、`color_palette`。
-
-<a id="recipe-stacked_bar"></a>
-**`stacked_bar`** —— 适合看每组内部成分占比。
-
-```python
-data = np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float)
-fig = pf.stacked_bar(data, group_names=["Batch 1", "Batch 2"])
-pf.save_figure(fig, "stacked_bar_demo")
-```
-
-下一步最常改的参数：`group_names`、`normalize`、`title`。
-
-<a id="recipe-paired"></a>
-**`paired`** —— 适合 before/after 这种配对样本比较。
-
-```python
-before = np.array([1.0, 2.0, 2.5, 3.0])
-after = before + np.array([0.3, 0.1, 0.4, 0.2])
-fig = pf.paired(before, after)
-pf.save_figure(fig, "paired_demo")
-```
-
-下一步最常改的参数：`x_labels`、`y_label`、`title`。
-
-<a id="recipe-box"></a>
-**`box`** —— 适合快速看分组分布概况。
-
-```python
-data = rng.normal(size=(80, 3))
-fig = pf.box(data, category_names=["A", "B", "C"])
-pf.save_figure(fig, "box_demo")
-```
-
-下一步最常改的参数：`category_names`、`show_means`、`title`。
-
-<a id="recipe-violin"></a>
-**`violin`** —— 适合看完整分布形状。
-
-```python
-data = rng.normal(size=(80, 3))
-fig = pf.violin(data, category_names=["A", "B", "C"])
-pf.save_figure(fig, "violin_demo")
-```
-
-下一步最常改的参数：`category_names`、`show_box`、`show_points`。
-
-<a id="recipe-strip"></a>
-**`strip`** —— 适合保留原始点的分类散点。
-
-```python
-data = rng.normal(size=(80, 3))
-fig = pf.strip(data, category_names=["A", "B", "C"])
-pf.save_figure(fig, "strip_demo")
-```
-
-下一步最常改的参数：`category_names`、`jitter`、`title`。
-
-<a id="recipe-raincloud"></a>
-**`raincloud`** —— 把 violin、box 和 raw points 合在一起。
-
-```python
-data = rng.normal(size=(80, 3))
-fig = pf.raincloud(data, category_names=["A", "B", "C"])
-pf.save_figure(fig, "raincloud_demo")
-```
-
-下一步最常改的参数：`category_names`、`orientation`、`title`。
-
-<a id="recipe-density"></a>
-**`density`** —— 单一连续分布的 KDE 曲线。
-
-```python
-samples = rng.normal(size=400)
-fig = pf.density(samples)
-pf.save_figure(fig, "density_demo")
-```
-
-下一步最常改的参数：`title`、`color_palette`、`bins`。
-
-<a id="recipe-histogram"></a>
-**`histogram`** —— 直方图，可选叠加 KDE。
-
-```python
-samples = rng.normal(size=400)
-fig = pf.histogram(samples, show_kde=True)
-pf.save_figure(fig, "histogram_demo")
-```
-
-下一步最常改的参数：`bins`、`show_kde`、`title`。
-
-<a id="recipe-ridgeline"></a>
-**`ridgeline`** —— 多组分布沿 y 轴堆叠展开。
-
-```python
-data = [rng.normal(loc=i, size=200) for i in range(4)]
-fig = pf.ridgeline(data, category_names=["S1", "S2", "S3", "S4"])
-pf.save_figure(fig, "ridgeline_demo")
-```
-
-下一步最常改的参数：`category_names`、`offset_step`、`title`。
-
-<a id="recipe-area"></a>
-**`area`** —— 堆叠面积图，适合看累计趋势。
-
-```python
-fig = pf.area(rng.random((20, 3)), series_names=["A", "B", "C"])
-pf.save_figure(fig, "area_demo")
-```
-
-下一步最常改的参数：`series_names`、`x`、`title`。
-
-<a id="recipe-scatter"></a>
-**`scatter`** —— 两个变量之间的关系图。
-
-```python
-x = rng.normal(size=60)
-y = 0.5 * x + rng.normal(scale=0.3, size=60)
-fig = pf.scatter(x, y)
-pf.save_figure(fig, "scatter_demo")
-```
-
-下一步最常改的参数：`labels`、`x_label`、`y_label`。
-
-<a id="recipe-bubble"></a>
-**`bubble`** —— 用点大小编码第三个变量。
-
-```python
-x = rng.normal(size=30)
-y = rng.normal(size=30)
-size = rng.uniform(1, 10, size=30)
-fig = pf.bubble(x, y, size)
-pf.save_figure(fig, "bubble_demo")
-```
-
-下一步最常改的参数：`labels`、`size_label`、`title`。
-
-<a id="recipe-contour2d"></a>
-**`contour2d`** —— 稠密散点的 contour + marginal 视图。
-
-```python
-x = rng.normal(size=500)
-y = 0.6 * x + rng.normal(scale=0.5, size=500)
-fig = pf.contour2d(x, y)
-pf.save_figure(fig, "contour2d_demo")
-```
-
-下一步最常改的参数：`bins`、`colorscale`、`title`。
-
-<a id="recipe-radar"></a>
-**`radar`** —— 多个 series 在同一组指标上对比。
-
-```python
-fig = pf.radar(
-    [[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]],
-    categories=["Speed", "Accuracy", "Recall", "Stability"],
-    series_names=["Model A", "Model B"],
-)
-pf.save_figure(fig, "radar_demo")
-```
-
-下一步最常改的参数：`categories`、`series_names`、`title`。
-
-<a id="recipe-corr_matrix"></a>
-**`corr_matrix`** —— 从特征表直接生成相关性热图。
-
-```python
-data = rng.normal(size=(60, 4))
-fig = pf.corr_matrix(data, variable_names=["A", "B", "C", "D"])
-pf.save_figure(fig, "corr_matrix_demo")
-```
-
-下一步最常改的参数：`variable_names`、`method`、`title`。
-
-<a id="recipe-clustermap"></a>
-**`clustermap`** —— 行列同时聚类的热图。
-
-```python
-data = rng.uniform(size=(8, 6))
-fig = pf.clustermap(data)
-pf.save_figure(fig, "clustermap_demo")
-```
-
-下一步最常改的参数：`row_category_names`、`column_category_names`、`title`。
-
-<a id="recipe-dimreduce"></a>
-**`dimreduce`** —— 高维样本的 t-SNE 可视化。
-
-```python
-data = rng.normal(size=(40, 8))
-fig, _ = pf.dimreduce(data, cluster_id=np.repeat([0, 1], 20))
-pf.save_figure(fig, "dimreduce_demo")
-```
-
-下一步最常改的参数：`cluster_id`、`labels`、`n_components`。
-
-<a id="recipe-pca_biplot"></a>
-**`pca_biplot`** —— PCA scores + loading arrows。
-
-```python
-data = rng.normal(size=(40, 5))
-labels = np.repeat(["A", "B"], 20)
-fig = pf.pca_biplot(data, labels=labels, variable_names=["V1", "V2", "V3", "V4", "V5"])
-pf.save_figure(fig, "pca_biplot_demo")
-```
-
-下一步最常改的参数：`labels`、`variable_names`、`loading_panel`。
-
-<a id="recipe-parallel_coordinates"></a>
-**`parallel_coordinates`** —— 一行一个样本的多变量 profile。
-
-```python
-data = rng.uniform(size=(20, 4))
-fig = pf.parallel_coordinates(data, variable_names=["W", "X", "Y", "Z"])
-pf.save_figure(fig, "parallel_coordinates_demo")
-```
-
-下一步最常改的参数：`variable_names`、`color_col`、`title`。
-
-<a id="recipe-roc"></a>
-**`roc`** —— 一个或多个模型的 ROC 曲线。
-
-```python
-fpr = [np.array([0.0, 0.1, 0.3, 1.0]), np.array([0.0, 0.2, 0.4, 1.0])]
-tpr = [np.array([0.0, 0.7, 0.9, 1.0]), np.array([0.0, 0.6, 0.85, 1.0])]
-fig = pf.roc(fpr, tpr, series_names=["Model A", "Model B"])
-pf.save_figure(fig, "roc_demo")
-```
-
-下一步最常改的参数：`series_names`、`baseline`、`title`。
-
-<a id="recipe-pr_curve"></a>
-**`pr_curve`** —— 一个或多个模型的 Precision-Recall 曲线。
-
-```python
-precision = [np.array([1.0, 0.9, 0.8, 0.6]), np.array([1.0, 0.85, 0.72, 0.5])]
-recall = [np.array([0.1, 0.4, 0.7, 1.0]), np.array([0.1, 0.4, 0.7, 1.0])]
-fig = pf.pr_curve(precision, recall, series_names=["Model A", "Model B"])
-pf.save_figure(fig, "pr_curve_demo")
-```
-
-下一步最常改的参数：`series_names`、`title`、`xlim` / `ylim`。
-
-<a id="recipe-sankey"></a>
-**`sankey`** —— 离散阶段之间的 flow 图。
-
-```python
-fig = pf.sankey(
-    [0, 0, 1, 1, 2, 3],
-    [2, 3, 2, 3, 4, 5],
-    [10, 5, 8, 3, 12, 11],
-    node_names=["Input A", "Input B", "Path 1", "Path 2", "Outcome +", "Outcome -"],
-)
-pf.save_figure(fig, "sankey_demo")
-```
-
-下一步最常改的参数：`node_names`、`title`、`color_palette`。
+##### 类别与统计
+
+| 图 | 最小调用 | 常改参数 |
+|----|----------|----------|
+| <a id="recipe-bar"></a>`bar` | `pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])` | `category_names`, `title`, `color_palette` |
+| <a id="recipe-stacked_bar"></a>`stacked_bar` | `pf.stacked_bar(np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float), group_names=["Batch 1", "Batch 2"])` | `group_names`, `normalize`, `title` |
+| <a id="recipe-paired"></a>`paired` | `pf.paired(np.array([1.0, 2.0, 2.5, 3.0]), np.array([1.3, 2.1, 2.9, 3.2]))` | `x_labels`, `y_label`, `title` |
+
+##### 分布
+
+| 图 | 最小调用 | 常改参数 |
+|----|----------|----------|
+| <a id="recipe-box"></a>`box` | `pf.box(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_means`, `title` |
+| <a id="recipe-violin"></a>`violin` | `pf.violin(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_box`, `show_points` |
+| <a id="recipe-strip"></a>`strip` | `pf.strip(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `jitter`, `title` |
+| <a id="recipe-raincloud"></a>`raincloud` | `pf.raincloud(rng.normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `orientation`, `title` |
+| <a id="recipe-density"></a>`density` | `pf.density(rng.normal(size=400))` | `title`, `color_palette`, `bins` |
+| <a id="recipe-histogram"></a>`histogram` | `pf.histogram(rng.normal(size=400), show_kde=True)` | `bins`, `show_kde`, `title` |
+| <a id="recipe-ridgeline"></a>`ridgeline` | `pf.ridgeline([rng.normal(loc=i, size=200) for i in range(4)], category_names=["S1", "S2", "S3", "S4"])` | `category_names`, `offset_step`, `title` |
+
+##### 趋势与关系
+
+| 图 | 最小调用 | 常改参数 |
+|----|----------|----------|
+| <a id="recipe-area"></a>`area` | `pf.area(rng.random((20, 3)), series_names=["A", "B", "C"])` | `series_names`, `x`, `title` |
+| <a id="recipe-scatter"></a>`scatter` | `pf.scatter(rng.normal(size=60), rng.normal(size=60))` | `labels`, `x_label`, `y_label` |
+| <a id="recipe-bubble"></a>`bubble` | `pf.bubble(rng.normal(size=30), rng.normal(size=30), rng.uniform(1, 10, size=30))` | `labels`, `size_label`, `title` |
+| <a id="recipe-contour2d"></a>`contour2d` | `pf.contour2d(rng.normal(size=500), rng.normal(size=500))` | `bins`, `colorscale`, `title` |
+| <a id="recipe-radar"></a>`radar` | `pf.radar([[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]], categories=["Speed", "Accuracy", "Recall", "Stability"], series_names=["Model A", "Model B"])` | `categories`, `series_names`, `title` |
+
+##### 矩阵与多变量
+
+| 图 | 最小调用 | 常改参数 |
+|----|----------|----------|
+| <a id="recipe-corr_matrix"></a>`corr_matrix` | `pf.corr_matrix(rng.normal(size=(60, 4)), variable_names=["A", "B", "C", "D"])` | `variable_names`, `method`, `title` |
+| <a id="recipe-clustermap"></a>`clustermap` | `pf.clustermap(rng.uniform(size=(8, 6)))` | `row_category_names`, `column_category_names`, `title` |
+| <a id="recipe-dimreduce"></a>`dimreduce` | `fig, _ = pf.dimreduce(rng.normal(size=(40, 8)), cluster_id=np.repeat([0, 1], 20))` | `cluster_id`, `labels`, `n_components` |
+| <a id="recipe-pca_biplot"></a>`pca_biplot` | `pf.pca_biplot(rng.normal(size=(40, 5)), labels=np.repeat(["A", "B"], 20), variable_names=["V1", "V2", "V3", "V4", "V5"])` | `labels`, `variable_names`, `loading_panel` |
+| <a id="recipe-parallel_coordinates"></a>`parallel_coordinates` | `pf.parallel_coordinates(rng.uniform(size=(20, 4)), variable_names=["W", "X", "Y", "Z"])` | `variable_names`, `color_col`, `title` |
+
+##### 评估与 flow
+
+| 图 | 最小调用 | 常改参数 |
+|----|----------|----------|
+| <a id="recipe-roc"></a>`roc` | `pf.roc([np.array([0.0, 0.1, 0.3, 1.0])], [np.array([0.0, 0.7, 0.9, 1.0])], series_names=["Model A"])` | `series_names`, `baseline`, `title` |
+| <a id="recipe-pr_curve"></a>`pr_curve` | `pf.pr_curve([np.array([1.0, 0.9, 0.8, 0.6])], [np.array([0.1, 0.4, 0.7, 1.0])], series_names=["Model A"])` | `series_names`, `title`, `xlim` / `ylim` |
+| <a id="recipe-sankey"></a>`sankey` | `pf.sankey([0, 0, 1], [2, 3, 3], [10, 5, 8], node_names=["Input A", "Input B", "Path 1", "Outcome"])` | `node_names`, `title`, `color_palette` |
 
 对于 `bar_scatter(...)`，显著性标注相关的 spacing 参数现在统一使用更明确的按 orientation 命名：
 
