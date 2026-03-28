@@ -47,7 +47,7 @@ def main() -> None:
             (OUT / "01_bar_scatter_mpl").with_suffix(f".{suffix}"),
             spec="nature",
             width="single",
-            aspect_ratio=0.6,
+            aspect_ratio=0.75,
             raster_dpi=600,
             trim=True,
         )
@@ -76,7 +76,7 @@ def main() -> None:
             (OUT / "02_bar_scatter_horizontal_mpl").with_suffix(f".{suffix}"),
             spec="nature",
             width="single",
-            aspect_ratio=0.6,
+            aspect_ratio=0.75,
             raster_dpi=600,
             trim=True,
         )

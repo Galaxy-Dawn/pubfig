@@ -157,7 +157,7 @@ def add_significance_brackets(
 
     def _lane_step_multiplier(label: str) -> float:
         if str(label) == str(ns_label):
-            return 1.45
+            return 1.35
         if label_style == "stars":
             return 0.76
         return 1.0
@@ -228,7 +228,6 @@ def add_significance_brackets(
                 _, y_clear = ax.transData.inverted().transform((x_disp, y_disp + dy_px))
                 y_text = max(float(y_text), float(y_clear))
             label_x, label_y = category_center, float(y_text)
-            max_annotation_y = float(label_y) if max_annotation_y is None else max(max_annotation_y, float(label_y))
         else:
             # Horizontal orientation: bars extend along x, categories/groups are on y.
             if float(cap_len) <= 0:
@@ -336,11 +335,17 @@ def add_significance_brackets(
                 d_px = float(stars_marker_spacing_points) * float(fig.dpi) / 72.0
                 x_disp, y_disp = ax.transData.transform((float(label_x), float(label_y)))
                 inv = ax.transData.inverted()
+                renderer = fig.canvas.get_renderer()
+                desired_bottom_px = None
+                if orientation == "vertical":
+                    _, line_top_px = ax.transData.transform((category_center, float(y_line_top)))
+                    desired_bottom_px = float(line_top_px) + float(effective_clearance_points) * float(fig.dpi) / 72.0
                 for k in range(n):
                     offset = (float(k) - (float(n) - 1.0) / 2.0) * d_px
                     if orientation == "vertical":
                         xk, _ = inv.transform((x_disp + offset, y_disp))
-                        ax.scatter(
+                        xk_disp, yk_disp = ax.transData.transform((float(xk), float(label_y)))
+                        artist = ax.scatter(
                             [float(xk)],
                             [float(label_y)],
                             marker=stars_marker,
@@ -351,6 +356,23 @@ def add_significance_brackets(
                             clip_on=False,
                             zorder=11,
                         )
+                        if desired_bottom_px is not None:
+                            bbox = artist.get_window_extent(renderer=renderer)
+                            for _ in range(3):
+                                delta_px = float(desired_bottom_px) - float(bbox.y0)
+                                if delta_px <= 0.05:
+                                    break
+                                _, yk_new = inv.transform((xk_disp, yk_disp + float(delta_px)))
+                                artist.set_offsets(np.array([[float(xk), float(yk_new)]], dtype=float))
+                                fig.canvas.draw()
+                                _, yk_disp = ax.transData.transform((float(xk), float(yk_new)))
+                                bbox = artist.get_window_extent(renderer=renderer)
+                            _, y_top_data = inv.transform((xk_disp, float(bbox.y1)))
+                            max_annotation_y = (
+                                float(y_top_data)
+                                if max_annotation_y is None
+                                else max(float(max_annotation_y), float(y_top_data))
+                            )
                     else:
                         _, yk = inv.transform((x_disp, y_disp + offset))
                         ax.scatter(
@@ -371,7 +393,7 @@ def add_significance_brackets(
         text_rotation = float(label_rotation)
         text_rotation_mode = "default" if orientation == "horizontal" else "anchor"
 
-        ax.text(
+        text_artist = ax.text(
             float(label_x),
             float(label_y),
             text_label,
@@ -385,7 +407,36 @@ def add_significance_brackets(
             rotation_mode=str(text_rotation_mode),
             zorder=11,
         )
-        # max_annotation_y already updated above for orientation
+        try:
+            setattr(text_artist, "_pubfig_sig_label", True)
+            setattr(text_artist, "_pubfig_sig_bracket_top_data", float(y_line_top) if orientation == "vertical" else None)
+            setattr(text_artist, "_pubfig_sig_kind", "ns" if is_ns else ("stars" if is_stars_text else "text"))
+            setattr(text_artist, "_pubfig_sig_line_width_points", float(line_width))
+        except Exception:
+            pass
+        if orientation == "vertical":
+            fig = ax.figure
+            renderer = fig.canvas.get_renderer()
+            bbox = text_artist.get_window_extent(renderer=renderer)
+            _, line_top_px = ax.transData.transform((category_center, float(y_line_top)))
+            desired_bottom_px = float(line_top_px) + float(effective_clearance_points) * float(fig.dpi) / 72.0
+            x_text_disp, y_text_disp = ax.transData.transform((float(label_x), float(label_y)))
+            for _ in range(3):
+                delta_px = float(desired_bottom_px) - float(bbox.y0)
+                if delta_px <= 0.05:
+                    break
+                _, label_y_new = ax.transData.inverted().transform((x_text_disp, y_text_disp + float(delta_px)))
+                text_artist.set_position((float(label_x), float(label_y_new)))
+                fig.canvas.draw()
+                _, y_text_disp = ax.transData.transform((float(label_x), float(label_y_new)))
+                bbox = text_artist.get_window_extent(renderer=renderer)
+            x_top_disp, y_top_disp = bbox.x0, bbox.y1
+            _, y_top_data = ax.transData.inverted().transform((x_top_disp, y_top_disp))
+            max_annotation_y = (
+                float(y_top_data)
+                if max_annotation_y is None
+                else max(float(max_annotation_y), float(y_top_data))
+            )
 
     if bar_centers is not None:
         bc = np.asarray(bar_centers, dtype=float)
