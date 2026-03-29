@@ -48,12 +48,14 @@
 ### 精选展示
 
 <p align="center">
-  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="48%" alt="Bar scatter 示例"></a>
-  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="48%" alt="Raincloud 示例"></a>
+  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="32%" alt="Bar scatter 示例"></a>
+  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="32%" alt="Raincloud 示例"></a>
+  <a href="examples/line.png"><img src="examples/line.png" width="32%" alt="Line 示例"></a>
 </p>
 <p align="center">
-  <a href="examples/line.png"><img src="examples/line.png" width="48%" alt="Line 示例"></a>
-  <a href="examples/radar.png"><img src="examples/radar.png" width="48%" alt="Radar 示例"></a>
+  <a href="examples/composite-showcase-benchmark.png"><img src="examples/composite-showcase-benchmark.png" width="32%" alt="在 Figma 中拼接的 benchmark 大图示例"></a>
+  <a href="examples/composite-showcase-intervention.png"><img src="examples/composite-showcase-intervention.png" width="32%" alt="在 Figma 中拼接的 intervention 大图示例"></a>
+  <a href="examples/composite-showcase-stratification.png"><img src="examples/composite-showcase-stratification.png" width="32%" alt="在 Figma 中拼接的 stratification 大图示例"></a>
 </p>
 
 <details>
@@ -435,7 +437,7 @@ palette = pf.get_palette("carto_blugrn")
 
 - `examples/gallery.py` —— 快速浏览支持的图类型
 - `examples/export_gallery.py` —— 把图库导出到 `output_figures/`
-- `examples/figma_panels_demo.py` —— 导出多个 pubfig 面板给 Figma 使用
+- `examples/export_composite_showcases_panels.py` —— 导出面板优先的 composite showcases，并推到 Figma 做整图拼接
 - `examples/figma_workflow_demo.md` —— 面板优先的 pubfig → Figma 工作流说明
 - `examples/generate_palette_gallery.py` —— 重新生成调色板预览图与图库文档
 - `examples/README.md` —— 这个目录的保留 / 生成 / 清理清单

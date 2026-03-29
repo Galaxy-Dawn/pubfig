@@ -7,7 +7,7 @@ This directory is intentionally split into two kinds of files:
 - `gallery.py` — quick visual walkthrough of supported plot families
 - `export_gallery.py` — regenerates the featured gallery images used in the root README
 - `export_gallery_mpl.py` — focused Matplotlib export examples
-- `figma_panels_demo.py` — exports a small deterministic panel set for `pubfig figma push`
+- `export_composite_showcases_panels.py` — exports the panel-first composite showcases that are pushed into Figma and shown in the root README
 - `figma_workflow_demo.md` — panel-first pubfig → Figma walkthrough
 - `generate_palette_gallery.py` — regenerates the palette preview sheets and palette docs
 
@@ -24,6 +24,14 @@ and palette docs link to them directly.
 - `radar.png`
 - `gallery-hero.png`
 
+### Composite figure assets
+
+These are the latest Figma-assembled screenshots tracked for the root README.
+
+- `composite-showcase-benchmark.png`
+- `composite-showcase-intervention.png`
+- `composite-showcase-stratification.png`
+
 ### Palette assets
 
 - `palettes/featured-palettes.png`
@@ -37,10 +45,10 @@ and palette docs link to them directly.
 ```bash
 python examples/export_gallery.py
 python examples/generate_palette_gallery.py
-python examples/figma_panels_demo.py
+python examples/export_composite_showcases_panels.py
 ```
 
 ## Notes
 
-- Files under ignored output folders such as `figma_panels_demo_output/` are local generated artifacts, not canonical examples.
+- Cached folders such as `__pycache__/` are local artifacts and are not part of the canonical examples set.
 - `gallery_contact_sheet.py` is an internal helper used by `export_gallery.py`.
