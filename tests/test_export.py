@@ -310,6 +310,29 @@ def test_export_panels_writes_index_file(tmp_path):
     plt.close(fig_b)
 
 
+def test_export_panels_writes_custom_labels_to_index(tmp_path):
+    fig_a = _make_simple_fig()
+    fig_b = _make_simple_fig()
+    fig_c = _make_simple_fig()
+
+    export_panels(
+        {
+            "a1": fig_a,
+            "a2": fig_b,
+            "a3": fig_c,
+        },
+        tmp_path,
+        index_file=True,
+        labels=["a", "a", "a"],
+    )
+
+    payload = json.loads((tmp_path / "panel-index.json").read_text(encoding="utf-8"))
+    assert [item["label"] for item in payload["records"]] == ["a", "a", "a"]
+    plt.close(fig_a)
+    plt.close(fig_b)
+    plt.close(fig_c)
+
+
 def test_export_panels_rejects_duplicate_ids(tmp_path):
     fig_a = _make_simple_fig()
     fig_b = _make_simple_fig()
@@ -318,3 +341,11 @@ def test_export_panels_rejects_duplicate_ids(tmp_path):
         export_panels([("dup", fig_a), ("dup", fig_b)], tmp_path)
     plt.close(fig_a)
     plt.close(fig_b)
+
+
+def test_export_panels_rejects_unknown_label_mapping_keys(tmp_path):
+    fig = _make_simple_fig()
+
+    with pytest.raises(ValueError, match="unknown panel ids"):
+        export_panels({"a": fig}, tmp_path, labels={"missing": "a"})
+    plt.close(fig)

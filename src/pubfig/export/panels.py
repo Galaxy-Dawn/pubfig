@@ -33,6 +33,7 @@ class PanelExportRecord:
     figma_node_name: str
     pubfig_version: str
     title: str | None = None
+    label: str | None = None
 
 
 def _utc_now_iso() -> str:
@@ -165,6 +166,32 @@ def _coerce_panels(
     return normalized
 
 
+def _resolve_panel_labels(
+    labels: Mapping[str, str | None] | Sequence[str | None] | None,
+    normalized: Sequence[tuple[str, Figure]],
+) -> dict[str, str | None]:
+    panel_ids = [panel_id for panel_id, _ in normalized]
+    if labels is None:
+        return {panel_id: None for panel_id in panel_ids}
+
+    if isinstance(labels, Mapping):
+        unknown = sorted(set(labels) - set(panel_ids))
+        if unknown:
+            raise ValueError(f"labels contains unknown panel ids: {unknown}")
+        return {
+            panel_id: (None if labels.get(panel_id) is None else str(labels.get(panel_id)))
+            for panel_id in panel_ids
+        }
+
+    label_values = list(labels)
+    if len(label_values) != len(panel_ids):
+        raise ValueError("labels sequence must have the same length as panels")
+    return {
+        panel_id: (None if label is None else str(label))
+        for panel_id, label in zip(panel_ids, label_values)
+    }
+
+
 def _write_panel_index(records: Sequence[PanelExportRecord], out_dir: str | Path) -> Path:
     output_dir = Path(out_dir).expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -193,6 +220,7 @@ def export_panel(
     svg_fonttype: str = "none",
     include_title: bool = False,
     overwrite: bool = False,
+    label: str | None = None,
 ) -> PanelExportRecord:
     """Export a single panel asset plus minimal Figma sync metadata.
 
@@ -239,6 +267,7 @@ def export_panel(
         figma_node_name=_default_figma_node_name(panel_name),
         pubfig_version=__version__,
         title=panel_title,
+        label=panel_name if label is None else str(label),
     )
 
 
@@ -256,10 +285,12 @@ def export_panels(
     svg_fonttype: str = "none",
     include_title: bool = False,
     overwrite: bool = False,
+    labels: Mapping[str, str | None] | Sequence[str | None] | None = None,
 ) -> list[PanelExportRecord]:
     """Export multiple panel assets and optionally write a minimal sync index."""
 
     normalized = _coerce_panels(panels)
+    resolved_labels = _resolve_panel_labels(labels, normalized)
     records = [
         export_panel(
             fig,
@@ -274,6 +305,7 @@ def export_panels(
             svg_fonttype=svg_fonttype,
             include_title=include_title,
             overwrite=overwrite,
+            label=resolved_labels[panel_id],
         )
         for panel_id, fig in normalized
     ]

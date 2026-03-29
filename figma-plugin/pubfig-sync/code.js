@@ -2,12 +2,14 @@ const FIGURE_KEY = "pubfigFigureId";
 const PANEL_KEY = "pubfigPanelId";
 const PANEL_ROW_KEY = "pubfigPanelRow";
 const PANEL_COLUMN_KEY = "pubfigPanelColumn";
+const PANEL_LABEL_VISIBLE_KEY = "pubfigPanelLabelVisible";
+const PANEL_LABEL_RESERVED_KEY = "pubfigPanelLabelReserved";
 const ROLE_KEY = "pubfigRole";
 const SOURCE_KEY = "pubfigSourcePath";
 const VERSION_KEY = "pubfigVersion";
 const LAYOUT_PRESET_KEY = "pubfigLayoutPreset";
 const PANEL_GAP_KEY = "pubfigPanelGap";
-const PLUGIN_VERSION = "0.4.11";
+const PLUGIN_VERSION = "0.4.14";
 const PANEL_BUNDLE_TYPE = "pubfig_figma_bundle";
 
 const PANEL_PADDING = 2;
@@ -150,9 +152,55 @@ function getPanelTitle(panel) {
   return title;
 }
 
-function getPanelLabelText(panel, labelSettings) {
-  const label = String(panel.label || panel.panel_id).trim();
-  return label;
+function getRawPanelLabelText(panel) {
+  if (panel && Object.prototype.hasOwnProperty.call(panel, "label")) {
+    return String(withDefault(panel.label, "")).trim();
+  }
+  return String(panel && panel.panel_id ? panel.panel_id : "").trim();
+}
+
+function getEffectivePanelLabelTextById(bundle) {
+  const result = new Map();
+  let previousLabel = null;
+  for (const panel of bundle.panels || []) {
+    const panelId = String(panel.panel_id || "");
+    const rawLabel = getRawPanelLabelText(panel);
+    if (!panelId) {
+      continue;
+    }
+    if (!rawLabel) {
+      result.set(panelId, "");
+      previousLabel = null;
+      continue;
+    }
+    if (rawLabel === previousLabel) {
+      result.set(panelId, "");
+      continue;
+    }
+    result.set(panelId, rawLabel);
+    previousLabel = rawLabel;
+  }
+  return result;
+}
+
+function isPanelLabelVisible(frame, labelSettings) {
+  return Boolean(
+    labelSettings
+    && labelSettings.enabled
+    && frame
+    && typeof frame.getPluginData === "function"
+    && frame.getPluginData(PANEL_LABEL_VISIBLE_KEY) === "1",
+  );
+}
+
+function isPanelLabelReserved(frame, labelSettings) {
+  return Boolean(
+    labelSettings
+    && labelSettings.enabled
+    && frame
+    && typeof frame.getPluginData === "function"
+    && frame.getPluginData(PANEL_LABEL_RESERVED_KEY) === "1",
+  );
 }
 
 function getRoleNode(root, role) {
@@ -189,16 +237,16 @@ function getNodeHeight(node, fallback) {
 }
 
 function getPanelSlotWidth(frame, labelSettings) {
-  return getNodeWidth(frame, DEFAULT_PANEL_WIDTH) + (labelSettings && labelSettings.enabled ? labelSettings.offsetX : 0);
+  return getNodeWidth(frame, DEFAULT_PANEL_WIDTH) + (isPanelLabelReserved(frame, labelSettings) ? labelSettings.offsetX : 0);
 }
 
 function getPanelSlotHeight(frame, labelSettings) {
-  return getNodeHeight(frame, DEFAULT_PANEL_HEIGHT) + (labelSettings && labelSettings.enabled ? labelSettings.offsetY : 0);
+  return getNodeHeight(frame, DEFAULT_PANEL_HEIGHT) + (isPanelLabelReserved(frame, labelSettings) ? labelSettings.offsetY : 0);
 }
 
 function placePanelFrameAtSlot(frame, slotX, slotY, rowIndex, columnIndex, labelSettings) {
-  const insetX = labelSettings && labelSettings.enabled ? labelSettings.offsetX : 0;
-  const insetY = labelSettings && labelSettings.enabled ? labelSettings.offsetY : 0;
+  const insetX = isPanelLabelReserved(frame, labelSettings) ? labelSettings.offsetX : 0;
+  const insetY = isPanelLabelReserved(frame, labelSettings) ? labelSettings.offsetY : 0;
   frame.x = slotX + insetX;
   frame.y = slotY + insetY;
   frame.setPluginData(PANEL_ROW_KEY, String(rowIndex));
@@ -360,10 +408,6 @@ function ensurePanelFrame(root, panel, mode) {
     existing.clipsContent = false;
     return existing;
   }
-  if (mode !== "import") {
-    throw new Error(`Could not find existing panel frame for panel_id "${panelId}" during refresh.`);
-  }
-
   const frame = figma.createFrame();
   frame.name = String(panel.figma_node_name || `panel/${panelId}`);
   frame.layoutMode = "NONE";
@@ -385,15 +429,21 @@ function removePanelContent(frame) {
   }
 }
 
-async function ensurePanelLabel(frame, panel, fontReady, labelSettings) {
+async function ensurePanelLabel(frame, panel, labelText, fontReady, labelSettings) {
   let labelNode = getDirectChildByPluginData(frame, PANEL_KEY, `${panel.panel_id}:label`);
-  if (!labelSettings.enabled) {
+  const finalLabelText = String(withDefault(labelText, "")).trim();
+  const rawLabelText = getRawPanelLabelText(panel);
+  const reserveLabelSpace = Boolean(labelSettings.enabled && rawLabelText);
+  frame.setPluginData(PANEL_LABEL_RESERVED_KEY, reserveLabelSpace ? "1" : "0");
+  if (!labelSettings.enabled || !finalLabelText) {
     if (labelNode) {
       labelNode.remove();
     }
+    frame.setPluginData(PANEL_LABEL_VISIBLE_KEY, "0");
     return null;
   }
   if (!fontReady) {
+    frame.setPluginData(PANEL_LABEL_VISIBLE_KEY, "0");
     return null;
   }
 
@@ -410,12 +460,13 @@ async function ensurePanelLabel(frame, panel, fontReady, labelSettings) {
     await figma.loadFontAsync(labelNode.fontName);
   }
 
-  labelNode.characters = getPanelLabelText(panel, labelSettings);
+  labelNode.characters = finalLabelText;
+  frame.setPluginData(PANEL_LABEL_VISIBLE_KEY, "1");
   frame.appendChild(labelNode);
   return labelNode;
 }
 
-async function upsertPanelFrame(frame, panel, fontReady, mode, fitContent, labelSettings) {
+async function upsertPanelFrame(frame, panel, labelText, fontReady, mode, fitContent, labelSettings) {
   const previousGeometry = {
     x: frame.x,
     y: frame.y,
@@ -430,7 +481,7 @@ async function upsertPanelFrame(frame, panel, fontReady, mode, fitContent, label
   svgNode.setPluginData(ROLE_KEY, "panel-content");
   frame.appendChild(svgNode);
 
-  const labelNode = await ensurePanelLabel(frame, panel, fontReady, labelSettings);
+  const labelNode = await ensurePanelLabel(frame, panel, labelText, fontReady, labelSettings);
   const naturalWidth = Math.max(260, Math.ceil(getNodeWidth(svgNode, DEFAULT_PANEL_WIDTH)) + PANEL_PADDING * 2);
   const naturalHeight = Math.max(
     200,
@@ -556,6 +607,7 @@ function getPanelGridPosition(frame, fallbackIndex) {
 async function applyPanelLabels(root, bundle, panelFrames, fontReady) {
   const labelSettings = getPanelLabelSettings(bundle);
   const panelById = new Map((bundle.panels || []).map((panel) => [String(panel.panel_id), panel]));
+  const labelTextById = getEffectivePanelLabelTextById(bundle);
   const labelNodes = [];
   const columnBaselineX = new Map();
   const rowBaselineY = new Map();
@@ -569,7 +621,13 @@ async function applyPanelLabels(root, bundle, panelFrames, fontReady) {
       continue;
     }
 
-    const labelNode = await ensurePanelLabel(frame, panel, fontReady, labelSettings);
+    const labelNode = await ensurePanelLabel(
+      frame,
+      panel,
+      labelTextById.get(panelId) || "",
+      fontReady,
+      labelSettings,
+    );
     if (!labelNode) {
       continue;
     }
@@ -848,8 +906,8 @@ function computeManagedRootBounds(root, labelSettings) {
 
   const entries = nodes.map((node) => {
     const isPanelFrame = node.type === "FRAME" && typeof node.getPluginData === "function" && Boolean(node.getPluginData(PANEL_KEY));
-    const insetX = isPanelFrame && labelSettings && labelSettings.enabled ? labelSettings.offsetX : 0;
-    const insetY = isPanelFrame && labelSettings && labelSettings.enabled ? labelSettings.offsetY : 0;
+    const insetX = isPanelFrame && isPanelLabelReserved(node, labelSettings) ? labelSettings.offsetX : 0;
+    const insetY = isPanelFrame && isPanelLabelReserved(node, labelSettings) ? labelSettings.offsetY : 0;
     const x = Number(node.x) || 0;
     const y = Number(node.y) || 0;
     return {
@@ -1046,10 +1104,19 @@ async function importBundle(bundle, mode, relayout) {
   const { root } = await ensureRootFrame(bundle, finalMode);
   const fitContent = finalMode === "import" || Boolean(relayout);
   const labelSettings = getPanelLabelSettings(bundle);
+  const labelTextById = getEffectivePanelLabelTextById(bundle);
 
   for (const panel of bundle.panels || []) {
     const frame = ensurePanelFrame(root, panel, finalMode);
-    await upsertPanelFrame(frame, panel, fontReady, finalMode, fitContent, labelSettings);
+    await upsertPanelFrame(
+      frame,
+      panel,
+      labelTextById.get(String(panel.panel_id)) || "",
+      fontReady,
+      finalMode,
+      fitContent,
+      labelSettings,
+    );
   }
 
   await applyPlaceholdersAndLayout(root, bundle, finalMode, relayout, fontReady);

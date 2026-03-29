@@ -92,7 +92,9 @@ def _validate_panel_index_payload(payload: dict[str, Any], panel_dir: Path) -> l
                 "source_path": str(panel_path),
                 "exported_at": str(record.get("exported_at", "")),
                 "pubfig_version": str(record.get("pubfig_version", __version__)),
-                "label": panel_id,
+                "label": (None if record.get("label") is None else str(record.get("label")))
+                if "label" in record
+                else panel_id,
                 "title": str(record.get("title", "")).strip(),
                 "svg": svg_text,
             }

@@ -52,6 +52,28 @@ def test_package_figma_bundle_from_panel_dir(tmp_path):
     plt.close(fig_b)
 
 
+def test_package_figma_bundle_preserves_duplicate_group_labels(tmp_path):
+    fig_a = _make_simple_fig("A")
+    fig_b = _make_simple_fig("B")
+    fig_c = _make_simple_fig("C")
+    panel_dir = tmp_path / "panels"
+    export_panels(
+        {"p1": fig_a, "p2": fig_b, "p3": fig_c},
+        panel_dir,
+        overwrite=True,
+        labels=["a", "a", "a"],
+    )
+
+    bundle_path = package_figma_bundle(panel_dir, figure_id="figure-grouped-labels")
+    payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+
+    assert [panel["label"] for panel in payload["panels"]] == ["a", "a", "a"]
+
+    plt.close(fig_a)
+    plt.close(fig_b)
+    plt.close(fig_c)
+
+
 def test_validate_and_inspect_figma_bundle(tmp_path):
     fig_a = _make_simple_fig("A")
     panel_dir = tmp_path / "panels"
