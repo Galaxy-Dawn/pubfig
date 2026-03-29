@@ -3,6 +3,13 @@
 import numpy as np
 import pubfig as pf
 
+from new_plot_showcases import (
+    make_dumbbell_demo as make_dumbbell_showcase,
+    make_forest_demo as make_forest_showcase,
+    make_hexbin_demo as make_hexbin_showcase,
+    make_volcano_demo as make_volcano_showcase,
+)
+
 pf.set_default_theme("nature")
 rng = np.random.default_rng(7)
 
@@ -289,7 +296,51 @@ x_scatter, y_scatter, scatter_labels = make_scatter_demo()
 fig = pf.scatter(x_scatter, y_scatter, labels=scatter_labels, title="Scatter")
 fig.show()
 
+hexbin_x, hexbin_y = make_hexbin_showcase()
+fig = pf.hexbin(
+    hexbin_x,
+    hexbin_y,
+    gridsize=32,
+    log_color_scale=True,
+    show_y_equal_x=True,
+    x_label="Baseline biomarker score",
+    y_label="Follow-up biomarker score",
+    title="Hexbin",
+)
+fig.show()
+
 fig = pf.paired(np.array([1, 2, 3, 4]), np.array([1.5, 2.8, 2.9, 4.5]), title="Paired")
+fig.show()
+
+dumbbell_start, dumbbell_end, dumbbell_labels = make_dumbbell_showcase()
+fig = pf.dumbbell(
+    dumbbell_start,
+    dumbbell_end,
+    category_names=dumbbell_labels,
+    left_label="Baseline model",
+    right_label="Fine-tuned model",
+    sort_by="delta",
+    sort_desc=True,
+    show_delta_labels=True,
+    x_label="Held-out performance",
+    title="Dumbbell",
+)
+fig.show()
+
+forest_effect, forest_ci_low, forest_ci_high, forest_labels, forest_groups, forest_summary, forest_right = make_forest_showcase()
+fig = pf.forest_plot(
+    forest_effect,
+    forest_ci_low,
+    forest_ci_high,
+    labels=forest_labels,
+    group_labels=forest_groups,
+    right_labels=forest_right,
+    is_summary=forest_summary,
+    reference=1.0,
+    x_scale="log",
+    x_label="Odds ratio",
+    title="Forest Plot",
+)
 fig.show()
 
 # Heatmap
@@ -355,6 +406,19 @@ fig.show()
 # Precision-Recall curve
 prec, rec, pr_names = make_pr_demo()
 fig = pf.pr_curve(prec, rec, series_names=pr_names, title="PR Curve")
+fig.show()
+
+volcano_fc, volcano_p, volcano_labels = make_volcano_showcase()
+fig = pf.volcano(
+    volcano_fc,
+    volcano_p,
+    labels=volcano_labels,
+    fc_threshold=1.0,
+    p_threshold=0.05,
+    label_top_n=8,
+    label_fc_min=1.4,
+    title="Volcano",
+)
 fig.show()
 
 # Sankey diagram
