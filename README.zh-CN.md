@@ -6,6 +6,8 @@
 
   <p>
     <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+"/>
+    <a href="https://pypi.org/project/pubfig/"><img src="https://img.shields.io/pypi/v/pubfig?style=flat-square&logo=pypi&logoColor=white" alt="PyPI version"/></a>
+    <a href="https://pypi.org/project/pubfig/"><img src="https://img.shields.io/badge/pip%20install-pubfig-3775A9?style=flat-square&logo=pypi&logoColor=white" alt="pip install pubfig"/></a>
     <img src="https://img.shields.io/badge/Matplotlib-3.8%2B-11557C?style=flat-square" alt="Matplotlib 3.8+"/>
     <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License"/>
     <a href="https://github.com/Galaxy-Dawn/pubfig"><img src="https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=flat-square" alt="GitHub Stars"/></a>
