@@ -1,4 +1,4 @@
-"""pubfig: Publication-quality figures with Matplotlib."""
+"""pubfig: Publication-style plots, panel exports, and Figma handoff for paper figures."""
 
 from ._version import __version__
 from .colors import (

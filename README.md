@@ -17,18 +17,23 @@
 
 </div>
 
-> Publication-ready scientific plotting with Matplotlib.
+> Publication-style figures for papers, from single plots to panel-first Figma assembly.
+
+`pubfig` is a Matplotlib-native plotting library for researchers who want figures that already look close to the final paper figure. It combines common scientific plot families, journal-aware export, and a panel-first Figma workflow for assembling large multi-panel figures without rebuilding artwork by hand.
+
+**Project links**: [PyPI](https://pypi.org/project/pubfig/) · [GitHub](https://github.com/Galaxy-Dawn/pubfig) · [Examples](examples/)
 
 ## Highlights
 
-- **Publication-Style Defaults** — Compact titles, cleaner legends, explicit font handling, and line weights that read more like finished paper figures.
-- **One Library for Common Figure Types** — Statistical plots, distribution plots, dimensionality-reduction plots, evaluation curves, heatmaps, and flow plots in one API surface.
-- **Export Specs Without Boilerplate** — `save_figure(...)` directly handles `single`/`double` column widths, explicit output suffixes, raster DPI, and trimming.
-- **Matplotlib-Native Workflow** — Plot functions return Matplotlib `Figure` objects, so existing analysis scripts remain easy to integrate.
-- **Explicit Layout Controls** — Fine-grained control over tick direction, box/grid visibility, palettes, legends, and plot-specific layout options.
+- **Paper-Ready Defaults, Not a Blank Canvas** — Titles, legends, fonts, line widths, and spacing start from a more publication-like baseline.
+- **Common Scientific Plot Families in One API** — Statistical plots, distributions, trends, dimensionality reduction, evaluation curves, heatmaps, and flow plots live in one consistent surface.
+- **Journal-Aware Export Without Boilerplate** — `save_figure(...)` and `batch_export(...)` handle explicit output suffixes, column widths, DPI, and trimming directly.
+- **Panel-First Workflow for Composite Figures** — Export clean subplot assets, then assemble and refresh full figures in Figma instead of re-drawing panels manually.
+- **Matplotlib-Native and Script-Friendly** — Plot functions return standard Matplotlib `Figure` objects, so they drop into existing analysis code easily.
 
 ## Recent News
 
+- **2026-03-29**: `pubfig 0.2.0` is now live on PyPI — install with `pip install pubfig`, use explicit output suffixes such as `figure.pdf` / `figure.png`, and start from the push-first Figma workflow documented below.
 - **2026-03-25**: Panel-first Figma loop polish — panel export now defaults to title-free assets for cleaner Figma assembly, `pubfig-sync` now keeps shared title / legend placeholders off by default, and bridge/watch flows now surface bundle provenance plus the exact manual-fallback bundle path.
 - **2026-03-20**: Local bridge automation for Figma sync — added a bridge-backed `pubfig figma bridge|sync|watch` workflow, upgraded `pubfig-sync` with bridge connection mode, and enabled CLI-triggered vector import/refresh after one-time plugin connection.
 - **2026-03-20**: Figma plugin v2 workflow polish — added `auto` / `hero_top` relayout presets, upgraded shared title / legend placeholders, and improved refresh behavior so manual Figma positioning is preserved more reliably unless relayout is requested.

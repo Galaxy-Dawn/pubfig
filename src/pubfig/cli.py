@@ -403,7 +403,7 @@ def _handle_watch(args: argparse.Namespace) -> int:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="pubfig", description="Publication-ready plotting with Matplotlib.")
+    parser = argparse.ArgumentParser(prog="pubfig", description="Publication-style plots, panel exports, and Figma handoff for paper figures.")
     parser.add_argument("--version", action="version", version=f"pubfig {__version__}")
 
     subparsers = parser.add_subparsers(dest="command", required=True)

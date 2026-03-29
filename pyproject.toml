@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "pubfig"
 dynamic = ["version"]
-description = "Publication-ready scientific plotting with Matplotlib"
+description = "Publication-style scientific plots, panel exports, and Figma handoff for paper figures"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
@@ -40,6 +40,9 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/Galaxy-Dawn/pubfig"
 Repository = "https://github.com/Galaxy-Dawn/pubfig"
+Documentation = "https://github.com/Galaxy-Dawn/pubfig/blob/main/README.md"
+Changelog = "https://github.com/Galaxy-Dawn/pubfig/blob/main/README.md#recent-news"
+PyPI = "https://pypi.org/project/pubfig/"
 Issues = "https://github.com/Galaxy-Dawn/pubfig/issues"
 
 [project.scripts]
