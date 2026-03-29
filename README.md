@@ -67,6 +67,17 @@
   <a href="examples/heatmap.png"><img src="examples/heatmap.png" width="32%" alt="Heatmap example"></a>
 </p>
 
+#### New plot families
+
+<p align="center">
+  <a href="examples/dumbbell.png"><img src="examples/dumbbell.png" width="48%" alt="Dumbbell example"></a>
+  <a href="examples/forest_plot.png"><img src="examples/forest_plot.png" width="48%" alt="Forest plot example"></a>
+</p>
+<p align="center">
+  <a href="examples/hexbin.png"><img src="examples/hexbin.png" width="48%" alt="Hexbin example"></a>
+  <a href="examples/volcano.png"><img src="examples/volcano.png" width="48%" alt="Volcano example"></a>
+</p>
+
 #### Composite figure examples assembled in Figma
 
 <p align="center">
@@ -189,6 +200,8 @@ import pubfig as pf
 | <a id="recipe-bar-scatter"></a>`bar_scatter` | `pf.bar_scatter(np.clip(np.random.default_rng(0).normal(loc=np.array([[0.78, 0.96], [0.88, 1.08], [0.84, 1.00]])[..., None], scale=0.08, size=(3, 2, 18)), 0.0, None))` | `category_names`, `series_names`, `show_statistics` |
 | <a id="recipe-stacked_bar"></a>`stacked_bar` | `pf.stacked_bar(np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float), group_names=["Batch 1", "Batch 2"])` | `group_names`, `normalize`, `title` |
 | <a id="recipe-paired"></a>`paired` | `pf.paired(np.array([1.0, 2.0, 2.5, 3.0]), np.array([1.3, 2.1, 2.9, 3.2]))` | `x_labels`, `y_label`, `title` |
+| <a id="recipe-dumbbell"></a>`dumbbell` | `pf.dumbbell(np.array([0.72, 0.81, 0.77]), np.array([0.79, 0.86, 0.83]), category_names=["Metric A", "Metric B", "Metric C"])` | `left_label`, `right_label`, `sort_by` |
+| <a id="recipe-forest_plot"></a>`forest_plot` | `pf.forest_plot(np.array([1.12, 0.84, 1.36]), np.array([0.98, 0.71, 1.10]), np.array([1.29, 0.99, 1.68]), labels=["Age", "BMI", "Smoking"], reference=1.0)` | `reference`, `group_labels`, `right_labels` |
 
 ##### Distribution
 
@@ -211,6 +224,7 @@ import pubfig as pf
 | <a id="recipe-scatter"></a>`scatter` | `pf.scatter(np.random.default_rng(0).normal(size=60), np.random.default_rng(1).normal(size=60))` | `labels`, `x_label`, `y_label` |
 | <a id="recipe-bubble"></a>`bubble` | `pf.bubble(np.random.default_rng(0).normal(size=30), np.random.default_rng(1).normal(size=30), np.random.default_rng(2).uniform(1, 10, size=30))` | `labels`, `size_label`, `title` |
 | <a id="recipe-contour2d"></a>`contour2d` | `pf.contour2d(np.random.default_rng(0).normal(size=500), np.random.default_rng(1).normal(size=500))` | `bins`, `colorscale`, `title` |
+| <a id="recipe-hexbin"></a>`hexbin` | `pf.hexbin(np.random.default_rng(0).normal(size=4000), 0.7 * np.random.default_rng(0).normal(size=4000) + 0.5 * np.random.default_rng(1).normal(size=4000), gridsize=28)` | `gridsize`, `log_color_scale`, `reduce` |
 | <a id="recipe-radar"></a>`radar` | `pf.radar([[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]], categories=["Speed", "Accuracy", "Recall", "Stability"], series_names=["Model A", "Model B"])` | `categories`, `series_names`, `title` |
 
 ##### Matrix and multivariate
@@ -230,6 +244,7 @@ import pubfig as pf
 |------|--------------|------------------------|
 | <a id="recipe-roc"></a>`roc` | `pf.roc([np.array([0.0, 0.1, 0.3, 1.0])], [np.array([0.0, 0.7, 0.9, 1.0])], series_names=["Model A"])` | `series_names`, `baseline`, `title` |
 | <a id="recipe-pr_curve"></a>`pr_curve` | `pf.pr_curve([np.array([1.0, 0.9, 0.8, 0.6])], [np.array([0.1, 0.4, 0.7, 1.0])], series_names=["Model A"])` | `series_names`, `title`, `xlim` / `ylim` |
+| <a id="recipe-volcano"></a>`volcano` | `pf.volcano(np.random.default_rng(0).normal(size=300), np.random.default_rng(1).uniform(1e-4, 1.0, size=300), fc_threshold=1.0, p_threshold=0.05)` | `fc_threshold`, `p_threshold`, `labels` |
 | <a id="recipe-sankey"></a>`sankey` | `pf.sankey([0, 0, 1], [2, 3, 3], [10, 5, 8], node_names=["Input A", "Input B", "Path 1", "Outcome"])` | `node_names`, `title`, `color_palette` |
 
 For `bar_scatter(...)`, significance spacing parameters now follow explicit orientation-based names:
@@ -346,6 +361,8 @@ orchestrate the panel export → Figma import → MCP review loop.
 | `bar_scatter` | Grouped bar chart with raw points and significance annotations | [recipe](#recipe-bar-scatter) |
 | `stacked_bar` | Horizontal stacked bar chart | [recipe](#recipe-stacked_bar) |
 | `paired` | Paired dot plot | [recipe](#recipe-paired) |
+| `dumbbell` | Connected paired comparison plot | [recipe](#recipe-dumbbell) |
+| `forest_plot` | Effect-size plot with confidence intervals | [recipe](#recipe-forest_plot) |
 
 ### Distribution Plots
 
@@ -368,6 +385,7 @@ orchestrate the panel export → Figma import → MCP review loop.
 | `scatter` | Scatter plot with optional grouped workflow | [recipe](#recipe-scatter) |
 | `bubble` | Bubble chart | [recipe](#recipe-bubble) |
 | `contour2d` | 2D contour plot with marginals | [recipe](#recipe-contour2d) |
+| `hexbin` | Dense-scatter hexbin plot | [recipe](#recipe-hexbin) |
 | `radar` | Radar chart | [recipe](#recipe-radar) |
 
 ### Matrix, Embedding, and Multivariate Plots
@@ -387,6 +405,7 @@ orchestrate the panel export → Figma import → MCP review loop.
 |----------|-------------|--------|
 | `roc` | ROC curve with AUC | [recipe](#recipe-roc) |
 | `pr_curve` | Precision-Recall curve with AP | [recipe](#recipe-pr_curve) |
+| `volcano` | Volcano plot for effect size vs significance | [recipe](#recipe-volcano) |
 | `sankey` | Sankey diagram | [recipe](#recipe-sankey) |
 
 ## Themes, Specs, and Palettes

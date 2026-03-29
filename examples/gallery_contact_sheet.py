@@ -13,9 +13,10 @@ _GALLERY_ROWS: tuple[tuple[str, ...], ...] = (
     ("04_box", "05_violin", "06_density", "07_histogram"),
     ("08_strip", "08b_raincloud", "09_ridgeline", "10_line"),
     ("11_line_ci", "12_area", "13_scatter", "14_bubble"),
-    ("15_contour2d", "16_paired", "17_radar", "18_heatmap"),
-    ("19_confusion_matrix", "20_corr_matrix", "21_clustermap", "24_roc"),
-    ("25_pr_curve", "26_sankey", "27_parallel_coords"),
+    ("15_contour2d", "15b_hexbin", "16_paired", "16b_dumbbell"),
+    ("16c_forest_plot", "17_radar", "18_heatmap", "19_confusion_matrix"),
+    ("20_corr_matrix", "21_clustermap", "24_roc", "25_pr_curve"),
+    ("25b_volcano", "26_sankey", "27_parallel_coords"),
 )
 
 _CELL_WIDTH = 560

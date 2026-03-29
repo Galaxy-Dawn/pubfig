@@ -21,7 +21,13 @@ FEATURED_EXPORTS = {
     "03_bar_scatter.png": ROOT / "examples" / "bar_scatter.png",
     "08b_raincloud.png": ROOT / "examples" / "raincloud.png",
     "10_line.png": ROOT / "examples" / "line.png",
+    "13_scatter.png": ROOT / "examples" / "scatter.png",
     "17_radar.png": ROOT / "examples" / "radar.png",
+    "18_heatmap.png": ROOT / "examples" / "heatmap.png",
+    "16b_dumbbell.png": ROOT / "examples" / "dumbbell.png",
+    "16c_forest_plot.png": ROOT / "examples" / "forest_plot.png",
+    "15b_hexbin.png": ROOT / "examples" / "hexbin.png",
+    "25b_volcano.png": ROOT / "examples" / "volcano.png",
 }
 OUT.mkdir(parents=True, exist_ok=True)
 rng = np.random.default_rng(7)
@@ -211,6 +217,36 @@ def make_stacked_bar_demo() -> tuple[np.ndarray, list[str]]:
     return data, ["Batch 1", "Batch 2", "Batch 3"]
 
 
+def make_dumbbell_demo() -> tuple[np.ndarray, np.ndarray, list[str]]:
+    start = np.array([0.72, 0.81, 0.77, 0.69, 0.74], dtype=float)
+    end = np.array([0.79, 0.86, 0.83, 0.78, 0.82], dtype=float)
+    labels = ["Metric A", "Metric B", "Metric C", "Metric D", "Metric E"]
+    return start, end, labels
+
+
+def make_forest_demo() -> tuple[np.ndarray, np.ndarray, np.ndarray, list[str], list[str], list[bool]]:
+    effect = np.array([1.12, 0.84, 1.36, 1.08, 0.91, 1.18], dtype=float)
+    ci_low = np.array([0.98, 0.71, 1.10, 0.93, 0.78, 1.01], dtype=float)
+    ci_high = np.array([1.29, 0.99, 1.68, 1.24, 1.06, 1.38], dtype=float)
+    labels = ["Age", "BMI", "Smoking", "Exercise", "Diet", "Overall"]
+    groups = ["Clinical", "Clinical", "Lifestyle", "Lifestyle", "Lifestyle", "Summary"]
+    is_summary = [False, False, False, False, False, True]
+    return effect, ci_low, ci_high, labels, groups, is_summary
+
+
+def make_hexbin_demo() -> tuple[np.ndarray, np.ndarray]:
+    x = rng.normal(size=4500)
+    y = 0.78 * x + rng.normal(scale=0.68, size=4500)
+    return x, y
+
+
+def make_volcano_demo() -> tuple[np.ndarray, np.ndarray, list[str]]:
+    log2_fc = rng.normal(loc=0.0, scale=1.2, size=450)
+    pvals = np.clip(rng.uniform(1e-4, 1.0, size=450), 1e-6, 1.0)
+    labels = [f"Gene {i + 1}" for i in range(log2_fc.size)]
+    return log2_fc, pvals, labels
+
+
 def make_density_demo() -> np.ndarray:
     return rng.normal(loc=0.2, scale=0.72, size=500)
 
@@ -324,7 +360,37 @@ save(pf.scatter(x_scatter, y_scatter, labels=scatter_labels, title="Scatter"), "
 save(pf.bubble(rng.normal(size=30), rng.normal(size=30),
                np.abs(rng.normal(size=30)) * 20 + 5, title="Bubble"), "14_bubble")
 save(pf.contour2d(rng.normal(size=500), rng.normal(size=500), title="Contour 2D"), "15_contour2d")
+hexbin_x, hexbin_y = make_hexbin_demo()
+save(pf.hexbin(hexbin_x, hexbin_y, gridsize=30, log_color_scale=True, show_y_equal_x=True, title="Hexbin"), "15b_hexbin")
 save(pf.paired(np.array([1, 2, 3, 4]), np.array([1.5, 2.8, 2.9, 4.5]), title="Paired"), "16_paired")
+dumbbell_start, dumbbell_end, dumbbell_labels = make_dumbbell_demo()
+save(
+    pf.dumbbell(
+        dumbbell_start,
+        dumbbell_end,
+        category_names=dumbbell_labels,
+        left_label="Baseline",
+        right_label="Updated",
+        show_delta_labels=True,
+        title="Dumbbell",
+    ),
+    "16b_dumbbell",
+)
+forest_effect, forest_ci_low, forest_ci_high, forest_labels, forest_groups, forest_summary = make_forest_demo()
+save(
+    pf.forest_plot(
+        forest_effect,
+        forest_ci_low,
+        forest_ci_high,
+        labels=forest_labels,
+        group_labels=forest_groups,
+        is_summary=forest_summary,
+        reference=1.0,
+        x_label="Odds ratio",
+        title="Forest Plot",
+    ),
+    "16c_forest_plot",
+)
 
 print("=== Radar ===")
 save(pf.radar(
@@ -375,6 +441,19 @@ fpr, tpr, eval_names = make_evaluation_demo()
 save(pf.roc(fpr, tpr, series_names=eval_names, title="ROC Curve"), "24_roc")
 prec, rec, pr_names = make_pr_demo()
 save(pf.pr_curve(prec, rec, series_names=pr_names, title="PR Curve"), "25_pr_curve")
+volcano_fc, volcano_p, volcano_labels = make_volcano_demo()
+save(
+    pf.volcano(
+        volcano_fc,
+        volcano_p,
+        labels=volcano_labels,
+        fc_threshold=1.0,
+        p_threshold=0.05,
+        label_top_n=8,
+        title="Volcano",
+    ),
+    "25b_volcano",
+)
 
 print("=== Flow plots ===")
 save(

@@ -1,6 +1,7 @@
 """Plot functions."""
 
 from .bar import bar, bar_scatter, stacked_bar
+from .comparison import dumbbell, forest_plot
 from .dimreduction import dimreduce, pca_biplot
 from .distribution import box, density, histogram, raincloud, ridgeline, strip, violin
 from .evaluation import pr_curve, roc
@@ -8,12 +9,15 @@ from .flow import parallel_coordinates, sankey
 from .heatmap import clustermap, corr_matrix, heatmap
 from .line import area, line
 from .radar import radar
+from .specialized import hexbin, volcano
 from .scatter import bubble, contour2d, paired, scatter
 
 __all__ = [
     "bar",
     "bar_scatter",
     "stacked_bar",
+    "dumbbell",
+    "forest_plot",
     "box",
     "density",
     "histogram",
@@ -24,6 +28,8 @@ __all__ = [
     "line",
     "area",
     "radar",
+    "hexbin",
+    "volcano",
     "scatter",
     "bubble",
     "contour2d",

@@ -22,6 +22,12 @@ and palette docs link to them directly.
 - `raincloud.png`
 - `line.png`
 - `radar.png`
+- `scatter.png`
+- `heatmap.png`
+- `dumbbell.png`
+- `forest_plot.png`
+- `hexbin.png`
+- `volcano.png`
 - `gallery-hero.png`
 
 ### Composite figure assets
