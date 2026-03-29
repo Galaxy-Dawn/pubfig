@@ -47,15 +47,27 @@
 
 ### Showcase
 
+#### Single-plot examples
+
 <p align="center">
-  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="32%" alt="Bar scatter example"></a>
-  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="32%" alt="Raincloud example"></a>
-  <a href="examples/line.png"><img src="examples/line.png" width="32%" alt="Line example"></a>
+  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="48%" alt="Bar scatter example"></a>
+  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="48%" alt="Raincloud example"></a>
 </p>
 <p align="center">
-  <a href="examples/composite-showcase-benchmark.png"><img src="examples/composite-showcase-benchmark.png" width="32%" alt="Benchmark composite figure assembled in Figma"></a>
-  <a href="examples/composite-showcase-intervention.png"><img src="examples/composite-showcase-intervention.png" width="32%" alt="Intervention composite figure assembled in Figma"></a>
-  <a href="examples/composite-showcase-stratification.png"><img src="examples/composite-showcase-stratification.png" width="32%" alt="Stratification composite figure assembled in Figma"></a>
+  <a href="examples/line.png"><img src="examples/line.png" width="48%" alt="Line example"></a>
+  <a href="examples/radar.png"><img src="examples/radar.png" width="48%" alt="Radar example"></a>
+</p>
+
+#### Composite figure examples assembled in Figma
+
+<p align="center">
+  <a href="examples/composite-showcase-benchmark.png"><img src="examples/composite-showcase-benchmark.png" width="96%" alt="Benchmark composite figure assembled in Figma"></a>
+</p>
+<p align="center">
+  <a href="examples/composite-showcase-intervention.png"><img src="examples/composite-showcase-intervention.png" width="96%" alt="Intervention composite figure assembled in Figma"></a>
+</p>
+<p align="center">
+  <a href="examples/composite-showcase-stratification.png"><img src="examples/composite-showcase-stratification.png" width="96%" alt="Stratification composite figure assembled in Figma"></a>
 </p>
 
 <details>

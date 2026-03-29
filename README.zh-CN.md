@@ -47,15 +47,27 @@
 
 ### 精选展示
 
+#### 单图示例
+
 <p align="center">
-  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="32%" alt="Bar scatter 示例"></a>
-  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="32%" alt="Raincloud 示例"></a>
-  <a href="examples/line.png"><img src="examples/line.png" width="32%" alt="Line 示例"></a>
+  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="48%" alt="Bar scatter 示例"></a>
+  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="48%" alt="Raincloud 示例"></a>
 </p>
 <p align="center">
-  <a href="examples/composite-showcase-benchmark.png"><img src="examples/composite-showcase-benchmark.png" width="32%" alt="在 Figma 中拼接的 benchmark 大图示例"></a>
-  <a href="examples/composite-showcase-intervention.png"><img src="examples/composite-showcase-intervention.png" width="32%" alt="在 Figma 中拼接的 intervention 大图示例"></a>
-  <a href="examples/composite-showcase-stratification.png"><img src="examples/composite-showcase-stratification.png" width="32%" alt="在 Figma 中拼接的 stratification 大图示例"></a>
+  <a href="examples/line.png"><img src="examples/line.png" width="48%" alt="Line 示例"></a>
+  <a href="examples/radar.png"><img src="examples/radar.png" width="48%" alt="Radar 示例"></a>
+</p>
+
+#### 在 Figma 中拼接的合成大图示例
+
+<p align="center">
+  <a href="examples/composite-showcase-benchmark.png"><img src="examples/composite-showcase-benchmark.png" width="96%" alt="在 Figma 中拼接的 benchmark 大图示例"></a>
+</p>
+<p align="center">
+  <a href="examples/composite-showcase-intervention.png"><img src="examples/composite-showcase-intervention.png" width="96%" alt="在 Figma 中拼接的 intervention 大图示例"></a>
+</p>
+<p align="center">
+  <a href="examples/composite-showcase-stratification.png"><img src="examples/composite-showcase-stratification.png" width="96%" alt="在 Figma 中拼接的 stratification 大图示例"></a>
 </p>
 
 <details>
