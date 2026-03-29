@@ -33,3 +33,4 @@ examples/__pycache__/
 # Local planning and tests
 plan/
 tests/
+test/
