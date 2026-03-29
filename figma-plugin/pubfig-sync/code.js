@@ -7,7 +7,7 @@ const SOURCE_KEY = "pubfigSourcePath";
 const VERSION_KEY = "pubfigVersion";
 const LAYOUT_PRESET_KEY = "pubfigLayoutPreset";
 const PANEL_GAP_KEY = "pubfigPanelGap";
-const PLUGIN_VERSION = "0.4.8";
+const PLUGIN_VERSION = "0.4.11";
 const PANEL_BUNDLE_TYPE = "pubfig_figma_bundle";
 
 const PANEL_PADDING = 2;
@@ -156,7 +156,21 @@ function getPanelLabelText(panel, labelSettings) {
 }
 
 function getRoleNode(root, role) {
-  return root.findOne((node) => typeof node.getPluginData === "function" && node.getPluginData(ROLE_KEY) === role);
+  if (!root || !("children" in root)) {
+    return null;
+  }
+  return root.children.find(
+    (node) => typeof node.getPluginData === "function" && node.getPluginData(ROLE_KEY) === role,
+  ) || null;
+}
+
+function getDirectChildByPluginData(root, key, value) {
+  if (!root || !("children" in root)) {
+    return null;
+  }
+  return root.children.find(
+    (node) => typeof node.getPluginData === "function" && node.getPluginData(key) === value,
+  ) || null;
 }
 
 function removeRoleNode(root, role) {
@@ -335,9 +349,7 @@ function clearChildren(node) {
 
 function ensurePanelFrame(root, panel, mode) {
   const panelId = String(panel.panel_id);
-  const existing = root.findOne(
-    (node) => node.type === "FRAME" && node.getPluginData(PANEL_KEY) === panelId,
-  );
+  const existing = getDirectChildByPluginData(root, PANEL_KEY, panelId);
   if (existing) {
     existing.name = String(panel.figma_node_name || `panel/${panelId}`);
     existing.layoutMode = "NONE";
@@ -367,18 +379,14 @@ function ensurePanelFrame(root, panel, mode) {
 }
 
 function removePanelContent(frame) {
-  const existing = frame.findOne(
-    (node) => typeof node.getPluginData === "function" && node.getPluginData(ROLE_KEY) === "panel-content",
-  );
+  const existing = getDirectChildByPluginData(frame, ROLE_KEY, "panel-content");
   if (existing) {
     existing.remove();
   }
 }
 
 async function ensurePanelLabel(frame, panel, fontReady, labelSettings) {
-  let labelNode = frame.findOne(
-    (node) => node.type === "TEXT" && node.getPluginData(PANEL_KEY) === `${panel.panel_id}:label`,
-  );
+  let labelNode = getDirectChildByPluginData(frame, PANEL_KEY, `${panel.panel_id}:label`);
   if (!labelSettings.enabled) {
     if (labelNode) {
       labelNode.remove();
@@ -506,11 +514,19 @@ async function upsertPlaceholderFrame(root, role, text, geometry, fontReady, pre
 function getManagedPanelFrames(root, bundle) {
   const ordered = [];
   const seen = new Set();
+  const panelFramesById = new Map();
+  for (const child of root.children) {
+    if (child.type !== "FRAME") {
+      continue;
+    }
+    const panelId = child.getPluginData(PANEL_KEY);
+    if (panelId) {
+      panelFramesById.set(String(panelId), child);
+    }
+  }
   for (const panel of bundle.panels || []) {
     const panelId = String(panel.panel_id);
-    const frame = root.findOne(
-      (node) => node.type === "FRAME" && node.getPluginData(PANEL_KEY) === panelId,
-    );
+    const frame = panelFramesById.get(panelId);
     if (frame) {
       ordered.push(frame);
       seen.add(panelId);
@@ -543,6 +559,7 @@ async function applyPanelLabels(root, bundle, panelFrames, fontReady) {
   const labelNodes = [];
   const columnBaselineX = new Map();
   const rowBaselineY = new Map();
+  const columnPreferredXs = new Map();
 
   for (let index = 0; index < panelFrames.length; index += 1) {
     const frame = panelFrames[index];
@@ -560,6 +577,10 @@ async function applyPanelLabels(root, bundle, panelFrames, fontReady) {
     const gridPosition = getPanelGridPosition(frame, index);
     const preferredX = frame.x - labelSettings.offsetX;
     const preferredY = frame.y - labelSettings.offsetY;
+    if (!columnPreferredXs.has(gridPosition.columnIndex)) {
+      columnPreferredXs.set(gridPosition.columnIndex, []);
+    }
+    columnPreferredXs.get(gridPosition.columnIndex).push(preferredX);
     columnBaselineX.set(
       gridPosition.columnIndex,
       columnBaselineX.has(gridPosition.columnIndex)
@@ -575,8 +596,17 @@ async function applyPanelLabels(root, bundle, panelFrames, fontReady) {
     labelNodes.push({ frame, labelNode, gridPosition });
   }
 
+  const columnCanAlignX = new Map();
+  for (const [columnIndex, values] of columnPreferredXs.entries()) {
+    const minX = Math.min(...values);
+    const maxX = Math.max(...values);
+    columnCanAlignX.set(columnIndex, Math.abs(maxX - minX) <= 1);
+  }
+
   for (const item of labelNodes) {
-    const x = labelSettings.alignX === "column"
+    const useColumnAlignedX = labelSettings.alignX === "column"
+      && columnCanAlignX.get(item.gridPosition.columnIndex) !== false;
+    const x = useColumnAlignedX
       ? columnBaselineX.get(item.gridPosition.columnIndex)
       : item.frame.x - labelSettings.offsetX;
     const y = labelSettings.alignY === "row"
@@ -656,25 +686,28 @@ function layoutRowsByCounts(panelFrames, rowPanelCounts, gap, labelSettings) {
   }
 
   const rows = [];
-  const maxColumns = Math.max(...rowPanelCounts);
-  const columnWidths = new Array(maxColumns).fill(0);
   let cursor = 0;
   let totalHeight = 0;
+  let maxRowWidth = 0;
 
   for (const count of rowPanelCounts) {
     const rowFrames = panelFrames.slice(cursor, cursor + count);
     cursor += count;
     let rowHeight = 0;
+    let rowWidth = 0;
     for (let columnIndex = 0; columnIndex < rowFrames.length; columnIndex += 1) {
       const frame = rowFrames[columnIndex];
       rowHeight = Math.max(rowHeight, getPanelSlotHeight(frame, labelSettings));
-      columnWidths[columnIndex] = Math.max(columnWidths[columnIndex], getPanelSlotWidth(frame, labelSettings));
+      rowWidth += getPanelSlotWidth(frame, labelSettings);
     }
-    rows.push({ frames: rowFrames, height: rowHeight });
+    if (rowFrames.length > 1) {
+      rowWidth += gap * (rowFrames.length - 1);
+    }
+    rows.push({ frames: rowFrames, height: rowHeight, width: rowWidth });
     totalHeight += rowHeight + gap;
+    maxRowWidth = Math.max(maxRowWidth, rowWidth);
   }
 
-  const maxRowWidth = columnWidths.reduce((accumulator, width) => accumulator + width, 0) + Math.max(0, maxColumns - 1) * gap;
   let rowY = 0;
   for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
     const row = rows[rowIndex];
@@ -682,7 +715,7 @@ function layoutRowsByCounts(panelFrames, rowPanelCounts, gap, labelSettings) {
     for (let columnIndex = 0; columnIndex < row.frames.length; columnIndex += 1) {
       const frame = row.frames[columnIndex];
       placePanelFrameAtSlot(frame, x, rowY, rowIndex, columnIndex, labelSettings);
-      x += columnWidths[columnIndex] + gap;
+      x += getPanelSlotWidth(frame, labelSettings) + gap;
     }
     rowY += row.height + gap;
   }
