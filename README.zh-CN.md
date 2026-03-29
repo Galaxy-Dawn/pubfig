@@ -50,12 +50,14 @@
 #### 单图示例
 
 <p align="center">
-  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="48%" alt="Bar scatter 示例"></a>
-  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="48%" alt="Raincloud 示例"></a>
+  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="32%" alt="Bar scatter 示例"></a>
+  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="32%" alt="Raincloud 示例"></a>
+  <a href="examples/line.png"><img src="examples/line.png" width="32%" alt="Line 示例"></a>
 </p>
 <p align="center">
-  <a href="examples/line.png"><img src="examples/line.png" width="48%" alt="Line 示例"></a>
-  <a href="examples/radar.png"><img src="examples/radar.png" width="48%" alt="Radar 示例"></a>
+  <a href="examples/radar.png"><img src="examples/radar.png" width="32%" alt="Radar 示例"></a>
+  <a href="examples/scatter.png"><img src="examples/scatter.png" width="32%" alt="Scatter 示例"></a>
+  <a href="examples/heatmap.png"><img src="examples/heatmap.png" width="32%" alt="Heatmap 示例"></a>
 </p>
 
 #### 在 Figma 中拼接的合成大图示例

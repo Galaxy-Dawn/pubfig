@@ -50,12 +50,14 @@
 #### Single-plot examples
 
 <p align="center">
-  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="48%" alt="Bar scatter example"></a>
-  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="48%" alt="Raincloud example"></a>
+  <a href="examples/bar_scatter.png"><img src="examples/bar_scatter.png" width="32%" alt="Bar scatter example"></a>
+  <a href="examples/raincloud.png"><img src="examples/raincloud.png" width="32%" alt="Raincloud example"></a>
+  <a href="examples/line.png"><img src="examples/line.png" width="32%" alt="Line example"></a>
 </p>
 <p align="center">
-  <a href="examples/line.png"><img src="examples/line.png" width="48%" alt="Line example"></a>
-  <a href="examples/radar.png"><img src="examples/radar.png" width="48%" alt="Radar example"></a>
+  <a href="examples/radar.png"><img src="examples/radar.png" width="32%" alt="Radar example"></a>
+  <a href="examples/scatter.png"><img src="examples/scatter.png" width="32%" alt="Scatter example"></a>
+  <a href="examples/heatmap.png"><img src="examples/heatmap.png" width="32%" alt="Heatmap example"></a>
 </p>
 
 #### Composite figure examples assembled in Figma
