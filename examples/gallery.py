@@ -367,11 +367,12 @@ fig = pf.circular_stacked_bar(
 )
 fig.show()
 
-circular_grouped_values, circular_grouped_items, circular_grouped_groups = make_circular_grouped_bar_showcase()
+circular_grouped_values, circular_grouped_items, circular_grouped_groups, circular_grouped_series = make_circular_grouped_bar_showcase()
 fig = pf.circular_grouped_bar(
     circular_grouped_values,
     item_labels=circular_grouped_items,
     item_groups=circular_grouped_groups,
+    series_labels=circular_grouped_series,
     title=None,
 )
 fig.show()

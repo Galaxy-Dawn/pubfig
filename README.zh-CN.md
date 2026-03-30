@@ -78,12 +78,12 @@
   <a href="examples/volcano.png"><img src="examples/volcano.png" width="48%" alt="Volcano 示例"></a>
 </p>
 <p align="center">
-  <a href="examples/donut.png"><img src="examples/donut.png" width="48%" alt="Donut 示例"></a>
-  <a href="examples/stacked_ratio_barh.png"><img src="examples/stacked_ratio_barh.png" width="48%" alt="Stacked ratio 示例"></a>
-</p>
-<p align="center">
   <a href="examples/grouped_scatter.png"><img src="examples/grouped_scatter.png" width="48%" alt="Grouped scatter 示例"></a>
   <a href="examples/radial_hierarchy.png"><img src="examples/radial_hierarchy.png" width="48%" alt="Radial hierarchy 示例"></a>
+</p>
+<p align="center">
+  <a href="examples/circular_stacked_bar.png"><img src="examples/circular_stacked_bar.png" width="48%" alt="Circular stacked bar 示例"></a>
+  <a href="examples/circular_grouped_bar.png"><img src="examples/circular_grouped_bar.png" width="48%" alt="Circular grouped bar 示例"></a>
 </p>
 
 #### 在 Figma 中拼接的合成大图示例
@@ -218,9 +218,9 @@ import pubfig as pf
 | <a id="recipe-stacked_ratio_barh"></a>`stacked_ratio_barh` | `pf.stacked_ratio_barh(np.array([30, 33, 40, 65]), labels=["EGFR", "KRAS", "PTEN", "BRAF"], group_labels=["LUAD", "LUAD", "UCEC", "SKCM"])` | `group_labels`, `negative_values`, `title` |
 | <a id="recipe-radial_hierarchy"></a>`radial_hierarchy` | `pf.radial_hierarchy(np.array([24, 18, 15, 11, 28, 10]), subgroup_labels=["LIHC", "CRC", "GAST", "PAAD", "LUAD", "ESCA"], subgroup_groups=["Digestive", "Digestive", "Digestive", "Digestive", "Thoracic", "Thoracic"], group_labels=["Digestive", "Thoracic"], center_text="2 systems\n6 classes")` | `group_labels`, `center_text`, `show_outer_values` |
 | <a id="recipe-circular_stacked_bar"></a>`circular_stacked_bar` | `pf.circular_stacked_bar(np.array([[9, 11, 7, 4], [8, 10, 8, 4], [7, 9, 7, 3], [10, 12, 8, 4]], dtype=float), item_labels=["LUAD", "LUSC", "SCLC", "COAD"], item_groups=["Thor", "Thor", "Thor", "GI"])` | `item_groups`, `stack_labels`, `group_legend_show` |
-| <a id="recipe-circular_grouped_bar"></a>`circular_grouped_bar` | `pf.circular_grouped_bar(np.array([14, 12, 11, 15, 13, 12], dtype=float), item_labels=["LUAD", "LUSC", "SCLC", "COAD", "READ", "PAAD"], item_groups=["Thor", "Thor", "Thor", "GI", "GI", "GI"])` | `item_groups`, `show_value_labels`, `group_colors` |
+| <a id="recipe-circular_grouped_bar"></a>`circular_grouped_bar` | `pf.circular_grouped_bar(np.array([[11, 14, 13], [10, 13, 12], [9, 11, 10], [12, 15, 14]], dtype=float), item_labels=["LUAD", "LUSC", "SCLC", "COAD"], item_groups=["Thor", "Thor", "Thor", "GI"], series_labels=["A", "B", "C"])` | `series_labels`, `series_colors`, `legend_show` |
 
-`circular_stacked_bar(...)` 和 `circular_grouped_bar(...)` 现在已经把图库里那套更致密的 publication 风格默认值固化进函数本身：更紧的组间距 / 条间距、单行短内圈标签，以及默认的暖冷对照配色。多数情况下你直接从最小调用开始，只补自己的标签和数据就够了。
+`circular_stacked_bar(...)` 和 `circular_grouped_bar(...)` 现在已经把图库里那套更致密的 publication 风格默认值固化进函数本身：更紧的组间距 / 条间距、单行短内圈标签，以及默认的暖冷配色。现在的 `circular_grouped_bar(...)` 也会在每个 item 槽位里真正画出并列的多组 polar bars，而不再是单柱版本。
 
 ##### 分布
 

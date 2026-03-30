@@ -463,12 +463,13 @@ save_square(
     ),
     "16h_circular_stacked_bar",
 )
-circular_grouped_values, circular_grouped_items, circular_grouped_groups = make_circular_grouped_bar_showcase()
+circular_grouped_values, circular_grouped_items, circular_grouped_groups, circular_grouped_series = make_circular_grouped_bar_showcase()
 save_square(
     pf.circular_grouped_bar(
         circular_grouped_values,
         item_labels=circular_grouped_items,
         item_groups=circular_grouped_groups,
+        series_labels=circular_grouped_series,
         title=None,
         width=1000,
         height=1000,

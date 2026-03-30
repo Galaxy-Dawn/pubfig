@@ -305,8 +305,8 @@ def make_circular_stacked_bar_demo() -> tuple[np.ndarray, list[str], list[str], 
     return values, item_labels, item_groups, stack_labels
 
 
-def make_circular_grouped_bar_demo() -> tuple[np.ndarray, list[str], list[str]]:
-    """Return a dense circular grouped bar demo."""
+def make_circular_grouped_bar_demo() -> tuple[np.ndarray, list[str], list[str], list[str]]:
+    """Return a true grouped circular bar demo."""
     item_groups = (
         ["Thor"] * 6
         + ["GI"] * 6
@@ -341,14 +341,35 @@ def make_circular_grouped_bar_demo() -> tuple[np.ndarray, list[str], list[str]]:
     ]
     values = np.array(
         [
-            14, 12, 11, 9, 8, 10,
-            15, 13, 12, 11, 9, 8,
-            16, 14, 12, 10, 9, 8,
-            11, 10, 12, 9, 13, 10,
+            [11, 14, 13],
+            [10, 13, 12],
+            [9, 11, 10],
+            [8, 10, 9],
+            [7, 9, 8],
+            [8, 11, 10],
+            [12, 15, 14],
+            [11, 14, 13],
+            [10, 12, 11],
+            [10, 13, 12],
+            [9, 11, 10],
+            [7, 9, 8],
+            [13, 16, 15],
+            [12, 15, 14],
+            [10, 13, 12],
+            [9, 11, 10],
+            [8, 10, 9],
+            [8, 9, 8],
+            [9, 12, 11],
+            [8, 10, 9],
+            [10, 13, 12],
+            [9, 11, 10],
+            [11, 14, 13],
+            [9, 12, 11],
         ],
         dtype=float,
     )
-    return values, item_labels, item_groups
+    series_labels = ["Cohort A", "Cohort B", "Cohort C"]
+    return values, item_labels, item_groups, series_labels
 
 
 __all__ = [

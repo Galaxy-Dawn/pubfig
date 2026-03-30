@@ -134,7 +134,7 @@ def radial_hierarchy(
     group_gap_degrees: float = 2.4,
     outer_label_radius_offset: float = 0.08,
     outer_value_radius_offset: float = 0.03,
-    subgroup_label_position: str = "outside",
+    subgroup_label_position: str = "inside",
     show_group_labels: bool = True,
     show_outer_values: bool = True,
     center_text_font_size: Optional[int] = None,
@@ -582,6 +582,8 @@ def circular_grouped_bar(
     *,
     item_labels: Sequence[str],
     item_groups: Sequence[str],
+    series_labels: Optional[Sequence[str]] = None,
+    series_colors: Optional[Sequence[str]] = None,
     group_colors: Optional[Sequence[str]] = None,
     title: Optional[str] = None,
     start_angle: float = 90.0,
@@ -591,9 +593,12 @@ def circular_grouped_bar(
     bar_max_height: float = 0.42,
     item_gap_degrees: float = 0.18,
     group_gap_degrees: float = 4.8,
+    series_gap_degrees: float = 0.05,
     outer_label_offset: float = 0.03,
     group_label_font_size: Optional[int] = 5,
     item_label_font_size: Optional[int] = 4,
+    legend_show: bool = False,
+    legend_ncol: Optional[int] = None,
     show_group_labels: bool = True,
     show_value_labels: bool = False,
     value_label_font_size: Optional[int] = None,
@@ -603,24 +608,30 @@ def circular_grouped_bar(
     ax: Optional["Axes"] = None,
 ) -> "Figure":
     """Create a circular grouped bar chart with an inner group ring."""
-    arr = np.asarray(values, dtype=float).reshape(-1)
-    if arr.size == 0:
-        raise ValueError("values must contain at least one element")
+    arr = np.asarray(values, dtype=float)
+    if arr.ndim == 1:
+        arr = arr[:, None]
+    if arr.ndim != 2 or arr.shape[0] == 0 or arr.shape[1] == 0:
+        raise ValueError("values must be a 2D numpy array with shape (n_items, n_series)")
     if np.any(arr < 0):
         raise ValueError("values must be non-negative")
-    n_items = int(arr.size)
+    n_items, n_series = arr.shape
     labels = [str(item) for item in item_labels]
     if len(labels) != n_items:
-        raise ValueError("item_labels must match the number of values")
+        raise ValueError("item_labels must match the number of rows in values")
     groups = [str(item) for item in item_groups]
     if len(groups) != n_items:
-        raise ValueError("item_groups must match the number of values")
+        raise ValueError("item_groups must match the number of rows in values")
+    series = [str(item) for item in series_labels] if series_labels is not None else [f"S{idx + 1}" for idx in range(n_series)]
+    if len(series) != int(n_series):
+        raise ValueError("series_labels must match the number of columns in values")
 
     group_names, group_starts, group_counts = _ordered_group_blocks(groups)
+    series_palette = normalize_palette(series_colors, fallback=["#EFD2A2", "#E7AA78", "#AFC6D4", "#6E88AA"])
     group_palette = normalize_palette(group_colors, fallback=["#D97C6C", "#D9A56C", "#90AFC5", "#78A58E"])
     max_value = float(np.max(arr))
     if max_value <= 0:
-        raise ValueError("At least one item in values must be positive")
+        raise ValueError("At least one entry in values must be positive")
 
     total_item_gap = float(item_gap_degrees) * float(n_items)
     total_group_gap = float(group_gap_degrees) * float(len(group_names))
@@ -628,6 +639,10 @@ def circular_grouped_bar(
     if usable <= 0:
         raise ValueError("Too many items or too much angular gap for a circular grouped bar plot")
     item_span = usable / float(n_items)
+    total_series_gap = max(0.0, float(n_series - 1)) * float(series_gap_degrees)
+    bar_span = (float(item_span) - float(total_series_gap)) / float(n_series)
+    if bar_span <= 0:
+        raise ValueError("series_gap_degrees is too large for the number of grouped series")
 
     with theme_context(theme) as t:
         dpi = resolve_design_dpi(t.name)
@@ -636,33 +651,37 @@ def circular_grouped_bar(
         group_fs = int(group_label_font_size) if group_label_font_size is not None else max(7, int(t.axis.tick_font_size) - 2)
         item_fs = int(item_label_font_size) if item_label_font_size is not None else max(6, int(t.axis.tick_font_size) - 3)
         value_fs = int(value_label_font_size) if value_label_font_size is not None else max(6, int(t.axis.tick_font_size) - 3)
+        series_handles = [Patch(facecolor=series_palette[idx % len(series_palette)], edgecolor="none", label=str(series[idx])) for idx in range(n_series)]
 
         group_lookup = {name: idx for idx, name in enumerate(group_names)}
         cursor = float(start_angle)
         group_ranges: list[tuple[str, float, float]] = []
         for g_name, g_start, g_count in zip(group_names, group_starts, group_counts, strict=True):
             group_theta0 = float(cursor)
-            base_color = str(group_palette[group_lookup[g_name] % len(group_palette)])
             for local_item_idx in range(int(g_count)):
                 item_idx = int(g_start + local_item_idx)
-                theta0 = float(cursor + item_gap_degrees * 0.5)
-                theta1 = float(theta0 + item_span)
-                theta_mid = 0.5 * (float(theta0) + float(theta1))
+                item_theta0 = float(cursor + item_gap_degrees * 0.5)
+                item_theta1 = float(item_theta0 + item_span)
+                theta_mid = 0.5 * (float(item_theta0) + float(item_theta1))
                 theta_rad = np.deg2rad(float(theta_mid))
-                height = float(bar_max_height) * float(arr[item_idx]) / float(max_value)
-                shade = 0.10 + 0.45 * (float(local_item_idx) / max(1.0, float(g_count - 1)))
-                patch = Wedge(
-                    (0.0, 0.0),
-                    r=float(bar_inner_radius + height),
-                    theta1=float(theta0),
-                    theta2=float(theta1),
-                    width=float(height),
-                    facecolor=_blend_with_white(base_color, amount=min(max(shade, 0.0), 0.75)),
-                    edgecolor="white",
-                    linewidth=max(float(t.axis.line_width) * 0.35, 0.3),
-                    zorder=3,
-                )
-                ax.add_patch(patch)
+                series_cursor = float(item_theta0)
+                for series_idx in range(n_series):
+                    theta0 = float(series_cursor)
+                    theta1 = float(theta0 + bar_span)
+                    series_cursor = float(theta1 + float(series_gap_degrees))
+                    height = float(bar_max_height) * float(arr[item_idx, series_idx]) / float(max_value)
+                    patch = Wedge(
+                        (0.0, 0.0),
+                        r=float(bar_inner_radius + height),
+                        theta1=float(theta0),
+                        theta2=float(theta1),
+                        width=float(height),
+                        facecolor=series_palette[series_idx % len(series_palette)],
+                        edgecolor="white",
+                        linewidth=max(float(t.axis.line_width) * 0.35, 0.28),
+                        zorder=3,
+                    )
+                    ax.add_patch(patch)
 
                 label_radius = float(bar_inner_radius) + float(bar_max_height) + float(outer_label_offset)
                 ax.text(
@@ -678,11 +697,11 @@ def circular_grouped_bar(
                     zorder=4,
                 )
                 if bool(show_value_labels):
-                    value_radius = float(bar_inner_radius + height + 0.02)
+                    value_radius = float(bar_inner_radius + float(bar_max_height) + 0.02)
                     ax.text(
                         value_radius * float(np.cos(theta_rad)),
                         value_radius * float(np.sin(theta_rad)),
-                        f"{float(arr[item_idx]):.0f}",
+                        f"{float(np.max(arr[item_idx])):.0f}",
                         rotation=float(_upright_tangent_rotation(float(theta_mid))),
                         rotation_mode="anchor",
                         ha="center",
@@ -728,6 +747,22 @@ def circular_grouped_bar(
 
         if title:
             title_above(ax, str(title), y=1.04)
+        if bool(legend_show):
+            legend = ax.legend(
+                handles=series_handles,
+                frameon=False,
+                ncol=int(legend_ncol) if legend_ncol is not None else min(4, max(1, len(series_handles))),
+                loc="lower center",
+                bbox_to_anchor=(0.5, -0.04),
+                prop={"family": t.font_family, "size": float(t.legend_font_size)},
+                handlelength=1.0,
+                columnspacing=0.7,
+                handletextpad=0.4,
+            )
+            try:
+                legend.set_in_layout(True)
+            except Exception:
+                pass
 
         lim = float(bar_inner_radius) + float(bar_max_height) + float(outer_label_offset) + 0.14
         ax.set_xlim(-lim, lim)
