@@ -33,6 +33,7 @@
 
 ## Recent News
 
+- **2026-03-30**: `pubfig 0.2.1` refreshes the PyPI release with new polar plot families, fuller gallery coverage, and updated publication-style examples.
 - **2026-03-29**: `pubfig 0.2.0` is now live on PyPI — install with `pip install pubfig`, use explicit output suffixes such as `figure.pdf` / `figure.png`, and start from the push-first Figma workflow documented below.
 - **2026-03-25**: Panel-first Figma loop polish — panel export now defaults to title-free assets for cleaner Figma assembly, `pubfig-sync` now keeps shared title / legend placeholders off by default, and bridge/watch flows now surface bundle provenance plus the exact manual-fallback bundle path.
 - **2026-03-20**: Local bridge automation for Figma sync — added a bridge-backed `pubfig figma bridge|sync|watch` workflow, upgraded `pubfig-sync` with bridge connection mode, and enabled CLI-triggered vector import/refresh after one-time plugin connection.
