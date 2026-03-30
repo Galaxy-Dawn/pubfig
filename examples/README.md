@@ -28,6 +28,9 @@ and palette docs link to them directly.
 - `forest_plot.png`
 - `hexbin.png`
 - `volcano.png`
+- `radial_hierarchy.png`
+- `circular_stacked_bar.png`
+- `circular_grouped_bar.png`
 - `gallery-hero.png`
 
 ### Composite figure assets

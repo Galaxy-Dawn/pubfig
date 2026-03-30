@@ -403,7 +403,16 @@ def _handle_watch(args: argparse.Namespace) -> int:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="pubfig", description="Publication-style plots, panel exports, and Figma handoff for paper figures.")
+    parser = argparse.ArgumentParser(
+        prog="pubfig",
+        description="Publication-style plots, panel exports, and Figma handoff for paper figures.",
+        epilog=(
+            "Plotting is Python-first. For dense polar families, start with "
+            "help(pubfig.radial_hierarchy), help(pubfig.circular_stacked_bar), "
+            "or help(pubfig.circular_grouped_bar). Regenerate gallery assets with: "
+            "python examples/export_gallery.py"
+        ),
+    )
     parser.add_argument("--version", action="version", version=f"pubfig {__version__}")
 
     subparsers = parser.add_subparsers(dest="command", required=True)

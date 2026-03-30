@@ -203,6 +203,19 @@ import pubfig as pf
 | <a id="recipe-dumbbell"></a>`dumbbell` | `pf.dumbbell(np.array([0.72, 0.81, 0.77]), np.array([0.79, 0.86, 0.83]), category_names=["Metric A", "Metric B", "Metric C"])` | `left_label`, `right_label`, `sort_by` |
 | <a id="recipe-forest_plot"></a>`forest_plot` | `pf.forest_plot(np.array([1.12, 0.84, 1.36]), np.array([0.98, 0.71, 1.10]), np.array([1.29, 0.99, 1.68]), labels=["Age", "BMI", "Smoking"], reference=1.0)` | `reference`, `group_labels`, `right_labels` |
 
+##### Composition and polar
+
+| Plot | Minimal call | Common next parameters |
+|------|--------------|------------------------|
+| <a id="recipe-grouped_scatter"></a>`grouped_scatter` | `pf.grouped_scatter(np.random.default_rng(0).normal(loc=np.array([[0.72, 0.81, 0.86], [0.68, 0.76, 0.82]])[..., None], scale=0.04, size=(2, 3, 14)), category_names=["Overall", "External"], group_names=["R50", "PLIP", "CONCH"])` | `category_names`, `group_names`, `point_size` |
+| <a id="recipe-donut"></a>`donut` | `pf.donut(np.array([48, 27, 14, 8]), labels=["Held-out", "External", "Independent", "Zero-shot"], center_text="97\ntasks")` | `labels`, `center_text`, `colors` |
+| <a id="recipe-stacked_ratio_barh"></a>`stacked_ratio_barh` | `pf.stacked_ratio_barh(np.array([30, 33, 40, 65]), labels=["EGFR", "KRAS", "PTEN", "BRAF"], group_labels=["LUAD", "LUAD", "UCEC", "SKCM"])` | `group_labels`, `negative_values`, `title` |
+| <a id="recipe-radial_hierarchy"></a>`radial_hierarchy` | `pf.radial_hierarchy(np.array([24, 18, 15, 11, 28, 10]), subgroup_labels=["LIHC", "CRC", "GAST", "PAAD", "LUAD", "ESCA"], subgroup_groups=["Digestive", "Digestive", "Digestive", "Digestive", "Thoracic", "Thoracic"], group_labels=["Digestive", "Thoracic"], center_text="2 systems\n6 classes")` | `group_labels`, `center_text`, `show_outer_values` |
+| <a id="recipe-circular_stacked_bar"></a>`circular_stacked_bar` | `pf.circular_stacked_bar(np.array([[9, 11, 7, 4], [8, 10, 8, 4], [7, 9, 7, 3], [10, 12, 8, 4]], dtype=float), item_labels=["LUAD", "LUSC", "SCLC", "COAD"], item_groups=["Thor", "Thor", "Thor", "GI"])` | `item_groups`, `stack_labels`, `group_legend_show` |
+| <a id="recipe-circular_grouped_bar"></a>`circular_grouped_bar` | `pf.circular_grouped_bar(np.array([14, 12, 11, 15, 13, 12], dtype=float), item_labels=["LUAD", "LUSC", "SCLC", "COAD", "READ", "PAAD"], item_groups=["Thor", "Thor", "Thor", "GI", "GI", "GI"])` | `item_groups`, `show_value_labels`, `group_colors` |
+
+The polar defaults for `circular_stacked_bar(...)` and `circular_grouped_bar(...)` now follow the denser publication-style settings used in the gallery: tighter group/item spacing, shorter single-line inner labels, and the built-in warm/cool polar palette. In most cases, you can start from the minimal call and only add data-specific labels.
+
 ##### Distribution
 
 | Plot | Minimal call | Common next parameters |
@@ -364,6 +377,17 @@ orchestrate the panel export → Figma import → MCP review loop.
 | `dumbbell` | Connected paired comparison plot | [recipe](#recipe-dumbbell) |
 | `forest_plot` | Effect-size plot with confidence intervals | [recipe](#recipe-forest_plot) |
 
+### Composition and Polar Plots
+
+| Function | Description | Recipe |
+|----------|-------------|--------|
+| `grouped_scatter` | Dense grouped scatter / strip benchmark panel | [recipe](#recipe-grouped_scatter) |
+| `donut` | Publication-style donut chart | [recipe](#recipe-donut) |
+| `stacked_ratio_barh` | 100 percent horizontal ratio bar chart | [recipe](#recipe-stacked_ratio_barh) |
+| `radial_hierarchy` | Two-level radial hierarchy / sunburst-style chart | [recipe](#recipe-radial_hierarchy) |
+| `circular_stacked_bar` | Dense circular stacked bar chart with inner group ring | [recipe](#recipe-circular_stacked_bar) |
+| `circular_grouped_bar` | Dense circular grouped bar chart with inner group ring | [recipe](#recipe-circular_grouped_bar) |
+
 ### Distribution Plots
 
 | Function | Description | Recipe |
@@ -484,6 +508,7 @@ If you only want the main entry points, start here:
 - `examples/figma_workflow_demo.md` — panel-first pubfig → Figma workflow guide
 - `examples/generate_palette_gallery.py` — regenerates the palette preview sheets and gallery docs
 - `examples/README.md` — keep/remove inventory for this folder
+- `help(pubfig.circular_stacked_bar)` / `help(pubfig.circular_grouped_bar)` — inspect the fixed dense polar defaults directly from Python
 
 Advanced / secondary:
 

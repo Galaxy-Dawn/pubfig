@@ -116,9 +116,250 @@ def make_volcano_demo(seed: Optional[int] = None) -> tuple[np.ndarray, np.ndarra
     return log2_fc, pvals, labels
 
 
+def make_donut_demo() -> tuple[np.ndarray, list[str], str]:
+    """Return a task-split donut chart demo."""
+    values = np.array([48, 27, 14, 8], dtype=float)
+    labels = ["Held-out", "External", "Independent", "Zero-shot"]
+    center_text = "97\ntasks"
+    return values, labels, center_text
+
+
+def make_grouped_scatter_demo(seed: Optional[int] = None) -> tuple[np.ndarray, list[str], list[str], list[list[str]]]:
+    """Return a benchmark-style grouped scatter demo with top metrics."""
+    rng = _rng(seed)
+    category_names = ["Overall", "Independent", "External"]
+    group_names = ["R50", "PLIP", "CONCH", "mSTAR"]
+    means = np.array(
+        [
+            [0.727, 0.790, 0.823, 0.845],
+            [0.831, 0.866, 0.902, 0.911],
+            [0.599, 0.692, 0.735, 0.756],
+        ],
+        dtype=float,
+    )
+    spreads = np.array(
+        [
+            [0.030, 0.028, 0.024, 0.020],
+            [0.050, 0.045, 0.035, 0.030],
+            [0.065, 0.060, 0.050, 0.045],
+        ],
+        dtype=float,
+    )
+    data = rng.normal(loc=means[..., None], scale=spreads[..., None], size=(3, 4, 14))
+    data = np.clip(data, 0.35, 0.99)
+    top_annotations = [[f"{value:.2f}" for value in row] for row in means]
+    return data, category_names, group_names, top_annotations
+
+
+def make_stacked_ratio_demo() -> tuple[np.ndarray, list[str], list[str]]:
+    """Return a mutation-ratio style horizontal stacked bar demo."""
+    positive = np.array([30, 33, 30, 33, 36, 40, 65, 43, 52, 53, 22, 51], dtype=float)
+    labels = [
+        "CPTAC_LUAD_EGFR",
+        "CPTAC_LUAD_KRAS",
+        "CPTAC_BRCA_TTN",
+        "CPTAC_BRCA_TP53",
+        "CPTAC_BRCA_PIK3CA",
+        "UCEC_TTN",
+        "UCEC_PTEN",
+        "UCEC_ARID1A",
+        "SKCM_DNAH5",
+        "SKCM_BRAF",
+        "NSCLC_TMB",
+        "LUSC_TP53",
+    ]
+    groups = [
+        "CPTAC LUAD",
+        "CPTAC LUAD",
+        "CPTAC BRCA",
+        "CPTAC BRCA",
+        "CPTAC BRCA",
+        "UCEC",
+        "UCEC",
+        "UCEC",
+        "SKCM",
+        "SKCM",
+        "NSCLC",
+        "NSCLC",
+    ]
+    return positive, labels, groups
+
+
+def make_radial_hierarchy_demo() -> tuple[np.ndarray, list[str], list[str], list[str], str]:
+    """Return a cancer-burden style radial hierarchy demo."""
+    group_labels = [
+        "Digestive",
+        "Thoracic",
+        "Hormone / gyn",
+        "Urogenital",
+        "Hematologic",
+        "CNS / skin",
+    ]
+    subgroup_labels = [
+        "LIHC",
+        "CRC",
+        "GAST",
+        "PAAD",
+        "LUAD",
+        "ESCA",
+        "BRCA",
+        "OV",
+        "UCEC",
+        "PRAD",
+        "BLCA",
+        "KIRC",
+        "LYM",
+        "LEUK",
+        "MM",
+        "GLI",
+        "MEL",
+    ]
+    subgroup_groups = [
+        "Digestive",
+        "Digestive",
+        "Digestive",
+        "Digestive",
+        "Thoracic",
+        "Thoracic",
+        "Hormone / gyn",
+        "Hormone / gyn",
+        "Hormone / gyn",
+        "Urogenital",
+        "Urogenital",
+        "Urogenital",
+        "Hematologic",
+        "Hematologic",
+        "Hematologic",
+        "CNS / skin",
+        "CNS / skin",
+    ]
+    values = np.array([24, 18, 15, 11, 28, 10, 26, 12, 9, 19, 13, 10, 16, 14, 8, 9, 12], dtype=float)
+    center_text = "6 systems\n17 tumor classes\n254 cohorts"
+    return values, subgroup_labels, subgroup_groups, group_labels, center_text
+
+
+def make_circular_stacked_bar_demo() -> tuple[np.ndarray, list[str], list[str], list[str]]:
+    """Return a dense proteomics-style circular stacked bar demo."""
+    item_groups = (
+        ["Thor"] * 6
+        + ["GI"] * 6
+        + ["Br-gyn"] * 6
+        + ["GU-skin"] * 6
+    )
+    item_labels = [
+        "LUAD",
+        "LUSC",
+        "SCLC",
+        "MESO",
+        "THYM",
+        "ESCA",
+        "COAD",
+        "READ",
+        "PAAD",
+        "LIHC",
+        "STAD",
+        "CHOL",
+        "BRCA",
+        "OV",
+        "UCEC",
+        "CESC",
+        "UCS",
+        "CERV",
+        "PRAD",
+        "BLCA",
+        "KIRC",
+        "KIRP",
+        "SKCM",
+        "HNSC",
+    ]
+    values = np.array(
+        [
+            [9, 11, 7, 4],
+            [8, 10, 8, 4],
+            [7, 9, 7, 3],
+            [6, 8, 6, 3],
+            [7, 8, 6, 2],
+            [8, 9, 7, 3],
+            [10, 12, 8, 4],
+            [9, 11, 7, 4],
+            [8, 10, 8, 5],
+            [9, 10, 6, 3],
+            [8, 9, 7, 3],
+            [6, 7, 5, 2],
+            [11, 12, 8, 4],
+            [9, 11, 8, 4],
+            [8, 10, 7, 3],
+            [7, 9, 7, 3],
+            [6, 8, 6, 2],
+            [7, 8, 6, 2],
+            [8, 9, 8, 4],
+            [7, 8, 7, 3],
+            [8, 10, 7, 3],
+            [7, 9, 6, 3],
+            [9, 10, 8, 4],
+            [8, 9, 7, 3],
+        ],
+        dtype=float,
+    )
+    stack_labels = ["1 peptide", "2–3", "4–6", "7+"]
+    return values, item_labels, item_groups, stack_labels
+
+
+def make_circular_grouped_bar_demo() -> tuple[np.ndarray, list[str], list[str]]:
+    """Return a dense circular grouped bar demo."""
+    item_groups = (
+        ["Thor"] * 6
+        + ["GI"] * 6
+        + ["Br-gyn"] * 6
+        + ["GU-skin"] * 6
+    )
+    item_labels = [
+        "LUAD",
+        "LUSC",
+        "SCLC",
+        "MESO",
+        "THYM",
+        "ESCA",
+        "COAD",
+        "READ",
+        "PAAD",
+        "LIHC",
+        "STAD",
+        "CHOL",
+        "BRCA",
+        "OV",
+        "UCEC",
+        "CESC",
+        "UCS",
+        "CERV",
+        "PRAD",
+        "BLCA",
+        "KIRC",
+        "KIRP",
+        "SKCM",
+        "HNSC",
+    ]
+    values = np.array(
+        [
+            14, 12, 11, 9, 8, 10,
+            15, 13, 12, 11, 9, 8,
+            16, 14, 12, 10, 9, 8,
+            11, 10, 12, 9, 13, 10,
+        ],
+        dtype=float,
+    )
+    return values, item_labels, item_groups
+
+
 __all__ = [
+    "make_circular_grouped_bar_demo",
+    "make_circular_stacked_bar_demo",
+    "make_donut_demo",
     "make_dumbbell_demo",
     "make_forest_demo",
+    "make_grouped_scatter_demo",
     "make_hexbin_demo",
+    "make_radial_hierarchy_demo",
+    "make_stacked_ratio_demo",
     "make_volcano_demo",
 ]

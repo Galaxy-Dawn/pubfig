@@ -201,6 +201,19 @@ import pubfig as pf
 | <a id="recipe-dumbbell"></a>`dumbbell` | `pf.dumbbell(np.array([0.72, 0.81, 0.77]), np.array([0.79, 0.86, 0.83]), category_names=["Metric A", "Metric B", "Metric C"])` | `left_label`, `right_label`, `sort_by` |
 | <a id="recipe-forest_plot"></a>`forest_plot` | `pf.forest_plot(np.array([1.12, 0.84, 1.36]), np.array([0.98, 0.71, 1.10]), np.array([1.29, 0.99, 1.68]), labels=["Age", "BMI", "Smoking"], reference=1.0)` | `reference`, `group_labels`, `right_labels` |
 
+##### 组成与极坐标
+
+| 图 | 最小调用 | 常改参数 |
+|----|----------|----------|
+| <a id="recipe-grouped_scatter"></a>`grouped_scatter` | `pf.grouped_scatter(np.random.default_rng(0).normal(loc=np.array([[0.72, 0.81, 0.86], [0.68, 0.76, 0.82]])[..., None], scale=0.04, size=(2, 3, 14)), category_names=["Overall", "External"], group_names=["R50", "PLIP", "CONCH"])` | `category_names`, `group_names`, `point_size` |
+| <a id="recipe-donut"></a>`donut` | `pf.donut(np.array([48, 27, 14, 8]), labels=["Held-out", "External", "Independent", "Zero-shot"], center_text="97\ntasks")` | `labels`, `center_text`, `colors` |
+| <a id="recipe-stacked_ratio_barh"></a>`stacked_ratio_barh` | `pf.stacked_ratio_barh(np.array([30, 33, 40, 65]), labels=["EGFR", "KRAS", "PTEN", "BRAF"], group_labels=["LUAD", "LUAD", "UCEC", "SKCM"])` | `group_labels`, `negative_values`, `title` |
+| <a id="recipe-radial_hierarchy"></a>`radial_hierarchy` | `pf.radial_hierarchy(np.array([24, 18, 15, 11, 28, 10]), subgroup_labels=["LIHC", "CRC", "GAST", "PAAD", "LUAD", "ESCA"], subgroup_groups=["Digestive", "Digestive", "Digestive", "Digestive", "Thoracic", "Thoracic"], group_labels=["Digestive", "Thoracic"], center_text="2 systems\n6 classes")` | `group_labels`, `center_text`, `show_outer_values` |
+| <a id="recipe-circular_stacked_bar"></a>`circular_stacked_bar` | `pf.circular_stacked_bar(np.array([[9, 11, 7, 4], [8, 10, 8, 4], [7, 9, 7, 3], [10, 12, 8, 4]], dtype=float), item_labels=["LUAD", "LUSC", "SCLC", "COAD"], item_groups=["Thor", "Thor", "Thor", "GI"])` | `item_groups`, `stack_labels`, `group_legend_show` |
+| <a id="recipe-circular_grouped_bar"></a>`circular_grouped_bar` | `pf.circular_grouped_bar(np.array([14, 12, 11, 15, 13, 12], dtype=float), item_labels=["LUAD", "LUSC", "SCLC", "COAD", "READ", "PAAD"], item_groups=["Thor", "Thor", "Thor", "GI", "GI", "GI"])` | `item_groups`, `show_value_labels`, `group_colors` |
+
+`circular_stacked_bar(...)` 和 `circular_grouped_bar(...)` 现在已经把图库里那套更致密的 publication 风格默认值固化进函数本身：更紧的组间距 / 条间距、单行短内圈标签，以及默认的暖冷对照配色。多数情况下你直接从最小调用开始，只补自己的标签和数据就够了。
+
 ##### 分布
 
 | 图 | 最小调用 | 常改参数 |
@@ -361,6 +374,17 @@ pubfig figma bridge status
 | `dumbbell` | 带连接线的成对比较图 | [示例](#recipe-dumbbell) |
 | `forest_plot` | 带置信区间的效应量图 | [示例](#recipe-forest_plot) |
 
+### 组成与极坐标图
+
+| 函数 | 说明 | 示例 |
+|------|------|------|
+| `grouped_scatter` | 紧凑的分组散点 / benchmark panel | [示例](#recipe-grouped_scatter) |
+| `donut` | publication 风格 donut 图 | [示例](#recipe-donut) |
+| `stacked_ratio_barh` | 100% 横向比例柱状图 | [示例](#recipe-stacked_ratio_barh) |
+| `radial_hierarchy` | 两层径向层级 / sunburst 风格图 | [示例](#recipe-radial_hierarchy) |
+| `circular_stacked_bar` | 带内圈分组环的致密环形堆积柱状图 | [示例](#recipe-circular_stacked_bar) |
+| `circular_grouped_bar` | 带内圈分组环的致密环形分组柱状图 | [示例](#recipe-circular_grouped_bar) |
+
 ### 分布图
 
 | 函数 | 说明 | 示例 |
@@ -481,6 +505,7 @@ palette = pf.get_palette("carto_blugrn")
 - `examples/figma_workflow_demo.md` —— 面板优先的 pubfig → Figma 工作流说明
 - `examples/generate_palette_gallery.py` —— 重新生成调色板预览图与图库文档
 - `examples/README.md` —— 这个目录的保留 / 生成 / 清理清单
+- `help(pubfig.circular_stacked_bar)` / `help(pubfig.circular_grouped_bar)` —— 直接在 Python 里查看这两类极坐标图已经固定好的默认参数
 
 进阶 / 次要入口：
 

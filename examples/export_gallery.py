@@ -13,9 +13,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import pubfig as pf  # noqa: E402 - allow local import after sys.path tweak for examples
 from gallery_contact_sheet import build_gallery_contact_sheet  # noqa: E402
 from new_plot_showcases import (  # noqa: E402
+    make_circular_grouped_bar_demo as make_circular_grouped_bar_showcase,
+    make_circular_stacked_bar_demo as make_circular_stacked_bar_showcase,
+    make_donut_demo as make_donut_showcase,
     make_dumbbell_demo as make_dumbbell_showcase,
     make_forest_demo as make_forest_showcase,
+    make_grouped_scatter_demo as make_grouped_scatter_showcase,
     make_hexbin_demo as make_hexbin_showcase,
+    make_radial_hierarchy_demo as make_radial_hierarchy_showcase,
+    make_stacked_ratio_demo as make_stacked_ratio_showcase,
     make_volcano_demo as make_volcano_showcase,
 )
 
@@ -32,6 +38,12 @@ FEATURED_EXPORTS = {
     "18_heatmap.png": ROOT / "examples" / "heatmap.png",
     "16b_dumbbell.png": ROOT / "examples" / "dumbbell.png",
     "16c_forest_plot.png": ROOT / "examples" / "forest_plot.png",
+    "16d_grouped_scatter.png": ROOT / "examples" / "grouped_scatter.png",
+    "16e_donut.png": ROOT / "examples" / "donut.png",
+    "16f_stacked_ratio_barh.png": ROOT / "examples" / "stacked_ratio_barh.png",
+    "16g_radial_hierarchy.png": ROOT / "examples" / "radial_hierarchy.png",
+    "16h_circular_stacked_bar.png": ROOT / "examples" / "circular_stacked_bar.png",
+    "16i_circular_grouped_bar.png": ROOT / "examples" / "circular_grouped_bar.png",
     "15b_hexbin.png": ROOT / "examples" / "hexbin.png",
     "25b_volcano.png": ROOT / "examples" / "volcano.png",
 }
@@ -257,6 +269,26 @@ def save(fig, name: str) -> None:
         pass
     print(f"  ✓ {name}")  # noqa: T201 - example script
 
+
+def save_square(fig, name: str) -> None:
+    for suffix in (*VECTOR_FORMATS, *RASTER_FORMATS):
+        pf.save_figure(
+            fig,
+            (OUT / name).with_suffix(f".{suffix}"),
+            spec="nature",
+            width="single",
+            aspect_ratio=1.0,
+            raster_dpi=600,
+            trim=True,
+        )
+    try:
+        import matplotlib.pyplot as plt
+
+        plt.close(fig)
+    except Exception:
+        pass
+    print(f"  ✓ {name}")  # noqa: T201 - example script
+
 print("=== Bar plots ===")
 grouped_bar_data, grouped_bar_categories, grouped_bar_series = make_grouped_bar_demo()
 stacked_bar_data, stacked_bar_groups = make_stacked_bar_demo()
@@ -351,6 +383,98 @@ save(
     "15b_hexbin",
 )
 save(pf.paired(np.array([1, 2, 3, 4]), np.array([1.5, 2.8, 2.9, 4.5]), title="Paired"), "16_paired")
+grouped_scatter_data, grouped_scatter_categories, grouped_scatter_groups, grouped_scatter_top = make_grouped_scatter_showcase()
+save(
+    pf.grouped_scatter(
+        grouped_scatter_data,
+        category_names=grouped_scatter_categories,
+        group_names=grouped_scatter_groups,
+        y_label="Macro-AUC",
+        point_size=2.3,
+        jitter=0.0,
+        summary_line_width=0.9,
+        top_annotations=None,
+        category_spacing=2.4,
+        grouped_total_span=1.6,
+        show_statistics=False,
+        statistics_pairs=[(0, 3)],
+        width=1500,
+        height=420,
+        title=None,
+    ),
+    "16d_grouped_scatter",
+)
+donut_values, donut_labels, donut_center = make_donut_showcase()
+save(
+    pf.donut(
+        donut_values,
+        labels=donut_labels,
+        center_text=donut_center,
+        colors=["#D7E1DB", "#F6D7C6", "#F6BFCF", "#F1A8B7"],
+        title="Donut",
+    ),
+    "16e_donut",
+)
+radial_values, radial_subgroups, radial_group_map, radial_groups, radial_center = make_radial_hierarchy_showcase()
+save_square(
+    pf.radial_hierarchy(
+        radial_values,
+        subgroup_labels=radial_subgroups,
+        subgroup_groups=radial_group_map,
+        group_labels=radial_groups,
+        center_text=radial_center,
+        group_colors=["#C97F70", "#D79B78", "#E7C28A", "#94AEBF", "#6F8FA6", "#617A8C"],
+        center_text_font_size=9,
+        group_label_font_size=4,
+        subgroup_label_font_size=4,
+        value_label_font_size=5,
+        group_gap_degrees=3.4,
+        outer_label_radius_offset=0.08,
+        outer_value_radius_offset=0.03,
+        show_group_labels=True,
+        show_outer_values=True,
+        legend_show=False,
+        title=None,
+        width=900,
+        height=900,
+    ),
+    "16g_radial_hierarchy",
+)
+positive_ratio, ratio_labels, ratio_groups = make_stacked_ratio_showcase()
+save(
+    pf.stacked_ratio_barh(
+        positive_ratio,
+        labels=ratio_labels,
+        group_labels=ratio_groups,
+        title="Stacked Ratio",
+    ),
+    "16f_stacked_ratio_barh",
+)
+circular_values, circular_items, circular_groups, circular_stack_labels = make_circular_stacked_bar_showcase()
+save_square(
+    pf.circular_stacked_bar(
+        circular_values,
+        item_labels=circular_items,
+        item_groups=circular_groups,
+        stack_labels=circular_stack_labels,
+            title=None,
+        width=900,
+        height=900,
+    ),
+    "16h_circular_stacked_bar",
+)
+circular_grouped_values, circular_grouped_items, circular_grouped_groups = make_circular_grouped_bar_showcase()
+save_square(
+    pf.circular_grouped_bar(
+        circular_grouped_values,
+        item_labels=circular_grouped_items,
+        item_groups=circular_grouped_groups,
+        title=None,
+        width=1000,
+        height=1000,
+    ),
+    "16i_circular_grouped_bar",
+)
 dumbbell_start, dumbbell_end, dumbbell_labels = make_dumbbell_showcase()
 save(
     pf.dumbbell(

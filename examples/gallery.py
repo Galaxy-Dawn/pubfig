@@ -4,9 +4,15 @@ import numpy as np
 import pubfig as pf
 
 from new_plot_showcases import (
+    make_circular_grouped_bar_demo as make_circular_grouped_bar_showcase,
+    make_circular_stacked_bar_demo as make_circular_stacked_bar_showcase,
+    make_donut_demo as make_donut_showcase,
     make_dumbbell_demo as make_dumbbell_showcase,
     make_forest_demo as make_forest_showcase,
+    make_grouped_scatter_demo as make_grouped_scatter_showcase,
     make_hexbin_demo as make_hexbin_showcase,
+    make_radial_hierarchy_demo as make_radial_hierarchy_showcase,
+    make_stacked_ratio_demo as make_stacked_ratio_showcase,
     make_volcano_demo as make_volcano_showcase,
 )
 
@@ -294,6 +300,80 @@ fig.show()
 # Scatter
 x_scatter, y_scatter, scatter_labels = make_scatter_demo()
 fig = pf.scatter(x_scatter, y_scatter, labels=scatter_labels, title="Scatter")
+fig.show()
+
+grouped_scatter_data, grouped_scatter_categories, grouped_scatter_groups, grouped_scatter_top = make_grouped_scatter_showcase()
+fig = pf.grouped_scatter(
+    grouped_scatter_data,
+    category_names=grouped_scatter_categories,
+    group_names=grouped_scatter_groups,
+    y_label="Macro-AUC",
+    point_size=2.3,
+    jitter=0.0,
+    summary_line_width=0.9,
+    top_annotations=None,
+    show_statistics=False,
+    statistics_pairs=[(0, 3)],
+    title="Grouped Scatter",
+)
+fig.show()
+
+donut_values, donut_labels, donut_center = make_donut_showcase()
+fig = pf.donut(
+    donut_values,
+    labels=donut_labels,
+    center_text=donut_center,
+    colors=["#D7E1DB", "#F6D7C6", "#F6BFCF", "#F1A8B7"],
+    title="Donut",
+)
+fig.show()
+
+radial_values, radial_subgroups, radial_group_map, radial_groups, radial_center = make_radial_hierarchy_showcase()
+fig = pf.radial_hierarchy(
+    radial_values,
+    subgroup_labels=radial_subgroups,
+    subgroup_groups=radial_group_map,
+    group_labels=radial_groups,
+    center_text=radial_center,
+    group_colors=["#C97F70", "#D79B78", "#E7C28A", "#94AEBF", "#6F8FA6", "#617A8C"],
+    center_text_font_size=15,
+    group_label_font_size=7,
+    subgroup_label_font_size=5,
+    value_label_font_size=6,
+    group_gap_degrees=3.2,
+    outer_label_radius_offset=0.08,
+    outer_value_radius_offset=0.03,
+    subgroup_label_position="inside",
+    title=None,
+)
+fig.show()
+
+positive_ratio, ratio_labels, ratio_groups = make_stacked_ratio_showcase()
+fig = pf.stacked_ratio_barh(
+    positive_ratio,
+    labels=ratio_labels,
+    group_labels=ratio_groups,
+    title="Stacked Ratio",
+)
+fig.show()
+
+circular_values, circular_items, circular_groups, circular_stack_labels = make_circular_stacked_bar_showcase()
+fig = pf.circular_stacked_bar(
+    circular_values,
+    item_labels=circular_items,
+    item_groups=circular_groups,
+    stack_labels=circular_stack_labels,
+    title=None,
+)
+fig.show()
+
+circular_grouped_values, circular_grouped_items, circular_grouped_groups = make_circular_grouped_bar_showcase()
+fig = pf.circular_grouped_bar(
+    circular_grouped_values,
+    item_labels=circular_grouped_items,
+    item_groups=circular_grouped_groups,
+    title=None,
+)
 fig.show()
 
 hexbin_x, hexbin_y = make_hexbin_showcase()
