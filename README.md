@@ -77,6 +77,14 @@
   <a href="examples/hexbin.png"><img src="examples/hexbin.png" width="48%" alt="Hexbin example"></a>
   <a href="examples/volcano.png"><img src="examples/volcano.png" width="48%" alt="Volcano example"></a>
 </p>
+<p align="center">
+  <a href="examples/donut.png"><img src="examples/donut.png" width="48%" alt="Donut example"></a>
+  <a href="examples/stacked_ratio_barh.png"><img src="examples/stacked_ratio_barh.png" width="48%" alt="Stacked ratio example"></a>
+</p>
+<p align="center">
+  <a href="examples/grouped_scatter.png"><img src="examples/grouped_scatter.png" width="48%" alt="Grouped scatter example"></a>
+  <a href="examples/radial_hierarchy.png"><img src="examples/radial_hierarchy.png" width="48%" alt="Radial hierarchy example"></a>
+</p>
 
 #### Composite figure examples assembled in Figma
 
