@@ -32,6 +32,76 @@ def make_dumbbell_demo(seed: Optional[int] = None) -> tuple[np.ndarray, np.ndarr
     return baseline, updated, labels
 
 
+def make_ecdf_demo(seed: Optional[int] = None) -> tuple[list[np.ndarray], list[str]]:
+    """Return three shifted distributions for ECDF comparison."""
+    rng = _rng(seed)
+    labels = ["Baseline", "Fine-tuned", "Ensemble"]
+    series = [
+        rng.normal(loc=0.78, scale=0.11, size=160),
+        rng.normal(loc=0.85, scale=0.09, size=160),
+        np.concatenate(
+            [
+                rng.normal(loc=0.90, scale=0.06, size=110),
+                rng.normal(loc=0.78, scale=0.05, size=50),
+            ]
+        ),
+    ]
+    return [np.clip(values, 0.35, 1.15) for values in series], labels
+
+
+def make_qq_demo(seed: Optional[int] = None) -> np.ndarray:
+    """Return a mildly heavy-tailed sample for QQ diagnostics."""
+    rng = _rng(seed)
+    core = rng.normal(loc=0.0, scale=1.0, size=220)
+    tails = rng.normal(loc=0.0, scale=2.2, size=28)
+    return np.concatenate([core, tails])
+
+
+def make_bland_altman_demo(seed: Optional[int] = None) -> tuple[np.ndarray, np.ndarray]:
+    """Return paired measurements with a small positive bias."""
+    rng = _rng(seed)
+    reference = rng.normal(loc=72.0, scale=8.0, size=56)
+    candidate = reference + 1.6 + rng.normal(loc=0.0, scale=3.4, size=reference.size)
+    return reference, candidate
+
+
+def make_calibration_demo(seed: Optional[int] = None) -> tuple[np.ndarray, list[np.ndarray], list[str]]:
+    """Return three probability models with distinct calibration patterns."""
+    rng = _rng(seed)
+    latent = rng.normal(loc=0.0, scale=1.1, size=420)
+    true_prob = 1.0 / (1.0 + np.exp(-latent))
+    y_true = rng.binomial(1, true_prob, size=true_prob.size).astype(int)
+
+    calibrated = np.clip(true_prob + rng.normal(0.0, 0.035, size=true_prob.size), 0.001, 0.999)
+    overconfident = np.clip(true_prob ** 0.72 + rng.normal(0.0, 0.03, size=true_prob.size), 0.001, 0.999)
+    underconfident = np.clip(0.58 * true_prob + 0.20 + rng.normal(0.0, 0.03, size=true_prob.size), 0.001, 0.999)
+
+    names = ["Calibrated", "Over-confident", "Under-confident"]
+    return y_true, [calibrated, overconfident, underconfident], names
+
+
+def make_upset_demo() -> tuple[list[list[str]], list[str]]:
+    """Return a compact, publication-style set-overlap example."""
+    set_names = ["Imaging", "Clinical", "Genomics", "Pathology"]
+    pattern_counts = {
+        ("Imaging", "Clinical"): 18,
+        ("Imaging", "Genomics"): 12,
+        ("Clinical", "Genomics"): 10,
+        ("Clinical", "Pathology"): 8,
+        ("Imaging", "Clinical", "Genomics"): 9,
+        ("Imaging", "Pathology"): 7,
+        ("Genomics", "Pathology"): 6,
+        ("Imaging",): 11,
+        ("Clinical",): 13,
+        ("Genomics",): 9,
+        ("Pathology",): 5,
+    }
+    memberships: list[list[str]] = []
+    for pattern, count in pattern_counts.items():
+        memberships.extend([list(pattern)] * int(count))
+    return memberships, set_names
+
+
 def make_forest_demo(
     seed: Optional[int] = None,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, list[str], list[str], list[bool], list[str]]:

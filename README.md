@@ -33,15 +33,16 @@
 
 ## Recent News
 
-- **2026-03-30**: `pubfig 0.2.1` refreshes the PyPI release with new polar plot families, fuller gallery coverage, and updated publication-style examples.
-- **2026-03-29**: `pubfig 0.2.0` is now live on PyPI — install with `pip install pubfig`, use explicit output suffixes such as `figure.pdf` / `figure.png`, and start from the push-first Figma workflow documented below.
-- **2026-03-25**: Panel-first Figma loop polish — panel export now defaults to title-free assets for cleaner Figma assembly, `pubfig-sync` now keeps shared title / legend placeholders off by default, and bridge/watch flows now surface bundle provenance plus the exact manual-fallback bundle path.
-- **2026-03-20**: Local bridge automation for Figma sync — added a bridge-backed `pubfig figma bridge|sync|watch` workflow, upgraded `pubfig-sync` with bridge connection mode, and enabled CLI-triggered vector import/refresh after one-time plugin connection.
-- **2026-03-20**: Figma plugin v2 workflow polish — added `auto` / `hero_top` relayout presets, upgraded shared title / legend placeholders, and improved refresh behavior so manual Figma positioning is preserved more reliably unless relayout is requested.
+- **2026-03-31**: `pubfig 0.2.2` adds **ECDF, QQ, Bland–Altman, Calibration, and UpSet**, and brings them into the homepage showcase and full gallery.
+- **2026-03-30**: `pubfig 0.2.1` refreshed the PyPI release with stronger polar/composition coverage and fuller gallery examples.
+- **2026-03-29**: `pubfig 0.2.0` landed on PyPI with `pip install pubfig`, suffix-based export, and the documented panel-first Figma workflow.
 
 <details>
 <summary><strong>View older changelog</strong></summary>
 
+- **2026-03-25**: Panel-first Figma loop polish — panel export now defaults to title-free assets for cleaner Figma assembly, `pubfig-sync` now keeps shared title / legend placeholders off by default, and bridge/watch flows now surface bundle provenance plus the exact manual-fallback bundle path.
+- **2026-03-20**: Local bridge automation for Figma sync — added a bridge-backed `pubfig figma bridge|sync|watch` workflow, upgraded `pubfig-sync` with bridge connection mode, and enabled CLI-triggered vector import/refresh after one-time plugin connection.
+- **2026-03-20**: Figma plugin v2 workflow polish — added `auto` / `hero_top` relayout presets, upgraded shared title / legend placeholders, and improved refresh behavior so manual Figma positioning is preserved more reliably unless relayout is requested.
 - **2026-03-20**: CLI + Figma plugin workflow — added `pubfig figma package|validate|inspect`, introduced a single-file Figma bundle JSON format for exported panels, and scaffolded the `figma-plugin/pubfig-sync` plugin for node-level import and refresh.
 - **2026-03-20**: Figma-first panel export workflow — added `export_panel(...)` and `export_panels(...)` for stable subplot asset export, introduced a minimal `panel-index.json` sync index, and documented the Codex + Figma MCP refinement path for multi-panel figures.
 - **2026-03-20**: README alignment with pubtab style and homepage refresh — reorganized the README into a pubtab-style homepage with centered badges, language switch, highlights, dated recent news, showcase examples, and an embedded gallery hero.
@@ -70,6 +71,15 @@
 
 #### New plot families
 
+<p align="center">
+  <a href="examples/ecdf.png"><img src="examples/ecdf.png" width="32%" alt="ECDF example"></a>
+  <a href="examples/qq.png"><img src="examples/qq.png" width="32%" alt="QQ plot example"></a>
+  <a href="examples/bland_altman.png"><img src="examples/bland_altman.png" width="32%" alt="Bland-Altman example"></a>
+</p>
+<p align="center">
+  <a href="examples/calibration.png"><img src="examples/calibration.png" width="48%" alt="Calibration example"></a>
+  <a href="examples/upset.png"><img src="examples/upset.png" width="48%" alt="UpSet example"></a>
+</p>
 <p align="center">
   <a href="examples/dumbbell.png"><img src="examples/dumbbell.png" width="48%" alt="Dumbbell example"></a>
   <a href="examples/forest_plot.png"><img src="examples/forest_plot.png" width="48%" alt="Forest plot example"></a>
@@ -101,6 +111,8 @@
 
 <details>
 <summary><strong>Full Gallery</strong></summary>
+
+The full gallery below also includes the newest diagnostics, evaluation, and set/composition families such as ECDF, QQ, Bland–Altman, Calibration, and UpSet.
 
 <p align="center">
   <img src="examples/gallery-hero.png" width="100%" alt="Full gallery contact sheet">

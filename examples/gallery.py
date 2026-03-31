@@ -4,15 +4,20 @@ import numpy as np
 import pubfig as pf
 
 from new_plot_showcases import (
+    make_bland_altman_demo as make_bland_altman_showcase,
+    make_calibration_demo as make_calibration_showcase,
     make_circular_grouped_bar_demo as make_circular_grouped_bar_showcase,
     make_circular_stacked_bar_demo as make_circular_stacked_bar_showcase,
     make_donut_demo as make_donut_showcase,
     make_dumbbell_demo as make_dumbbell_showcase,
+    make_ecdf_demo as make_ecdf_showcase,
     make_forest_demo as make_forest_showcase,
     make_grouped_scatter_demo as make_grouped_scatter_showcase,
     make_hexbin_demo as make_hexbin_showcase,
+    make_qq_demo as make_qq_showcase,
     make_radial_hierarchy_demo as make_radial_hierarchy_showcase,
     make_stacked_ratio_demo as make_stacked_ratio_showcase,
+    make_upset_demo as make_upset_showcase,
     make_volcano_demo as make_volcano_showcase,
 )
 
@@ -287,6 +292,13 @@ fig.show()
 fig = pf.ridgeline(ridgeline_data, category_names=ridgeline_labels, title="Ridgeline")
 fig.show()
 
+ecdf_values, ecdf_names = make_ecdf_showcase()
+fig = pf.ecdf(ecdf_values, series_names=ecdf_names, x_label="Held-out AUROC", title="ECDF")
+fig.show()
+
+fig = pf.qq(make_qq_showcase(), title="QQ Plot")
+fig.show()
+
 # Line
 x_line, y_line, line_names = make_line_demo()
 fig = pf.line(x=x_line, data=y_line, series_names=line_names.tolist(), title="Line")
@@ -357,6 +369,14 @@ fig = pf.stacked_ratio_barh(
 )
 fig.show()
 
+upset_memberships, upset_sets = make_upset_showcase()
+fig = pf.upset(
+    upset_memberships,
+    set_names=upset_sets,
+    title="UpSet",
+)
+fig.show()
+
 circular_values, circular_items, circular_groups, circular_stack_labels = make_circular_stacked_bar_showcase()
 fig = pf.circular_stacked_bar(
     circular_values,
@@ -391,6 +411,16 @@ fig = pf.hexbin(
 fig.show()
 
 fig = pf.paired(np.array([1, 2, 3, 4]), np.array([1.5, 2.8, 2.9, 4.5]), title="Paired")
+fig.show()
+
+ba_reference, ba_candidate = make_bland_altman_showcase()
+fig = pf.bland_altman(
+    ba_reference,
+    ba_candidate,
+    x_label="Mean resting heart rate",
+    y_label="Candidate - reference",
+    title="Bland–Altman",
+)
 fig.show()
 
 dumbbell_start, dumbbell_end, dumbbell_labels = make_dumbbell_showcase()
@@ -487,6 +517,15 @@ fig.show()
 # Precision-Recall curve
 prec, rec, pr_names = make_pr_demo()
 fig = pf.pr_curve(prec, rec, series_names=pr_names, title="PR Curve")
+fig.show()
+
+cal_y_true, cal_y_prob, cal_names = make_calibration_showcase()
+fig = pf.calibration(
+    cal_y_true,
+    cal_y_prob,
+    series_names=cal_names,
+    title="Calibration",
+)
 fig.show()
 
 volcano_fc, volcano_p, volcano_labels = make_volcano_showcase()

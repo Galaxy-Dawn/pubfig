@@ -33,15 +33,16 @@
 
 ## 近期更新
 
-- **2026-03-30**: `pubfig 0.2.1` 已更新到 PyPI，这一版补入了新的极坐标图族、完整图库中的对应展示，以及最新一轮更贴近论文主图的示例。
-- **2026-03-29**: `pubfig 0.2.0` 已发布到 PyPI —— 现在可直接通过 `pip install pubfig` 安装；导出统一使用显式文件后缀（如 `figure.pdf` / `figure.png`）；Figma 侧则默认走下文的 push-first 工作流。
-- **2026-03-25**: 面板优先的 Figma 链路继续打磨 — 面板导出现在默认产出不带标题的干净资产，便于在 Figma 里做整图级标题编排；`pubfig-sync` 默认关闭共享标题 / 图例占位；`bridge` / `watch` 也会直接暴露 bundle 来源信息和手动兜底对应的打包文件路径。
-- **2026-03-20**: Figma 本地桥接自动化同步 — 增加由桥接驱动的 `pubfig figma bridge|sync|watch` 工作流，升级 `pubfig-sync` 的桥接连接模式，并支持在一次插件连接后由命令行触发矢量导入 / 刷新。
-- **2026-03-20**: Figma 插件 v2 工作流打磨 — 增加 `auto` / `hero_top` 重新布局预设，补齐共享标题 / 图例占位，并改进刷新行为，使用户在 Figma 中手调过的位置默认能更稳定地保留下来。
+- **2026-03-31**: `pubfig 0.2.2` 新增 **ECDF、QQ、Bland–Altman、Calibration 和 UpSet**，并已接入首页精选展示和完整图库。
+- **2026-03-30**: `pubfig 0.2.1` 已更新到 PyPI，强化了极坐标 / 组成类图型覆盖，并补全了完整图库示例。
+- **2026-03-29**: `pubfig 0.2.0` 已发布到 PyPI，支持 `pip install pubfig`、按后缀导出，以及 panel-first Figma 工作流。
 
 <details>
 <summary><strong>查看更早更新</strong></summary>
 
+- **2026-03-25**: 面板优先的 Figma 链路继续打磨 — 面板导出现在默认产出不带标题的干净资产，便于在 Figma 里做整图级标题编排；`pubfig-sync` 默认关闭共享标题 / 图例占位；`bridge` / `watch` 也会直接暴露 bundle 来源信息和手动兜底对应的打包文件路径。
+- **2026-03-20**: Figma 本地桥接自动化同步 — 增加由桥接驱动的 `pubfig figma bridge|sync|watch` 工作流，升级 `pubfig-sync` 的桥接连接模式，并支持在一次插件连接后由命令行触发矢量导入 / 刷新。
+- **2026-03-20**: Figma 插件 v2 工作流打磨 — 增加 `auto` / `hero_top` 重新布局预设，补齐共享标题 / 图例占位，并改进刷新行为，使用户在 Figma 中手调过的位置默认能更稳定地保留下来。
 - **2026-03-20**: CLI + Figma 插件工作流 — 新增 `pubfig figma package|validate|inspect`，引入单文件的 Figma bundle JSON 格式，并提供 `figma-plugin/pubfig-sync` 插件脚手架，用于节点级导入与刷新。
 - **2026-03-20**: Figma 优先的面板导出工作流 — 新增 `export_panel(...)` 和 `export_panels(...)`，用于稳定导出子图资产；同时增加最小化的 `panel-index.json` 同步索引，并补充 Codex + Figma MCP 的多面板精修路径说明。
 - **2026-03-20**: 与 pubtab 风格对齐并刷新首页结构 — 按照 pubtab 的首页组织方式重排 README，补上居中徽章、语言切换、亮点、带日期的近期更新、精选示例和图库头图。
@@ -70,6 +71,15 @@
 
 #### 新增图型示例
 
+<p align="center">
+  <a href="examples/ecdf.png"><img src="examples/ecdf.png" width="32%" alt="ECDF 示例"></a>
+  <a href="examples/qq.png"><img src="examples/qq.png" width="32%" alt="QQ plot 示例"></a>
+  <a href="examples/bland_altman.png"><img src="examples/bland_altman.png" width="32%" alt="Bland-Altman 示例"></a>
+</p>
+<p align="center">
+  <a href="examples/calibration.png"><img src="examples/calibration.png" width="48%" alt="Calibration 示例"></a>
+  <a href="examples/upset.png"><img src="examples/upset.png" width="48%" alt="UpSet 示例"></a>
+</p>
 <p align="center">
   <a href="examples/dumbbell.png"><img src="examples/dumbbell.png" width="48%" alt="Dumbbell 示例"></a>
   <a href="examples/forest_plot.png"><img src="examples/forest_plot.png" width="48%" alt="Forest plot 示例"></a>
@@ -101,6 +111,8 @@
 
 <details>
 <summary><strong>完整图库</strong></summary>
+
+下面这张完整图库也已经收进本轮新增的诊断、评估和集合关系图，包括 ECDF、QQ、Bland–Altman、Calibration 和 UpSet。
 
 <p align="center">
   <img src="examples/gallery-hero.png" width="100%" alt="完整 gallery 总览">

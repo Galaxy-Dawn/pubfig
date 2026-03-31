@@ -11,14 +11,15 @@ from PIL import Image
 _GALLERY_ROWS: tuple[tuple[str, ...], ...] = (
     ("01_bar", "02_bar_grouped", "03_bar_scatter", "03_stacked_bar"),
     ("04_box", "05_violin", "06_density", "07_histogram"),
-    ("08_strip", "08b_raincloud", "09_ridgeline", "10_line"),
-    ("11_line_ci", "12_area", "13_scatter", "14_bubble"),
-    ("15_contour2d", "15b_hexbin", "16_paired", "16b_dumbbell"),
-    ("16c_forest_plot", "16d_grouped_scatter", "16e_donut", "16f_stacked_ratio_barh"),
+    ("07b_ecdf", "07c_qq", "08_strip", "08b_raincloud"),
+    ("09_ridgeline", "10_line", "11_line_ci", "12_area"),
+    ("13_scatter", "14_bubble", "15_contour2d", "15b_hexbin"),
+    ("15c_bland_altman", "16_paired", "16b_dumbbell", "16c_forest_plot"),
+    ("16d_grouped_scatter", "16e_donut", "16f_stacked_ratio_barh", "16j_upset"),
     ("16g_radial_hierarchy", "16h_circular_stacked_bar", "16i_circular_grouped_bar", "17_radar"),
     ("18_heatmap", "19_confusion_matrix", "20_corr_matrix", "21_clustermap"),
-    ("24_roc", "25_pr_curve", "25b_volcano", "26_sankey"),
-    ("27_parallel_coords",),
+    ("24_roc", "24b_calibration", "25_pr_curve", "25b_volcano"),
+    ("26_sankey", "27_parallel_coords"),
 )
 
 _CELL_WIDTH = 560

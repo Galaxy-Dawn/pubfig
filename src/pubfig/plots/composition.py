@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+from collections import Counter
 from typing import Optional, Sequence, TYPE_CHECKING
 
 import numpy as np
 
-from .._mpl_utils import get_fig_ax, resolve_design_dpi
-from .._style import apply_cartesian_axis_controls, normalize_palette, title_above
+from .._mpl_utils import get_fig_ax, resolve_design_dpi, resolve_figsize_inches
+from .._style import apply_cartesian_axis_controls, coerce_linewidth, normalize_palette, title_above
 from ..colors.palettes import DEFAULT
 from ..colors.utils import color_to_rgba, darken_color
 from ..themes import Theme, theme_context
@@ -156,7 +157,14 @@ def donut(
                 pass
 
         ax.set_axis_off()
-        fig.tight_layout()
+        fig.subplots_adjust(
+            top=0.90 if title else 0.96,
+            bottom=0.12,
+            left=0.10,
+            right=0.98,
+            wspace=0.08,
+            hspace=0.08,
+        )
         return fig
 
 
@@ -336,4 +344,322 @@ def stacked_ratio_barh(
         return fig
 
 
-__all__ = ["donut", "grouped_scatter", "stacked_ratio_barh"]
+def _normalize_upset_memberships(
+    memberships,
+    *,
+    set_names: Optional[Sequence[str]] = None,
+) -> tuple[np.ndarray, list[str]]:
+    if isinstance(memberships, np.ndarray):
+        matrix = np.asarray(memberships)
+        if matrix.ndim != 2:
+            raise ValueError("membership matrix must be 2D")
+        membership_matrix = matrix.astype(bool)
+        names = [str(item) for item in set_names] if set_names is not None else [f"Set {idx + 1}" for idx in range(matrix.shape[1])]
+        if len(names) != membership_matrix.shape[1]:
+            raise ValueError("set_names must match the number of columns")
+        return membership_matrix, names
+
+    items = list(memberships)
+    if not items:
+        raise ValueError("memberships must contain at least one item")
+
+    if set_names is None:
+        names: list[str] = []
+        for item in items:
+            for name in item:
+                label = str(name)
+                if label not in names:
+                    names.append(label)
+    else:
+        names = [str(item) for item in set_names]
+
+    index = {name: idx for idx, name in enumerate(names)}
+    membership_matrix = np.zeros((len(items), len(names)), dtype=bool)
+    for row_idx, item in enumerate(items):
+        for name in item:
+            label = str(name)
+            if label not in index:
+                raise ValueError(f"Unknown set label: {label}")
+            membership_matrix[row_idx, index[label]] = True
+    return membership_matrix, names
+
+
+def upset(
+    memberships,
+    *,
+    set_names: Optional[Sequence[str]] = None,
+    min_size: int = 1,
+    sort_by: str = "size",
+    sort_sets: bool = False,
+    max_intersections: Optional[int] = 12,
+    title: Optional[str] = None,
+    show_counts: bool = True,
+    matrix_dot_size: float = 4.6,
+    bar_color: Optional[str] = None,
+    matrix_color: str = "0.22",
+    inactive_dot_color: str = "0.86",
+    connector_color: str = "0.60",
+    row_guide_color: str = "0.88",
+    row_guide_line_width: float = 1.0,
+    row_band_color: str = "none",
+    set_size_bar_height: float = 0.60,
+    tick_direction: str | None = None,
+    show_full_box: Optional[bool] = None,
+    show_x_grid: Optional[bool] = None,
+    show_y_grid: Optional[bool] = None,
+    theme: Optional[Theme] = None,
+    width: Optional[int] = 820,
+    height: Optional[int] = 560,
+    ax: Optional["Axes"] = None,
+) -> "Figure":
+    """Create a publication-style UpSet plot for set intersections.
+
+    Args:
+        memberships: Either a boolean membership matrix with shape `(n_items, n_sets)`
+            or a list where each item is a list/tuple of set names.
+        set_names: Optional set labels. Required when the membership matrix columns do
+            not already have names and recommended for stable ordering.
+        min_size: Minimum intersection size to display.
+        sort_by: ``"size"`` or ``"degree"``.
+        sort_sets: If True, sort set rows by descending set size.
+        max_intersections: Optional maximum number of intersections to display.
+        title: Optional plot title.
+        show_counts: Whether to print counts above the intersection bars.
+        matrix_dot_size: Dot size in Matplotlib points.
+        bar_color: Optional color override for the intersection bars.
+        matrix_color: Color of active membership dots.
+        inactive_dot_color: Color of inactive dots.
+        connector_color: Color of vertical connectors in the membership matrix.
+        row_guide_color: Color of horizontal row guides in the intersection matrix.
+        row_guide_line_width: Line width of horizontal row guides.
+        row_band_color: Optional background band color for matrix rows. Use ``"none"``
+            for the cleaner default with no row shading.
+        set_size_bar_height: Height of the left set-size bars.
+        tick_direction: Override tick direction.
+        show_full_box: Whether to show top/right spines on data axes.
+        show_x_grid: Whether to show grid lines on the bar axis.
+        show_y_grid: Whether to show grid lines on the bar axis.
+        theme: Optional pubfig Theme.
+        width: Figure width in pixels.
+        height: Figure height in pixels.
+        ax: Optional Matplotlib Axes. UpSet uses a multi-axis layout and does not support drawing into an existing axis.
+    """
+    if ax is not None:
+        raise ValueError("upset does not support drawing into an existing axis")
+
+    membership_matrix, names = _normalize_upset_memberships(memberships, set_names=set_names)
+    if membership_matrix.shape[1] == 0:
+        raise ValueError("memberships must contain at least one set")
+
+    if bool(sort_sets):
+        set_sizes = membership_matrix.sum(axis=0)
+        order = np.argsort(-set_sizes, kind="stable")
+        membership_matrix = membership_matrix[:, order]
+        names = [names[int(idx)] for idx in order]
+
+    signature_counter: Counter[tuple[int, ...]] = Counter()
+    for row in membership_matrix:
+        active = tuple(np.flatnonzero(row).tolist())
+        if active:
+            signature_counter[active] += 1
+
+    intersections: list[tuple[tuple[int, ...], int]] = [
+        (signature, count) for signature, count in signature_counter.items() if int(count) >= int(min_size)
+    ]
+    if not intersections:
+        raise ValueError("No intersections remain after applying min_size")
+
+    mode = str(sort_by).lower()
+    if mode == "size":
+        intersections.sort(key=lambda item: (-item[1], -len(item[0]), item[0]))
+    elif mode == "degree":
+        intersections.sort(key=lambda item: (-len(item[0]), -item[1], item[0]))
+    else:
+        raise ValueError("sort_by must be 'size' or 'degree'")
+
+    if max_intersections is not None:
+        intersections = intersections[: int(max_intersections)]
+
+    set_sizes = membership_matrix.sum(axis=0)
+    bar_fill = str(bar_color or DEFAULT[0])
+
+    with theme_context(theme) as t:
+        import matplotlib.pyplot as plt
+
+        dpi = resolve_design_dpi(t.name)
+        figsize = resolve_figsize_inches(
+            width_px=width,
+            height_px=height,
+            design_dpi=dpi,
+            default_aspect_ratio=0.68,
+        )
+        fig = plt.figure(figsize=figsize)
+        grid = fig.add_gridspec(
+            2,
+            2,
+            width_ratios=(1.15, 3.4),
+            height_ratios=(2.4, 1.2),
+            wspace=0.08,
+            hspace=0.08,
+        )
+        corner_ax = fig.add_subplot(grid[0, 0])
+        bar_ax = fig.add_subplot(grid[0, 1])
+        matrix_ax = fig.add_subplot(grid[1, 1], sharex=bar_ax)
+        size_ax = fig.add_subplot(grid[1, 0], sharey=matrix_ax)
+
+        x_positions = np.arange(len(intersections), dtype=float)
+        counts = np.array([count for _, count in intersections], dtype=float)
+        signatures = [signature for signature, _ in intersections]
+        y_positions = np.arange(len(names), dtype=float)
+
+
+        resolved_bar_line_width = float(coerce_linewidth(t, kind="data")) * 0.55
+        row_band_enabled = str(row_band_color).strip().lower() not in {"", "none", "transparent"}
+        bar_ax.bar(
+            x_positions,
+            counts,
+            color=color_to_rgba(bar_fill, alpha=0.9),
+            edgecolor=darken_color(bar_fill, factor=0.82),
+            linewidth=resolved_bar_line_width,
+            width=0.72,
+        )
+        if bool(show_counts):
+            count_pad = max(float(np.max(counts)) * 0.03, 0.5)
+            for xpos, count in zip(x_positions, counts, strict=True):
+                bar_ax.text(
+                    float(xpos),
+                    float(count) + count_pad,
+                    f"{int(count)}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=max(5, int(t.axis.tick_font_size) - 1),
+                )
+        if title:
+            title_above(bar_ax, str(title), y=1.05)
+
+        bar_ax.set_ylabel("Intersection size")
+        bar_ax.set_xticks([])
+        t.apply_axes(bar_ax)
+        apply_cartesian_axis_controls(
+            bar_ax,
+            tick_direction=tick_direction,
+            show_full_box=show_full_box,
+            show_x_grid=False,
+            show_y_grid=show_y_grid if show_y_grid is not None else True,
+        )
+
+        if row_band_enabled:
+            for ypos in y_positions:
+                matrix_ax.axhspan(
+                    float(ypos) - 0.5,
+                    float(ypos) + 0.5,
+                    color=str(row_band_color),
+                    zorder=-2,
+                )
+
+        for xpos, signature in zip(x_positions, signatures, strict=True):
+            active = np.array(signature, dtype=int)
+            matrix_ax.scatter(
+                np.full_like(y_positions, fill_value=float(xpos), dtype=float),
+                y_positions,
+                s=float(matrix_dot_size) ** 2,
+                color=str(inactive_dot_color),
+                zorder=1,
+            )
+            matrix_ax.scatter(
+                np.full(active.shape, fill_value=float(xpos), dtype=float),
+                active.astype(float),
+                s=float(matrix_dot_size) ** 2,
+                color=str(matrix_color),
+                zorder=3,
+            )
+            if active.size >= 2:
+                matrix_ax.plot(
+                    [float(xpos), float(xpos)],
+                    [float(np.min(active)), float(np.max(active))],
+                    color=str(connector_color),
+                    linewidth=max(float(t.axis.line_width) * 0.85, 0.8),
+                    zorder=2,
+                )
+
+        matrix_ax.set_yticks(y_positions)
+        matrix_ax.set_yticklabels([])
+        matrix_ax.set_ylim(-0.36, float(len(names) - 0.24))
+        matrix_ax.invert_yaxis()
+        matrix_ax.margins(y=0.0)
+        matrix_ax.set_xlabel("Intersections")
+        matrix_ax.set_xticks(x_positions)
+        matrix_ax.set_xticklabels([])
+        t.apply_axes(matrix_ax)
+        matrix_ax.tick_params(axis="y", which="both", left=False, labelleft=False)
+        matrix_ax.spines["right"].set_visible(False)
+        matrix_ax.spines["top"].set_visible(False)
+        matrix_ax.grid(False)
+
+        for ypos in y_positions:
+            matrix_ax.axhline(
+                float(ypos),
+                color=str(row_guide_color),
+                linewidth=float(row_guide_line_width),
+                zorder=0,
+            )
+
+        size_bars = size_ax.barh(
+            y_positions,
+            set_sizes,
+            color=color_to_rgba(bar_fill, alpha=0.78),
+            edgecolor=darken_color(bar_fill, factor=0.82),
+            linewidth=resolved_bar_line_width,
+            height=float(set_size_bar_height),
+            align="center",
+            zorder=2,
+        )
+        size_ax.set_yticks(y_positions, labels=names)
+        size_ax.set_ylim(matrix_ax.get_ylim())
+        size_ax.margins(y=0.0)
+        size_ax.set_xlabel("Set size")
+        max_set_size = float(np.max(set_sizes)) if set_sizes.size else 1.0
+        value_pad = max(max_set_size * 0.035, 1.0)
+        size_ax.set_xlim(max_set_size + value_pad * 2.8, 0.0)
+        size_tick_positions = np.linspace(0.0, max_set_size, num=3)
+        size_ax.set_xticks(size_tick_positions)
+        size_ax.tick_params(axis="x", which="both", bottom=True, labelbottom=False)
+        for bar, value in zip(size_bars.patches, set_sizes, strict=True):
+            ypos = float(bar.get_y()) + float(bar.get_height()) * 0.5
+            text_x = value_pad * 0.90
+            size_ax.text(
+                text_x,
+                ypos,
+                f"{int(value)}",
+                ha="right",
+                va="center",
+                fontsize=max(5, int(t.axis.tick_font_size) - 1),
+                color="black",
+                zorder=4,
+            )
+        t.apply_axes(size_ax)
+        size_ax.tick_params(axis="y", pad=8)
+        apply_cartesian_axis_controls(
+            size_ax,
+            tick_direction=tick_direction,
+            show_full_box=show_full_box,
+            show_x_grid=show_x_grid if show_x_grid is not None else False,
+            show_y_grid=False,
+        )
+        size_ax.spines["top"].set_visible(False)
+        size_ax.spines["right"].set_visible(False)
+        bar_ax.tick_params(axis="x", which="both", bottom=False, labelbottom=False)
+
+        corner_ax.set_axis_off()
+        fig.subplots_adjust(
+            top=0.90 if title else 0.96,
+            bottom=0.12,
+            left=0.10,
+            right=0.98,
+            wspace=0.08,
+            hspace=0.08,
+        )
+        return fig
+
+
+__all__ = ["donut", "grouped_scatter", "stacked_ratio_barh", "upset"]

@@ -2,10 +2,11 @@
 
 from .bar import bar, bar_scatter, stacked_bar
 from .comparison import dumbbell, forest_plot
-from .composition import donut, grouped_scatter, stacked_ratio_barh
+from .composition import donut, grouped_scatter, stacked_ratio_barh, upset
+from .diagnostics import bland_altman, ecdf, qq
 from .dimreduction import dimreduce, pca_biplot
 from .distribution import box, density, histogram, raincloud, ridgeline, strip, violin
-from .evaluation import pr_curve, roc
+from .evaluation import calibration, pr_curve, roc
 from .flow import parallel_coordinates, sankey
 from .heatmap import clustermap, corr_matrix, heatmap
 from .line import area, line
@@ -23,6 +24,10 @@ __all__ = [
     "donut",
     "grouped_scatter",
     "stacked_ratio_barh",
+    "upset",
+    "ecdf",
+    "qq",
+    "bland_altman",
     "box",
     "density",
     "histogram",
@@ -49,6 +54,7 @@ __all__ = [
     "pca_biplot",
     "roc",
     "pr_curve",
+    "calibration",
     "sankey",
     "parallel_coordinates",
 ]

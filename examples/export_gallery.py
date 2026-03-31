@@ -13,15 +13,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import pubfig as pf  # noqa: E402 - allow local import after sys.path tweak for examples
 from gallery_contact_sheet import build_gallery_contact_sheet  # noqa: E402
 from new_plot_showcases import (  # noqa: E402
+    make_bland_altman_demo as make_bland_altman_showcase,
+    make_calibration_demo as make_calibration_showcase,
     make_circular_grouped_bar_demo as make_circular_grouped_bar_showcase,
     make_circular_stacked_bar_demo as make_circular_stacked_bar_showcase,
     make_donut_demo as make_donut_showcase,
     make_dumbbell_demo as make_dumbbell_showcase,
+    make_ecdf_demo as make_ecdf_showcase,
     make_forest_demo as make_forest_showcase,
     make_grouped_scatter_demo as make_grouped_scatter_showcase,
     make_hexbin_demo as make_hexbin_showcase,
+    make_qq_demo as make_qq_showcase,
     make_radial_hierarchy_demo as make_radial_hierarchy_showcase,
     make_stacked_ratio_demo as make_stacked_ratio_showcase,
+    make_upset_demo as make_upset_showcase,
     make_volcano_demo as make_volcano_showcase,
 )
 
@@ -44,6 +49,11 @@ FEATURED_EXPORTS = {
     "16g_radial_hierarchy.png": ROOT / "examples" / "radial_hierarchy.png",
     "16h_circular_stacked_bar.png": ROOT / "examples" / "circular_stacked_bar.png",
     "16i_circular_grouped_bar.png": ROOT / "examples" / "circular_grouped_bar.png",
+    "16j_upset.png": ROOT / "examples" / "upset.png",
+    "07b_ecdf.png": ROOT / "examples" / "ecdf.png",
+    "07c_qq.png": ROOT / "examples" / "qq.png",
+    "15c_bland_altman.png": ROOT / "examples" / "bland_altman.png",
+    "24b_calibration.png": ROOT / "examples" / "calibration.png",
     "15b_hexbin.png": ROOT / "examples" / "hexbin.png",
     "25b_volcano.png": ROOT / "examples" / "volcano.png",
 }
@@ -340,6 +350,9 @@ save(pf.box(dist_data, category_names=dist_labels, title="Box"), "04_box")
 save(pf.violin(dist_data, category_names=dist_labels, title="Violin"), "05_violin")
 save(pf.density(make_density_demo(), title="Density"), "06_density")
 save(pf.histogram(make_density_demo(), show_kde=True, title="Histogram"), "07_histogram")
+ecdf_values, ecdf_names = make_ecdf_showcase()
+save(pf.ecdf(ecdf_values, series_names=ecdf_names, x_label="Held-out AUROC", title="ECDF"), "07b_ecdf")
+save(pf.qq(make_qq_showcase(), title="QQ Plot"), "07c_qq")
 save(pf.strip(dist_data, category_names=dist_labels, title="Strip"), "08_strip")
 save(
     pf.raincloud(
@@ -381,6 +394,17 @@ save(
         title="Hexbin",
     ),
     "15b_hexbin",
+)
+ba_reference, ba_candidate = make_bland_altman_showcase()
+save(
+    pf.bland_altman(
+        ba_reference,
+        ba_candidate,
+        x_label="Mean resting heart rate",
+        y_label="Candidate - reference",
+        title="Bland–Altman",
+    ),
+    "15c_bland_altman",
 )
 save(pf.paired(np.array([1, 2, 3, 4]), np.array([1.5, 2.8, 2.9, 4.5]), title="Paired"), "16_paired")
 grouped_scatter_data, grouped_scatter_categories, grouped_scatter_groups, grouped_scatter_top = make_grouped_scatter_showcase()
@@ -449,6 +473,15 @@ save(
         title="Stacked Ratio",
     ),
     "16f_stacked_ratio_barh",
+)
+upset_memberships, upset_sets = make_upset_showcase()
+save(
+    pf.upset(
+        upset_memberships,
+        set_names=upset_sets,
+        title="UpSet",
+    ),
+    "16j_upset",
 )
 circular_values, circular_items, circular_groups, circular_stack_labels = make_circular_stacked_bar_showcase()
 save_square(
@@ -557,6 +590,16 @@ save(pf.clustermap(rng.random((10, 8)), title="Clustermap"), "21_clustermap")
 print("=== Evaluation plots ===")
 fpr, tpr, eval_names = make_evaluation_demo()
 save(pf.roc(fpr, tpr, series_names=eval_names, title="ROC Curve"), "24_roc")
+cal_y_true, cal_y_prob, cal_names = make_calibration_showcase()
+save(
+    pf.calibration(
+        cal_y_true,
+        cal_y_prob,
+        series_names=cal_names,
+        title="Calibration",
+    ),
+    "24b_calibration",
+)
 prec, rec, pr_names = make_pr_demo()
 save(pf.pr_curve(prec, rec, series_names=pr_names, title="PR Curve"), "25_pr_curve")
 volcano_fc, volcano_p, volcano_labels = make_volcano_showcase()
