@@ -165,6 +165,96 @@ def _save_basic_figure(
         mpl_fig.savefig(out, **kwargs)
 
 
+def _export_with_publication_layout(
+    fig: object,
+    target_path: Path,
+    *,
+    target_fmt: str,
+    spec: str | FigureSpec,
+    width: str | float | int,
+    height_mm: float | int | None,
+    aspect_ratio: float | None,
+    raster_dpi: int,
+    transparent: bool | None,
+    trim: bool,
+    svg_fonttype: str,
+    vector_dpi: int | None = None,
+) -> Path:
+    """Export one explicit path after applying publication-size relayout."""
+    mpl_fig = _coerce_mpl_figure(fig)
+    s = get_figure_spec(spec)
+    width_mm = resolve_width_mm(width, spec=s)
+    height_mm_resolved = resolve_height_mm(height_mm, width_mm=width_mm, aspect_ratio=aspect_ratio)
+
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    raster_dpi_final = int(raster_dpi)
+    if raster_dpi_final <= 0:
+        raise ValueError("raster_dpi must be > 0")
+
+    use_transparent = bool(transparent) if transparent is not None else False
+
+    orig_size = mpl_fig.get_size_inches().copy()
+    orig_fig_face = mpl_fig.get_facecolor()
+    orig_axes_faces = [ax.get_facecolor() for ax in mpl_fig.axes]
+
+    try:
+        mpl_fig.set_size_inches(mm_to_inches(width_mm), mm_to_inches(height_mm_resolved), forward=True)
+
+        if use_transparent:
+            mpl_fig.patch.set_facecolor("none")
+            mpl_fig.patch.set_alpha(0)
+            for ax in mpl_fig.axes:
+                ax.set_facecolor("none")
+        else:
+            mpl_fig.patch.set_facecolor(s.background_color)
+            mpl_fig.patch.set_alpha(1)
+            for ax in mpl_fig.axes:
+                ax.set_facecolor(s.background_color)
+
+        try:
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message="This figure includes Axes that are not compatible with tight_layout*",
+                    category=UserWarning,
+                )
+                mpl_fig.tight_layout()
+        except Exception:
+            pass
+        _layout_pubfig_legend_pairs(mpl_fig)
+        _run_pubfig_post_layout_hooks(mpl_fig)
+
+        common_kwargs: dict[str, object] = {"transparent": use_transparent}
+        if trim:
+            common_kwargs.update({"bbox_inches": "tight", "pad_inches": 0.01})
+
+        if target_fmt in _VECTOR_SUFFIXES:
+            dpi_value = int(vector_dpi) if vector_dpi is not None else int(s.design_dpi)
+            with mpl.rc_context(_vector_text_rcparams(svg_fonttype=svg_fonttype)):
+                mpl_fig.savefig(target_path, format=target_fmt, dpi=dpi_value, **common_kwargs)
+        elif target_fmt in {"png", "jpg", "jpeg"}:
+            mpl_fig.savefig(target_path, format=target_fmt, dpi=raster_dpi_final, **common_kwargs)
+        elif target_fmt in {"tif", "tiff"}:
+            _require("PIL", "raster")
+            from PIL import Image
+
+            tmp_png = target_path.with_suffix(".tmp_pubfig.png")
+            mpl_fig.savefig(tmp_png, format="png", dpi=raster_dpi_final, **common_kwargs)
+            src_png = tmp_png
+            img = Image.open(src_png)
+            img.save(target_path, dpi=(raster_dpi_final, raster_dpi_final), compression='tiff_lzw')
+            tmp_png.unlink(missing_ok=True)
+        else:
+            raise ValueError(f"Unsupported export format: .{target_fmt}")
+    finally:
+        mpl_fig.set_size_inches(orig_size[0], orig_size[1], forward=True)
+        mpl_fig.patch.set_facecolor(orig_fig_face)
+        for ax, face in zip(mpl_fig.axes, orig_axes_faces):
+            ax.set_facecolor(face)
+
+    return target_path
+
+
 def _normalize_formats(formats: Sequence[str]) -> list[str]:
     """Normalize a user-provided format sequence."""
     return [f.strip().lower().lstrip(".") for f in formats]
@@ -202,17 +292,44 @@ def batch_export(
     base_path: str | Path,
     *,
     formats: Sequence[str] = ("pdf", "svg", "png"),
+    spec: str | FigureSpec = "nature",
+    width: str | float | int = "single",
+    height_mm: float | int | None = None,
+    aspect_ratio: float | None = None,
     dpi: int = 300,
     transparent: bool = False,
     trim: bool = False,
+    svg_fonttype: str = "none",
 ) -> list[Path]:
-    """Export a figure in multiple formats using explicit file suffixes."""
+    """Export a figure to multiple formats with publication-style relayout.
+
+    Unlike a raw ``Figure.savefig(...)`` loop, this helper first applies the
+    requested export size (``spec`` / ``width`` / ``height_mm`` /
+    ``aspect_ratio``), reruns layout and any pubfig post-layout hooks, and then
+    writes each requested suffix. The original in-memory figure size/state is
+    restored after export.
+    """
     base = Path(base_path)
     saved: list[Path] = []
     for fmt in formats:
-        p = base.with_suffix(f'.{fmt.lstrip(".").lower()}')
-        _save_basic_figure(fig, p, dpi=dpi, transparent=transparent, trim=trim)
-        saved.append(p)
+        normalized_fmt = fmt.lstrip(".").lower()
+        p = base.with_suffix(f".{normalized_fmt}")
+        saved.append(
+            _export_with_publication_layout(
+                fig,
+                p,
+                target_fmt=normalized_fmt,
+                spec=spec,
+                width=width,
+                height_mm=height_mm,
+                aspect_ratio=aspect_ratio,
+                raster_dpi=int(dpi),
+                transparent=transparent,
+                trim=trim,
+                svg_fonttype=svg_fonttype,
+                vector_dpi=int(dpi),
+            )
+        )
     return saved
 
 
@@ -241,7 +358,6 @@ def save_figure(
 
     ``save_figure(fig, "figure1.jpg")`` writes JPEG.
     """
-    mpl_fig = _coerce_mpl_figure(fig)
     normalized_vector_formats = _normalize_formats(vector_formats)
     normalized_raster_formats = _normalize_formats(raster_formats)
     if normalized_vector_formats != ["pdf", "svg"] or normalized_raster_formats != ["png"]:
@@ -251,82 +367,21 @@ def save_figure(
             "batch_export(...) for multiple outputs."
         )
 
-    s = get_figure_spec(spec)
-    width_mm = resolve_width_mm(width, spec=s)
-    height_mm_resolved = resolve_height_mm(height_mm, width_mm=width_mm, aspect_ratio=aspect_ratio)
-
     target_path, target_fmt = _resolve_save_figure_target(base_path)
-    target_path.parent.mkdir(parents=True, exist_ok=True)
-
+    s = get_figure_spec(spec)
     raster_dpi_final = int(raster_dpi) if raster_dpi is not None else int(s.default_raster_dpi)
-    if raster_dpi_final <= 0:
-        raise ValueError("raster_dpi must be > 0")
-
-    use_transparent = bool(transparent) if transparent is not None else False
-
-    # Save and restore caller state.
-    orig_size = mpl_fig.get_size_inches().copy()
-    orig_fig_face = mpl_fig.get_facecolor()
-    orig_axes_faces = [ax.get_facecolor() for ax in mpl_fig.axes]
-
-    saved: list[Path] = []
-
-    try:
-        mpl_fig.set_size_inches(mm_to_inches(width_mm), mm_to_inches(height_mm_resolved), forward=True)
-
-        if use_transparent:
-            mpl_fig.patch.set_facecolor("none")
-            mpl_fig.patch.set_alpha(0)
-            for ax in mpl_fig.axes:
-                ax.set_facecolor("none")
-        else:
-            mpl_fig.patch.set_facecolor(s.background_color)
-            mpl_fig.patch.set_alpha(1)
-            for ax in mpl_fig.axes:
-                ax.set_facecolor(s.background_color)
-
-        # Re-layout after resizing to the physical submission dimensions.
-        # (Export width/height can differ substantially from the interactive design size.)
-        try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore",
-                    message="This figure includes Axes that are not compatible with tight_layout*",
-                    category=UserWarning,
-                )
-                mpl_fig.tight_layout()
-        except Exception:
-            pass
-        _layout_pubfig_legend_pairs(mpl_fig)
-        _run_pubfig_post_layout_hooks(mpl_fig)
-
-        common_kwargs: dict[str, object] = {"transparent": use_transparent}
-        if trim:
-            common_kwargs.update({"bbox_inches": "tight", "pad_inches": 0.01})
-
-        if target_fmt in _VECTOR_SUFFIXES:
-            with mpl.rc_context(_vector_text_rcparams(svg_fonttype=svg_fonttype)):
-                mpl_fig.savefig(target_path, format=target_fmt, dpi=int(s.design_dpi), **common_kwargs)
-            saved.append(target_path)
-        elif target_fmt in {"png", "jpg", "jpeg"}:
-            mpl_fig.savefig(target_path, format=target_fmt, dpi=raster_dpi_final, **common_kwargs)
-            saved.append(target_path)
-        elif target_fmt in {"tif", "tiff"}:
-            _require("PIL", "raster")
-            from PIL import Image
-
-            tmp_png = target_path.with_suffix(".tmp_pubfig.png")
-            mpl_fig.savefig(tmp_png, format="png", dpi=raster_dpi_final, **common_kwargs)
-            src_png = tmp_png
-            img = Image.open(src_png)
-            img.save(target_path, dpi=(raster_dpi_final, raster_dpi_final), compression='tiff_lzw')
-            saved.append(target_path)
-            tmp_png.unlink(missing_ok=True)
-
-    finally:
-        mpl_fig.set_size_inches(orig_size[0], orig_size[1], forward=True)
-        mpl_fig.patch.set_facecolor(orig_fig_face)
-        for ax, face in zip(mpl_fig.axes, orig_axes_faces):
-            ax.set_facecolor(face)
-
-    return saved
+    return [
+        _export_with_publication_layout(
+            fig,
+            target_path,
+            target_fmt=target_fmt,
+            spec=spec,
+            width=width,
+            height_mm=height_mm,
+            aspect_ratio=aspect_ratio,
+            raster_dpi=raster_dpi_final,
+            transparent=transparent,
+            trim=trim,
+            svg_fonttype=svg_fonttype,
+        )
+    ]

@@ -27,7 +27,7 @@
 
 - **Paper-Ready Defaults, Not a Blank Canvas** — Titles, legends, fonts, line widths, and spacing start from a more publication-like baseline.
 - **Common Scientific Plot Families in One API** — Statistical plots, distributions, trends, dimensionality reduction, evaluation curves, heatmaps, and flow plots live in one consistent surface.
-- **Journal-Aware Export Without Boilerplate** — `save_figure(...)` and `batch_export(...)` handle explicit output suffixes, column widths, DPI, and trimming directly.
+- **Journal-Aware Export Without Boilerplate** — `save_figure(...)` and `batch_export(...)` handle explicit output suffixes, column widths, DPI, trimming, and export-time relayout directly.
 - **Panel-First Workflow for Composite Figures** — Export clean subplot assets, then assemble and refresh full figures in Figma instead of re-drawing panels manually.
 - **Matplotlib-Native and Script-Friendly** — Plot functions return standard Matplotlib `Figure` objects, so they drop into existing analysis code easily.
 
@@ -200,6 +200,10 @@ If you want multiple outputs, use `batch_export(...)` instead:
 ```python
 pf.batch_export(fig, "figure1", formats=("pdf", "svg", "png", "jpg"))
 ```
+
+`batch_export(...)` now follows the same publication-size export path as
+`save_figure(...)`: it resizes to the requested output size first, reruns
+layout/post-layout hooks, and then writes each format.
 
 #### Plot recipes by family
 

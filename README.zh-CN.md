@@ -27,7 +27,7 @@
 
 - **默认就更像论文图，而不是空白画布** — 标题、图例、字体、线宽和间距都从更接近 publication figure 的基线出发。
 - **常见科研图类型统一在一套 API 里** — 统计图、分布图、趋势图、降维图、评估曲线、热图和 flow 图都能用一致的调用方式生成。
-- **导出规格更省事** — `save_figure(...)` 和 `batch_export(...)` 直接处理显式文件后缀、栏宽、DPI 与裁边。
+- **导出规格更省事** — `save_figure(...)` 和 `batch_export(...)` 直接处理显式文件后缀、栏宽、DPI、裁边，以及导出时的重新布局。
 - **天然适合整图拼版** — 可以先导出干净的 panel 资产，再在 Figma 里完成多子图大图的拼接、刷新和收尾，而不是手工重画。
 - **保留 Matplotlib 原生工作流** — 所有绘图函数都返回标准 Matplotlib `Figure` 对象，能直接接入现有分析脚本。
 
@@ -198,6 +198,10 @@ help(pf.heatmap)
 ```python
 pf.batch_export(fig, "figure1", formats=("pdf", "svg", "png", "jpg"))
 ```
+
+`batch_export(...)` 现在和 `save_figure(...)` 走同一条 publication-size
+导出路径：会先按目标尺寸 resize，再重新执行 layout / post-layout hooks，
+然后再分别写出各个格式。
 
 #### 按图类型速查
 
