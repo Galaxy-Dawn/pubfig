@@ -33,6 +33,7 @@
 
 ## 近期更新
 
+- **2026-04-10**: `pubfig 0.2.3` 让 `batch_export(...)` 和 `save_figure(...)` 走同一条 publication-size 的 resize / relayout 导出路径，多格式导出时也能保持一致的导出版式。
 - **2026-03-31**: `pubfig 0.2.2` 新增 **ECDF、QQ、Bland–Altman、Calibration 和 UpSet**，并已接入首页精选展示和完整图库。
 - **2026-03-30**: `pubfig 0.2.1` 已更新到 PyPI，强化了极坐标 / 组成类图型覆盖，并补全了完整图库示例。
 - **2026-03-29**: `pubfig 0.2.0` 已发布到 PyPI，支持 `pip install pubfig`、按后缀导出，以及 panel-first Figma 工作流。

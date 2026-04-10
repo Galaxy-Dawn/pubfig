@@ -33,6 +33,7 @@
 
 ## Recent News
 
+- **2026-04-10**: `pubfig 0.2.3` makes `batch_export(...)` follow the same publication-size resize / relayout path as `save_figure(...)`, so multi-format export now keeps export-time layout consistent.
 - **2026-03-31**: `pubfig 0.2.2` adds **ECDF, QQ, Bland–Altman, Calibration, and UpSet**, and brings them into the homepage showcase and full gallery.
 - **2026-03-30**: `pubfig 0.2.1` refreshed the PyPI release with stronger polar/composition coverage and fuller gallery examples.
 - **2026-03-29**: `pubfig 0.2.0` landed on PyPI with `pip install pubfig`, suffix-based export, and the documented panel-first Figma workflow.
