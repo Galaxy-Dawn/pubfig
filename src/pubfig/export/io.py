@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Sequence
+from typing import Iterator, Sequence
 import warnings
 
 import matplotlib as mpl
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.text import Text
 
 from .._compat import _require
 from ..specs import FigureSpec, get_figure_spec, mm_to_inches, resolve_height_mm, resolve_width_mm
@@ -40,6 +42,44 @@ def _vector_text_rcparams(*, svg_fonttype: str = "none") -> dict[str, object]:
         **_VECTOR_TEXT_RCPARAMS,
         "svg.fonttype": str(svg_fonttype),
     }
+
+
+def _resolve_export_font_family(spec: str | FigureSpec, resolved_spec: FigureSpec) -> str | list[str]:
+    """Resolve the font stack used while writing a publication export."""
+
+    if isinstance(spec, str):
+        try:
+            from ..themes import get_theme
+
+            return get_theme(spec).font_family
+        except Exception:
+            pass
+    return resolved_spec.font_family
+
+
+@contextmanager
+def _temporary_figure_font_family(mpl_fig: Figure, font_family: str | list[str]) -> Iterator[None]:
+    """Temporarily enforce the export font family on already-created text artists."""
+
+    saved: list[tuple[Text, list[str]]] = []
+    try:
+        text_artists = mpl_fig.findobj(match=Text)
+    except Exception:
+        text_artists = []
+    for artist in text_artists:
+        try:
+            saved.append((artist, list(artist.get_fontfamily())))
+            artist.set_fontfamily(font_family)
+        except Exception:
+            continue
+    try:
+        yield
+    finally:
+        for artist, original in saved:
+            try:
+                artist.set_fontfamily(original)
+            except Exception:
+                continue
 
 
 def _layout_pubfig_legend_pairs(mpl_fig: Figure) -> None:
@@ -183,6 +223,7 @@ def _export_with_publication_layout(
     """Export one explicit path after applying publication-size relayout."""
     mpl_fig = _coerce_mpl_figure(fig)
     s = get_figure_spec(spec)
+    export_font_family = _resolve_export_font_family(spec, s)
     width_mm = resolve_width_mm(width, spec=s)
     height_mm_resolved = resolve_height_mm(height_mm, width_mm=width_mm, aspect_ratio=aspect_ratio)
 
@@ -228,24 +269,28 @@ def _export_with_publication_layout(
         if trim:
             common_kwargs.update({"bbox_inches": "tight", "pad_inches": 0.01})
 
-        if target_fmt in _VECTOR_SUFFIXES:
-            dpi_value = int(vector_dpi) if vector_dpi is not None else int(s.design_dpi)
-            with mpl.rc_context(_vector_text_rcparams(svg_fonttype=svg_fonttype)):
+        export_rc = {
+            **_vector_text_rcparams(svg_fonttype=svg_fonttype),
+            "font.family": export_font_family,
+        }
+        with mpl.rc_context(export_rc), _temporary_figure_font_family(mpl_fig, export_font_family):
+            if target_fmt in _VECTOR_SUFFIXES:
+                dpi_value = int(vector_dpi) if vector_dpi is not None else int(s.design_dpi)
                 mpl_fig.savefig(target_path, format=target_fmt, dpi=dpi_value, **common_kwargs)
-        elif target_fmt in {"png", "jpg", "jpeg"}:
-            mpl_fig.savefig(target_path, format=target_fmt, dpi=raster_dpi_final, **common_kwargs)
-        elif target_fmt in {"tif", "tiff"}:
-            _require("PIL", "raster")
-            from PIL import Image
+            elif target_fmt in {"png", "jpg", "jpeg"}:
+                mpl_fig.savefig(target_path, format=target_fmt, dpi=raster_dpi_final, **common_kwargs)
+            elif target_fmt in {"tif", "tiff"}:
+                _require("PIL", "raster")
+                from PIL import Image
 
-            tmp_png = target_path.with_suffix(".tmp_pubfig.png")
-            mpl_fig.savefig(tmp_png, format="png", dpi=raster_dpi_final, **common_kwargs)
-            src_png = tmp_png
-            img = Image.open(src_png)
-            img.save(target_path, dpi=(raster_dpi_final, raster_dpi_final), compression='tiff_lzw')
-            tmp_png.unlink(missing_ok=True)
-        else:
-            raise ValueError(f"Unsupported export format: .{target_fmt}")
+                tmp_png = target_path.with_suffix(".tmp_pubfig.png")
+                mpl_fig.savefig(tmp_png, format="png", dpi=raster_dpi_final, **common_kwargs)
+                src_png = tmp_png
+                img = Image.open(src_png)
+                img.save(target_path, dpi=(raster_dpi_final, raster_dpi_final), compression="tiff_lzw")
+                tmp_png.unlink(missing_ok=True)
+            else:
+                raise ValueError(f"Unsupported export format: .{target_fmt}")
     finally:
         mpl_fig.set_size_inches(orig_size[0], orig_size[1], forward=True)
         mpl_fig.patch.set_facecolor(orig_fig_face)
@@ -281,8 +326,7 @@ def _resolve_save_figure_target(path: str | Path) -> tuple[Path, str]:
         )
     if fmt not in _SUPPORTED_SAVE_FIGURE_SUFFIXES:
         raise ValueError(
-            f"Unsupported save_figure suffix: .{fmt}. "
-            f"Supported formats: {_supported_save_figure_formats_text()}."
+            f"Unsupported save_figure suffix: .{fmt}. Supported formats: {_supported_save_figure_formats_text()}."
         )
     return target, fmt
 
