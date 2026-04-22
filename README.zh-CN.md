@@ -33,6 +33,7 @@
 
 ## 近期更新
 
+- **2026-04-22**: `pubfig 0.3.0` 作为当前 PyPI 版本发布，收口了新的面向 agent 的 JSON CLI（`render`、`validate-spec`、`list-kinds`）、CLI / Python 导出一致性校验，以及更短的 Quick Start。
 - **2026-04-10**: `pubfig 0.2.3` 让 `batch_export(...)` 和 `save_figure(...)` 走同一条 publication-size 的 resize / relayout 导出路径，多格式导出时也能保持一致的导出版式。
 - **2026-03-31**: `pubfig 0.2.2` 新增 **ECDF、QQ、Bland–Altman、Calibration 和 UpSet**，并已接入首页精选展示和完整图库。
 - **2026-03-30**: `pubfig 0.2.1` 已更新到 PyPI，强化了极坐标 / 组成类图型覆盖，并补全了完整图库示例。

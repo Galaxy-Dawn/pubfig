@@ -33,6 +33,7 @@
 
 ## Recent News
 
+- **2026-04-22**: `pubfig 0.3.0` is now the PyPI release for the current automation path, with the new agent-first JSON CLI (`render`, `validate-spec`, `list-kinds`), CLI/Python export parity checks, and a shorter Quick Start.
 - **2026-04-10**: `pubfig 0.2.3` makes `batch_export(...)` follow the same publication-size resize / relayout path as `save_figure(...)`, so multi-format export now keeps export-time layout consistent.
 - **2026-03-31**: `pubfig 0.2.2` adds **ECDF, QQ, Bland–Altman, Calibration, and UpSet**, and brings them into the homepage showcase and full gallery.
 - **2026-03-30**: `pubfig 0.2.1` refreshed the PyPI release with stronger polar/composition coverage and fuller gallery examples.
