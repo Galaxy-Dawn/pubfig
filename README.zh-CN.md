@@ -204,6 +204,109 @@ pf.batch_export(fig, "figure1", formats=("pdf", "svg", "png", "jpg"))
 导出路径：会先按目标尺寸 resize，再重新执行 layout / post-layout hooks，
 然后再分别写出各个格式。
 
+#### 面向 agent / 自动化的 CLI
+
+Notebook 和交互式分析仍然建议直接用 Python API；如果是 agent 或自动化，
+`pubfig` 也提供一套 JSON spec CLI。它适合那种需要稳定文件接口来完成绘图、
+校验和导出，但又不想额外手写临时 Python 脚本的场景。
+
+CLI 的基本用法是这三条命令：
+
+```bash
+pubfig render figure.spec.json
+pubfig validate-spec figure.spec.json
+pubfig list-kinds
+```
+
+示例
+
+最小单图 spec：
+
+```json
+{
+  "schema_version": 1,
+  "plot": {
+    "kind": "bar_scatter",
+    "kwargs": {
+      "data": {"$load": "data/bar_scatter.npy"},
+      "category_names": ["A", "B", "C"],
+      "series_names": ["Ctrl", "Treatment"],
+      "random_seed": 0
+    }
+  },
+  "export": {
+    "mode": "save_figure",
+    "path": "outputs/figure1.pdf",
+    "spec": "nature",
+    "width": "single",
+    "aspect_ratio": 0.65,
+    "trim": true
+  }
+}
+```
+
+如果数据量不大，也可以直接把小数据内联写进 JSON，而不是先落盘再 `$load`：
+
+```json
+{
+  "schema_version": 1,
+  "plot": {
+    "kind": "line",
+    "kwargs": {
+      "data": [
+        [0.78, 1.03, 1.15, 0.90],
+        [0.87, 1.01, 1.04, 0.95]
+      ],
+      "x": [0.0, 0.8, 1.6, 2.4],
+      "series_names": ["Square", "Circle"]
+    }
+  },
+  "export": {
+    "mode": "save_figure",
+    "path": "outputs/line.png",
+    "spec": "nature",
+    "width": "single",
+    "aspect_ratio": 0.75,
+    "raster_dpi": 300,
+    "trim": true
+  }
+}
+```
+
+最小 panel 导出 spec：
+
+```json
+{
+  "schema_version": 1,
+  "panels": [
+    {
+      "panel_id": "a",
+      "kind": "bar_scatter",
+      "kwargs": {
+        "data": {"$load": "data/a.npy"},
+        "random_seed": 0
+      }
+    },
+    {
+      "panel_id": "b",
+      "kind": "line",
+      "kwargs": {
+        "data": {"$load": "data/b.npy"}
+      }
+    }
+  ],
+  "export": {
+    "mode": "export_panels",
+    "output_dir": "outputs/panels",
+    "overwrite": true
+  }
+}
+```
+
+CLI 本身只是对同一套 Python 绘图 / 导出函数的薄封装，不会额外维护一套单独的
+绘图逻辑。我们已经在本地用 gallery 同源输入做过回归对照：当前 `pubfig render`
+对这些图型产出的 PNG，与直接走 Python API 的结果逐图像素一致。
+
 #### 按图类型速查
 
 下面这些行给的是最短可用调用。真正导出时，直接复用 Quick Start 里的

@@ -206,6 +206,112 @@ pf.batch_export(fig, "figure1", formats=("pdf", "svg", "png", "jpg"))
 `save_figure(...)`: it resizes to the requested output size first, reruns
 layout/post-layout hooks, and then writes each format.
 
+#### Agent / automation CLI
+
+For notebooks and interactive analysis, the Python API remains the main path.
+For agents or automation, `pubfig` also provides a JSON-spec CLI. It is useful
+when an agent needs a stable file-based interface for plotting, validation, and
+export without writing ad-hoc Python scripts.
+
+Use the CLI through these three commands:
+
+```bash
+pubfig render figure.spec.json
+pubfig validate-spec figure.spec.json
+pubfig list-kinds
+```
+
+Examples
+
+Minimal single-plot spec:
+
+```json
+{
+  "schema_version": 1,
+  "plot": {
+    "kind": "bar_scatter",
+    "kwargs": {
+      "data": {"$load": "data/bar_scatter.npy"},
+      "category_names": ["A", "B", "C"],
+      "series_names": ["Ctrl", "Treatment"],
+      "random_seed": 0
+    }
+  },
+  "export": {
+    "mode": "save_figure",
+    "path": "outputs/figure1.pdf",
+    "spec": "nature",
+    "width": "single",
+    "aspect_ratio": 0.65,
+    "trim": true
+  }
+}
+```
+
+You can also inline small datasets directly in JSON instead of loading from
+files:
+
+```json
+{
+  "schema_version": 1,
+  "plot": {
+    "kind": "line",
+    "kwargs": {
+      "data": [
+        [0.78, 1.03, 1.15, 0.90],
+        [0.87, 1.01, 1.04, 0.95]
+      ],
+      "x": [0.0, 0.8, 1.6, 2.4],
+      "series_names": ["Square", "Circle"]
+    }
+  },
+  "export": {
+    "mode": "save_figure",
+    "path": "outputs/line.png",
+    "spec": "nature",
+    "width": "single",
+    "aspect_ratio": 0.75,
+    "raster_dpi": 300,
+    "trim": true
+  }
+}
+```
+
+Minimal panel-export spec:
+
+```json
+{
+  "schema_version": 1,
+  "panels": [
+    {
+      "panel_id": "a",
+      "kind": "bar_scatter",
+      "kwargs": {
+        "data": {"$load": "data/a.npy"},
+        "random_seed": 0
+      }
+    },
+    {
+      "panel_id": "b",
+      "kind": "line",
+      "kwargs": {
+        "data": {"$load": "data/b.npy"}
+      }
+    }
+  ],
+  "export": {
+    "mode": "export_panels",
+    "output_dir": "outputs/panels",
+    "overwrite": true
+  }
+}
+```
+
+The CLI is a thin wrapper over the same plotting/export functions used by the
+Python API. In local regression, the current `pubfig render` path reproduced
+the gallery plot families from the same canonical example inputs with
+pixel-identical PNG outputs compared with direct Python calls.
+
 #### Plot recipes by family
 
 These rows are the shortest useful plotting calls. When you want to export one,
