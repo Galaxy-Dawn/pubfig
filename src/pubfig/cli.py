@@ -26,6 +26,8 @@ from .figma import (
     validate_figma_bundle,
     wait_for_bridge_job,
 )
+from .plot_registry import list_plot_kinds
+from .render_spec import RenderSpecError, run_render_spec
 
 
 _DEFAULT_BRIDGE_URL = "http://localhost:47329"
@@ -407,15 +409,31 @@ def _build_parser() -> argparse.ArgumentParser:
         prog="pubfig",
         description="Publication-style plots, panel exports, and Figma handoff for paper figures.",
         epilog=(
-            "Plotting is Python-first. For dense polar families, start with "
-            "help(pubfig.radial_hierarchy), help(pubfig.circular_stacked_bar), "
-            "or help(pubfig.circular_grouped_bar). Regenerate gallery assets with: "
-            "python examples/export_gallery.py"
+            "Plotting is Python-first for notebooks, while `pubfig render` is the "
+            "agent / automation path. `pubfig figma push` remains the panel-first "
+            "assembly path for Figma."
         ),
     )
     parser.add_argument("--version", action="version", version=f"pubfig {__version__}")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    render_parser = subparsers.add_parser(
+        "render",
+        help="Render a JSON spec and write plot or panel exports.",
+    )
+    render_parser.add_argument("spec_path", help="Path to a render spec JSON file.")
+
+    validate_spec_parser = subparsers.add_parser(
+        "validate-spec",
+        help="Validate a JSON render spec with a no-write dry run.",
+    )
+    validate_spec_parser.add_argument("spec_path", help="Path to a render spec JSON file.")
+
+    subparsers.add_parser(
+        "list-kinds",
+        help="List stable plot kinds supported by the agent-first render CLI.",
+    )
 
     figma_parser = subparsers.add_parser(
         "figma",
@@ -725,6 +743,47 @@ def _print_json(payload: dict) -> None:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = _build_parser()
     args = parser.parse_args(list(argv) if argv is not None else None)
+
+    if args.command == "render":
+        try:
+            _print_json(run_render_spec(args.spec_path, validate_only=False).to_payload())
+            return 0
+        except RenderSpecError as error:
+            print(json.dumps(error.to_payload(command="render"), indent=2, ensure_ascii=False), file=sys.stderr)
+            return 1
+        except Exception as error:  # noqa: BLE001
+            payload = RenderSpecError(
+                str(error),
+                error_type="RenderExecutionError",
+            ).to_payload(command="render")
+            print(json.dumps(payload, indent=2, ensure_ascii=False), file=sys.stderr)
+            return 1
+
+    if args.command == "validate-spec":
+        try:
+            _print_json(run_render_spec(args.spec_path, validate_only=True).to_payload())
+            return 0
+        except RenderSpecError as error:
+            print(json.dumps(error.to_payload(command="validate-spec"), indent=2, ensure_ascii=False), file=sys.stderr)
+            return 1
+        except Exception as error:  # noqa: BLE001
+            payload = RenderSpecError(
+                str(error),
+                error_type="RenderExecutionError",
+            ).to_payload(command="validate-spec")
+            print(json.dumps(payload, indent=2, ensure_ascii=False), file=sys.stderr)
+            return 1
+
+    if args.command == "list-kinds":
+        _print_json(
+            {
+                "ok": True,
+                "command": "list-kinds",
+                "pubfig_version": __version__,
+                "plot_kinds": list_plot_kinds(),
+            }
+        )
+        return 0
 
     if args.command != "figma":
         parser.error("Unsupported command")
