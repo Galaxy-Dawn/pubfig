@@ -206,14 +206,13 @@ pf.batch_export(fig, "figure1", formats=("pdf", "svg", "png", "jpg"))
 `save_figure(...)`: it resizes to the requested output size first, reruns
 layout/post-layout hooks, and then writes each format.
 
-#### Agent / automation CLI
+### CLI Quick Start
 
-For notebooks and interactive analysis, the Python API remains the main path.
-For agents or automation, `pubfig` also provides a JSON-spec CLI. It is useful
-when an agent needs a stable file-based interface for plotting, validation, and
-export without writing ad-hoc Python scripts.
+The Python API is still the best path for notebooks and interactive analysis.
+The CLI is the agent-first path: it gives automation a stable JSON interface for
+rendering, validation, and export.
 
-Use the CLI through these three commands:
+Use these three commands:
 
 ```bash
 pubfig render figure.spec.json
@@ -221,35 +220,13 @@ pubfig validate-spec figure.spec.json
 pubfig list-kinds
 ```
 
-Examples
+- `render`: read one JSON spec and write the figure or panels
+- `validate-spec`: parse the same spec, build the figure, and check it without writing files
+- `list-kinds`: print the supported plot kinds for CLI automation
 
-Minimal single-plot spec:
+#### Example 1: single figure
 
-```json
-{
-  "schema_version": 1,
-  "plot": {
-    "kind": "bar_scatter",
-    "kwargs": {
-      "data": {"$load": "data/bar_scatter.npy"},
-      "category_names": ["A", "B", "C"],
-      "series_names": ["Ctrl", "Treatment"],
-      "random_seed": 0
-    }
-  },
-  "export": {
-    "mode": "save_figure",
-    "path": "outputs/figure1.pdf",
-    "spec": "nature",
-    "width": "single",
-    "aspect_ratio": 0.65,
-    "trim": true
-  }
-}
-```
-
-You can also inline small datasets directly in JSON instead of loading from
-files:
+Small datasets can be written inline directly in JSON:
 
 ```json
 {
@@ -267,17 +244,21 @@ files:
   },
   "export": {
     "mode": "save_figure",
-    "path": "outputs/line.png",
+    "path": "outputs/line.pdf",
     "spec": "nature",
-    "width": "single",
-    "aspect_ratio": 0.75,
-    "raster_dpi": 300,
-    "trim": true
+    "width": "single"
   }
 }
 ```
 
-Minimal panel-export spec:
+```bash
+pubfig render figure.spec.json
+```
+
+#### Example 2: panel export
+
+Use `export_panels` mode when you want panel assets for Figma or another figure
+assembly workflow:
 
 ```json
 {
@@ -307,102 +288,14 @@ Minimal panel-export spec:
 }
 ```
 
-The CLI is a thin wrapper over the same plotting/export functions used by the
-Python API. In local regression, the current `pubfig render` path reproduced
-the gallery plot families from the same canonical example inputs with
-pixel-identical PNG outputs compared with direct Python calls.
-
-#### Plot recipes by family
-
-These rows are the shortest useful plotting calls. When you want to export one,
-reuse `pf.save_figure(fig, "name.pdf")` from Quick Start.
-
-Each row assumes:
-
-```python
-import numpy as np
-import pubfig as pf
+```bash
+pubfig validate-spec panels.spec.json
+pubfig render panels.spec.json
 ```
 
-##### Categorical and statistical
-
-| Plot | Minimal call | Common next parameters |
-|------|--------------|------------------------|
-| <a id="recipe-bar"></a>`bar` | `pf.bar(np.array([3, 5, 4]), category_names=["A", "B", "C"])` | `category_names`, `title`, `color_palette` |
-| <a id="recipe-bar-scatter"></a>`bar_scatter` | `pf.bar_scatter(np.clip(np.random.default_rng(0).normal(loc=np.array([[0.78, 0.96], [0.88, 1.08], [0.84, 1.00]])[..., None], scale=0.08, size=(3, 2, 18)), 0.0, None))` | `category_names`, `series_names`, `show_statistics` |
-| <a id="recipe-stacked_bar"></a>`stacked_bar` | `pf.stacked_bar(np.array([[[3, 2], [4, 1]], [[2, 3], [3, 2]]], dtype=float), group_names=["Batch 1", "Batch 2"])` | `group_names`, `normalize`, `title` |
-| <a id="recipe-paired"></a>`paired` | `pf.paired(np.array([1.0, 2.0, 2.5, 3.0]), np.array([1.3, 2.1, 2.9, 3.2]))` | `x_labels`, `y_label`, `title` |
-| <a id="recipe-dumbbell"></a>`dumbbell` | `pf.dumbbell(np.array([0.72, 0.81, 0.77]), np.array([0.79, 0.86, 0.83]), category_names=["Metric A", "Metric B", "Metric C"])` | `left_label`, `right_label`, `sort_by` |
-| <a id="recipe-forest_plot"></a>`forest_plot` | `pf.forest_plot(np.array([1.12, 0.84, 1.36]), np.array([0.98, 0.71, 1.10]), np.array([1.29, 0.99, 1.68]), labels=["Age", "BMI", "Smoking"], reference=1.0)` | `reference`, `group_labels`, `right_labels` |
-
-##### Composition and polar
-
-| Plot | Minimal call | Common next parameters |
-|------|--------------|------------------------|
-| <a id="recipe-grouped_scatter"></a>`grouped_scatter` | `pf.grouped_scatter(np.random.default_rng(0).normal(loc=np.array([[0.72, 0.81, 0.86], [0.68, 0.76, 0.82]])[..., None], scale=0.04, size=(2, 3, 14)), category_names=["Overall", "External"], group_names=["R50", "PLIP", "CONCH"])` | `category_names`, `group_names`, `point_size` |
-| <a id="recipe-donut"></a>`donut` | `pf.donut(np.array([48, 27, 14, 8]), labels=["Held-out", "External", "Independent", "Zero-shot"], center_text="97\ntasks")` | `labels`, `center_text`, `colors` |
-| <a id="recipe-stacked_ratio_barh"></a>`stacked_ratio_barh` | `pf.stacked_ratio_barh(np.array([30, 33, 40, 65]), labels=["EGFR", "KRAS", "PTEN", "BRAF"], group_labels=["LUAD", "LUAD", "UCEC", "SKCM"])` | `group_labels`, `negative_values`, `title` |
-| <a id="recipe-radial_hierarchy"></a>`radial_hierarchy` | `pf.radial_hierarchy(np.array([24, 18, 15, 11, 28, 10]), subgroup_labels=["LIHC", "CRC", "GAST", "PAAD", "LUAD", "ESCA"], subgroup_groups=["Digestive", "Digestive", "Digestive", "Digestive", "Thoracic", "Thoracic"], group_labels=["Digestive", "Thoracic"], center_text="2 systems\n6 classes")` | `group_labels`, `center_text`, `show_outer_values` |
-| <a id="recipe-circular_stacked_bar"></a>`circular_stacked_bar` | `pf.circular_stacked_bar(np.array([[9, 11, 7, 4], [8, 10, 8, 4], [7, 9, 7, 3], [10, 12, 8, 4]], dtype=float), item_labels=["LUAD", "LUSC", "SCLC", "COAD"], item_groups=["Thor", "Thor", "Thor", "GI"])` | `item_groups`, `stack_labels`, `group_legend_show` |
-| <a id="recipe-circular_grouped_bar"></a>`circular_grouped_bar` | `pf.circular_grouped_bar(np.array([[11, 14, 13], [10, 13, 12], [9, 11, 10], [12, 15, 14]], dtype=float), item_labels=["LUAD", "LUSC", "SCLC", "COAD"], item_groups=["Thor", "Thor", "Thor", "GI"], series_labels=["A", "B", "C"])` | `series_labels`, `series_colors`, `legend_show` |
-
-The polar defaults for `circular_stacked_bar(...)` and `circular_grouped_bar(...)` now follow the denser publication-style settings used in the gallery: tighter group/item spacing, shorter single-line inner labels, and built-in warm/cool palettes. `circular_grouped_bar(...)` now renders true grouped polar bars with multiple side-by-side series inside each item slot.
-
-##### Distribution
-
-| Plot | Minimal call | Common next parameters |
-|------|--------------|------------------------|
-| <a id="recipe-box"></a>`box` | `pf.box(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_means`, `title` |
-| <a id="recipe-violin"></a>`violin` | `pf.violin(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `show_box`, `show_points` |
-| <a id="recipe-strip"></a>`strip` | `pf.strip(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `jitter`, `title` |
-| <a id="recipe-raincloud"></a>`raincloud` | `pf.raincloud(np.random.default_rng(0).normal(size=(80, 3)), category_names=["A", "B", "C"])` | `category_names`, `orientation`, `title` |
-| <a id="recipe-density"></a>`density` | `pf.density(np.random.default_rng(0).normal(size=400))` | `title`, `color_palette`, `bins` |
-| <a id="recipe-histogram"></a>`histogram` | `pf.histogram(np.random.default_rng(0).normal(size=400), show_kde=True)` | `bins`, `show_kde`, `title` |
-| <a id="recipe-ridgeline"></a>`ridgeline` | `pf.ridgeline([np.random.default_rng(0).normal(loc=i, size=200) for i in range(4)], category_names=["S1", "S2", "S3", "S4"])` | `category_names`, `offset_step`, `title` |
-
-##### Trend and relationship
-
-| Plot | Minimal call | Common next parameters |
-|------|--------------|------------------------|
-| <a id="recipe-area"></a>`area` | `pf.area(np.random.default_rng(0).random((20, 3)), series_names=["A", "B", "C"])` | `series_names`, `x`, `title` |
-| <a id="recipe-line"></a>`line` | `pf.line(np.column_stack([0.72 + 0.05 * np.linspace(0, 10, 16) + 0.10 * np.sin(np.linspace(0, 10, 16) / 1.7), 0.88 + 0.035 * np.linspace(0, 10, 16) + 0.08 * np.cos(np.linspace(0, 10, 16) / 2.0 + 0.4)]), x=np.linspace(0, 10, 16), series_names=["Series 1", "Series 2"])` | `x_label`, `y_label`, `series_names`, `title` |
-| <a id="recipe-scatter"></a>`scatter` | `pf.scatter(np.random.default_rng(0).normal(size=60), np.random.default_rng(1).normal(size=60))` | `labels`, `x_label`, `y_label` |
-| <a id="recipe-bubble"></a>`bubble` | `pf.bubble(np.random.default_rng(0).normal(size=30), np.random.default_rng(1).normal(size=30), np.random.default_rng(2).uniform(1, 10, size=30))` | `labels`, `size_label`, `title` |
-| <a id="recipe-contour2d"></a>`contour2d` | `pf.contour2d(np.random.default_rng(0).normal(size=500), np.random.default_rng(1).normal(size=500))` | `bins`, `colorscale`, `title` |
-| <a id="recipe-hexbin"></a>`hexbin` | `pf.hexbin(np.random.default_rng(0).normal(size=4000), 0.7 * np.random.default_rng(0).normal(size=4000) + 0.5 * np.random.default_rng(1).normal(size=4000), gridsize=28)` | `gridsize`, `log_color_scale`, `reduce` |
-| <a id="recipe-radar"></a>`radar` | `pf.radar([[0.8, 0.7, 0.9, 0.75], [0.65, 0.85, 0.7, 0.8]], categories=["Speed", "Accuracy", "Recall", "Stability"], series_names=["Model A", "Model B"])` | `categories`, `series_names`, `title` |
-
-##### Matrix and multivariate
-
-| Plot | Minimal call | Common next parameters |
-|------|--------------|------------------------|
-| <a id="recipe-heatmap"></a>`heatmap` | `pf.heatmap(np.random.default_rng(0).uniform(size=(4, 4)))` | `category_names`, `title`, color scale related options |
-| <a id="recipe-corr_matrix"></a>`corr_matrix` | `pf.corr_matrix(np.random.default_rng(0).normal(size=(60, 4)), variable_names=["A", "B", "C", "D"])` | `variable_names`, `method`, `title` |
-| <a id="recipe-clustermap"></a>`clustermap` | `pf.clustermap(np.random.default_rng(0).uniform(size=(8, 6)))` | `row_category_names`, `column_category_names`, `title` |
-| <a id="recipe-dimreduce"></a>`dimreduce` | `fig, _ = pf.dimreduce(np.random.default_rng(0).normal(size=(40, 8)), cluster_id=np.repeat([0, 1], 20), perplexity=10)` | `cluster_id`, `labels`, `n_components` |
-| <a id="recipe-pca_biplot"></a>`pca_biplot` | `pf.pca_biplot(np.random.default_rng(0).normal(size=(40, 5)), labels=np.repeat(["A", "B"], 20), variable_names=["V1", "V2", "V3", "V4", "V5"])` | `labels`, `variable_names`, `loading_panel` |
-| <a id="recipe-parallel_coordinates"></a>`parallel_coordinates` | `pf.parallel_coordinates(np.random.default_rng(0).uniform(size=(20, 4)), variable_names=["W", "X", "Y", "Z"])` | `variable_names`, `color_col`, `title` |
-
-##### Evaluation and flow
-
-| Plot | Minimal call | Common next parameters |
-|------|--------------|------------------------|
-| <a id="recipe-roc"></a>`roc` | `pf.roc([np.array([0.0, 0.1, 0.3, 1.0])], [np.array([0.0, 0.7, 0.9, 1.0])], series_names=["Model A"])` | `series_names`, `baseline`, `title` |
-| <a id="recipe-pr_curve"></a>`pr_curve` | `pf.pr_curve([np.array([1.0, 0.9, 0.8, 0.6])], [np.array([0.1, 0.4, 0.7, 1.0])], series_names=["Model A"])` | `series_names`, `title`, `xlim` / `ylim` |
-| <a id="recipe-volcano"></a>`volcano` | `pf.volcano(np.random.default_rng(0).normal(size=300), np.random.default_rng(1).uniform(1e-4, 1.0, size=300), fc_threshold=1.0, p_threshold=0.05)` | `fc_threshold`, `p_threshold`, `labels` |
-| <a id="recipe-sankey"></a>`sankey` | `pf.sankey([0, 0, 1], [2, 3, 3], [10, 5, 8], node_names=["Input A", "Input B", "Path 1", "Outcome"])` | `node_names`, `title`, `color_palette` |
-
-For `bar_scatter(...)`, significance spacing parameters now follow explicit orientation-based names:
-
-```python
-fig = pf.bar_scatter(
-    data,
-    show_statistics=True,
-    significance_ns_label_offset_ratio_vertical=0.08,
-    significance_stars_label_offset_ratio_vertical=-0.12,
-    significance_label_offset_ratio_vertical=0.07,
-)
-```
+The CLI is a thin wrapper over the same plotting and export functions used by
+Python. We have locally checked it against gallery-sourced inputs, and the
+current CLI PNG outputs match the direct Python outputs exactly.
 
 ### pubfig → Figma
 
