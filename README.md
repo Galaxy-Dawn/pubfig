@@ -17,11 +17,12 @@
 
 </div>
 
-> Publication-style figures for papers, from single plots to panel-first Figma assembly.
+> Publication-style figures for papers, from interactive Python plots to agent-first JSON export and panel-first Figma assembly.
 
-`pubfig` is a Matplotlib-native plotting library for researchers who want figures that already look close to the final paper figure. It combines common scientific plot families, journal-aware export, and a panel-first Figma workflow for assembling large multi-panel figures without rebuilding artwork by hand.
+`pubfig` is a Matplotlib-native plotting library for researchers who want figures that already look close to the final paper figure. It combines common scientific plot families, journal-aware export, an agent-first JSON CLI for automation, and a panel-first Figma workflow for assembling large multi-panel figures without rebuilding artwork by hand.
 
-**Project links**: [PyPI](https://pypi.org/project/pubfig/) · [GitHub](https://github.com/Galaxy-Dawn/pubfig) · [Examples](examples/)
+**Project links**: [PyPI](https://pypi.org/project/pubfig/) · [GitHub](https://github.com/Galaxy-Dawn/pubfig) · [Examples](examples/)  
+**Current release**: `pubfig 0.3.0` on PyPI
 
 ## Highlights
 

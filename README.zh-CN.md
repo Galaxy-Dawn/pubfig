@@ -17,11 +17,12 @@
 
 </div>
 
-> 面向论文主图的科研绘图库：既能快速出单图，也能走 panel-first 的 Figma 拼版链路。
+> 面向论文主图的科研绘图库：既能直接用 Python 快速出图，也能走面向 agent 的 JSON 导出和 panel-first 的 Figma 拼版链路。
 
-`pubfig` 是一个基于 Matplotlib 的科研绘图库，面向那些希望图一开始就更接近论文最终效果的研究者。它把常见科研图类型、面向期刊的导出规格，以及面向大图拼版的 Figma 工作流放在同一套接口里，减少手工重排和重复出图。
+`pubfig` 是一个基于 Matplotlib 的科研绘图库，面向那些希望图一开始就更接近论文最终效果的研究者。它把常见科研图类型、面向期刊的导出规格、面向自动化的 JSON CLI，以及面向大图拼版的 Figma 工作流放在同一套接口里，减少手工重排和重复出图。
 
-**项目链接**：[PyPI](https://pypi.org/project/pubfig/) · [GitHub](https://github.com/Galaxy-Dawn/pubfig) · [示例](examples/)
+**项目链接**：[PyPI](https://pypi.org/project/pubfig/) · [GitHub](https://github.com/Galaxy-Dawn/pubfig) · [示例](examples/)  
+**当前版本**：PyPI 上的 `pubfig 0.3.0`
 
 ## 亮点
 
