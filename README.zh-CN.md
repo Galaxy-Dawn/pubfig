@@ -10,6 +10,7 @@
     <a href="https://pypi.org/project/pubfig/"><img src="https://img.shields.io/badge/pip%20install-pubfig-3775A9?style=flat-square&logo=pypi&logoColor=white" alt="pip install pubfig"/></a>
     <img src="https://img.shields.io/badge/Matplotlib-3.8%2B-11557C?style=flat-square" alt="Matplotlib 3.8+"/>
     <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License"/>
+    <a href="https://github.com/Galaxy-Dawn/pubfig/actions/workflows/ci.yml"><img src="https://github.com/Galaxy-Dawn/pubfig/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
     <a href="https://github.com/Galaxy-Dawn/pubfig"><img src="https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=flat-square" alt="GitHub Stars"/></a>
   </p>
 
@@ -359,7 +360,8 @@ pubfig figma push panels --figure-id figure-01
 
 **`.pubfig-figma.json` 是什么？**  
 它就是一张图稿的 Figma 交接 bundle 文件。保留这份文件，就能做手动导入、
-刷新、排障或恢复。
+刷新、排障或恢复。这里默认只接受可信、由本地工作流生成、静态且自包含的
+panel SVG 资产；它不是给任意第三方 SVG 文件做通用导入的入口。
 
 **bridge 失败时怎么手动兜底？**  
 如果 bridge 刷新卡住，就把最新写出的 `.pubfig-figma.json` bundle 文件载入
@@ -547,8 +549,11 @@ pip install -e .[dev]
 
 ### 运行测试
 
+公开仓库会随代码一起提供一套小而核心的 `tests/`，覆盖 CLI、导出、
+SVG / bundle 校验以及核心 plot smoke。
+
 ```bash
-pytest
+pytest -q tests
 ```
 
 ### Lint

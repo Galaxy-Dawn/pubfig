@@ -10,6 +10,7 @@
     <a href="https://pypi.org/project/pubfig/"><img src="https://img.shields.io/badge/pip%20install-pubfig-3775A9?style=flat-square&logo=pypi&logoColor=white" alt="pip install pubfig"/></a>
     <img src="https://img.shields.io/badge/Matplotlib-3.8%2B-11557C?style=flat-square" alt="Matplotlib 3.8+"/>
     <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License"/>
+    <a href="https://github.com/Galaxy-Dawn/pubfig/actions/workflows/ci.yml"><img src="https://github.com/Galaxy-Dawn/pubfig/actions/workflows/ci.yml/badge.svg" alt="CI"/></a>
     <a href="https://github.com/Galaxy-Dawn/pubfig"><img src="https://img.shields.io/github/stars/Galaxy-Dawn/pubfig?style=flat-square" alt="GitHub Stars"/></a>
   </p>
 
@@ -365,7 +366,9 @@ refreshes the figure.
 
 **What is the `.pubfig-figma.json` file?**  
 It is the exact Figma handoff bundle for one figure. Keep it around for manual
-import, refresh, debugging, or recovery.
+import, refresh, debugging, or recovery. `pubfig` only accepts trusted,
+locally generated, static panel SVG assets here; the bundle path is not meant
+to be a general importer for arbitrary third-party SVG files.
 
 **How do I do manual fallback?**  
 If bridge refresh stalls, load the latest written `.pubfig-figma.json` bundle in
@@ -553,8 +556,11 @@ pip install -e .[dev]
 
 ### Run Tests
 
+The public repository ships a small canonical `tests/` suite for CLI, export,
+SVG/bundle validation, and plot smoke coverage.
+
 ```bash
-pytest
+pytest -q tests
 ```
 
 ### Lint

@@ -30,7 +30,5 @@ examples/__pycache__/
 
 # Local tooling
 .claude/
-# Local planning and tests
+# Local planning
 plan/
-tests/
-test/

@@ -7,6 +7,8 @@ import json
 from pathlib import Path
 import re
 from typing import Any, Sequence
+from urllib.parse import urlparse
+from xml.etree import ElementTree as ET
 
 from .._version import __version__
 
@@ -18,7 +20,6 @@ _VALID_LAYOUT_PRESETS = {"auto", "grid", "row", "column", "two_by_two", "hero_le
 _VALID_LEGEND_POSITIONS = {"right", "bottom"}
 _VALID_LABEL_ALIGN_X = {"panel", "column"}
 _VALID_LABEL_ALIGN_Y = {"panel", "row"}
-_SVG_OPEN_TAG = "<svg"
 _FIGURE_ID_PATTERN = re.compile(r"[^A-Za-z0-9._-]+")
 
 
@@ -45,10 +46,54 @@ def _resolve_panel_dir(path: str | Path) -> Path:
     return panel_dir
 
 
+def _xml_local_name(value: str) -> str:
+    return value.rsplit("}", 1)[-1] if "}" in value else value
+
+
+def _format_svg_validation_error(message: str, *, source: Path | None = None) -> ValueError:
+    detail = f" in {source}" if source is not None else ""
+    return ValueError(f"{message}{detail}")
+
+
+def _is_allowed_svg_href(value: str) -> bool:
+    href = str(value).strip()
+    if not href:
+        return True
+    if href.startswith("#"):
+        return True
+    if href.startswith("//"):
+        return False
+    parsed = urlparse(href)
+    if parsed.scheme:
+        return False
+    return False
+
+
 def _validate_svg_text(svg_text: str, *, source: Path | None = None) -> None:
-    if _SVG_OPEN_TAG not in svg_text:
-        detail = f": {source}" if source is not None else ""
-        raise ValueError(f"Expected inline SVG content{detail}")
+    if not str(svg_text).strip():
+        raise _format_svg_validation_error("Expected inline SVG content", source=source)
+
+    try:
+        root = ET.fromstring(svg_text)
+    except ET.ParseError as exc:
+        raise _format_svg_validation_error(f"Invalid SVG XML: {exc}", source=source) from exc
+
+    if _xml_local_name(str(root.tag)).lower() != "svg":
+        raise _format_svg_validation_error("Expected inline SVG content", source=source)
+
+    for element in root.iter():
+        tag_name = _xml_local_name(str(element.tag)).lower()
+        if tag_name == "script":
+            raise _format_svg_validation_error("Unsafe SVG content: script tag", source=source)
+        if tag_name == "foreignobject":
+            raise _format_svg_validation_error("Unsafe SVG content: foreignObject", source=source)
+
+        for attr_name, attr_value in element.attrib.items():
+            local_attr_name = _xml_local_name(str(attr_name)).lower()
+            if local_attr_name.startswith("on"):
+                raise _format_svg_validation_error("Unsafe SVG content: event attribute", source=source)
+            if local_attr_name == "href" and not _is_allowed_svg_href(str(attr_value)):
+                raise _format_svg_validation_error("Unsafe SVG content: external href", source=source)
 
 
 def _validate_panel_index_payload(payload: dict[str, Any], panel_dir: Path) -> list[dict[str, Any]]:
@@ -126,6 +171,8 @@ def _load_panel_bundle_payload(payload: dict[str, Any], *, source_path: Path) ->
             raise ValueError("Each bundle panel must include panel_id")
         _validate_svg_text(str(panel.get("svg", "")))
     return payload
+
+
 def _load_bundle_payload(bundle_path: str | Path) -> dict[str, Any]:
     path = Path(bundle_path).expanduser().resolve()
     if not path.exists():
